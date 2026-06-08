@@ -1,0 +1,30 @@
+# Node
+node_modules
+dist
+build
+.next
+
+# Python
+__pycache__/
+*.pyc
+venv/
+.env
+
+# Database
+*.db
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Alembic cache
+alembic/__pycache__/
+
+# Uploads
+uploads/

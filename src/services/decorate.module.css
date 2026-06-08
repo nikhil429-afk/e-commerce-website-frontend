@@ -1,0 +1,318 @@
+.card {
+  background: #161a1e;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 18px;
+}
+
+.cardTitle {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0 0 2px 0;
+}
+
+.cardSub {
+  font-size: 10.5px;
+  color: #475569;
+  margin: 0 0 16px 0;
+}
+
+.chartWrap {
+  width: 100%;
+  height: 180px;
+  margin-top: 12px;
+}
+
+.chartEmpty {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #475569;
+  font-size: 13px;
+}
+
+.barFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.barTotal {
+  font-size: 26px;
+  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  color: #00c9b1;
+  line-height: 1;
+}
+
+.barTotalLabel {
+  font-size: 10px;
+  color: #475569;
+  margin-top: 3px;
+}
+
+.barGrowth {
+  font-size: 11px;
+  font-weight: 600;
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.uploadBtn {
+  margin-top: 16px;
+  width: 100%;
+  padding: 12px 0;
+  background: linear-gradient(135deg, #6366f1 0%, #0ea5e9 100%);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 18px rgba(99, 102, 241, 0.35);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.uploadModalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(10, 13, 20, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease;
+}
+
+.uploadModalBox {
+  width: 480px;
+  max-width: calc(100vw - 32px);
+  background: linear-gradient(160deg, #1a1f2e 0%, #141720 100%);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(99, 102, 241, 0.12);
+  padding: 28px 28px 24px;
+  position: relative;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.uploadModalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.uploadModalTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.uploadModalSub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.modalCloseBtn {
+  background: rgba(255, 255, 255, 0.06);
+  border: none;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.dropZone {
+  border: 2px dashed;
+  border-radius: 14px;
+  padding: 32px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.fileEmoji {
+  font-size: 32px;
+  margin-bottom: 8px;
+}
+
+.fileName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.fileSize {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 4px;
+}
+
+.fileReady {
+  font-size: 12px;
+  color: #10b981;
+  margin-top: 6px;
+}
+
+.dropIconWrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(14,165,233,0.2));
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dropTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.dropSub {
+  font-size: 12px;
+  color: #475569;
+  margin-top: 4px;
+}
+
+.dropBrowse {
+  color: #818cf8;
+}
+
+.dropHint {
+  font-size: 11px;
+  color: #334155;
+  margin-top: 10px;
+}
+
+.progressWrap {
+  margin-top: 16px;
+}
+
+.progressHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.progressLabel {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.progressPct {
+  font-size: 12px;
+  color: #818cf8;
+  font-weight: 600;
+}
+
+.progressTrack {
+  height: 6px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.07);
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #6366f1, #0ea5e9);
+  transition: width 0.2s ease;
+}
+
+.uploadSuccess {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  color: #34d399;
+  font-size: 13px;
+}
+
+.uploadError {
+  margin-top: 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  font-size: 13px;
+}
+
+.uploadModalFooter {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.uploadSubmit {
+  flex: 1;
+  padding: 11px 0;
+  background: linear-gradient(135deg, #6366f1, #0ea5e9);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.uploadSubmitDisabled {
+  flex: 1;
+  padding: 11px 0;
+  background: rgba(99, 102, 241, 0.25);
+  border: none;
+  border-radius: 10px;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: not-allowed;
+}
+
+.doneBtnGreen {
+  flex: 1;
+  padding: 11px 0;
+  background: linear-gradient(135deg, #10b981, #059669);
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.uploadCancelBtn {
+  padding: 11px 18px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: #94a3b8;
+  font-size: 14px;
+  cursor: pointer;
+}
