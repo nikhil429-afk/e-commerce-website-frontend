@@ -414,6 +414,7 @@ function Owner() {
                 <span className={styles.profileMenuName}>{owner?.username ?? "Owner"}</span>
                 <span className={styles.profileMenuRole}>Owner · Administrator</span>
               </div>
+              <button className={styles.logoutBtn} onClick={() => { setProfileOpen(false); setShowLogoutModal(true);}}>Log Out</button>
             </div>
           )}
           <button className={`${styles.profileBtn} ${profileOpen ? styles.profileBtnActive : ""}`}
@@ -1035,8 +1036,10 @@ function Owner() {
       {showLogoutModal && (
         <div className={styles.modalOverlay} onClick={() => setShowLogoutModal(false)}>
           <div className={styles.modalBox} onClick={e => e.stopPropagation()}>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: '1rem', marginBottom: 8 }}>Sign Out?</p>
-            <p style={{ fontSize: '0.82rem', opacity: 0.7, marginBottom: 0 }}>{owner?.username}</p>
+            <center>
+              <p style={{ fontFamily: 'var(--font-body)', fontSize: '1rem', marginBottom: 8 }}>Log Out?</p>
+              <p style={{ fontSize: '0.82rem', opacity: 0.7, marginBottom: 0 }}>{owner?.username}</p>
+            </center> <br />
             <div className={styles.modalActions}>
               <button className={styles.cancelBtn} onClick={() => setShowLogoutModal(false)}>No, Cancel</button>
               <button className={styles.confirmBtn} onClick={confirmLogout}>Yes, Sign Out</button>

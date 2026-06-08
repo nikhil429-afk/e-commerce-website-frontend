@@ -1109,7 +1109,7 @@
 .modalOverlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0.5, 0.5, 0.5, 0.75);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -1289,12 +1289,28 @@ select.input option {
 .btnSecondary:hover { background: rgba(255, 255, 255, 0.07); color: var(--text); border-color: var(--border-hover); transform: translateY(-1px); }
 .btnSecondary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
+.logoutBtn {
+  width: 100%;
+  margin-top: 10px;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  background: rgba(242, 54, 54, 0.497);
+  border-color: rgba(239, 68, 68, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.2);
+}
+
 .logoutModalIcon {
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  background: rgba(239, 68, 68, 0.10);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(239, 68, 68, 0.412);
+  border: 1px solid rgba(239, 68, 68, 0.542);
   color: #f87171;
   display: flex;
   align-items: center;
@@ -1327,7 +1343,7 @@ select.input option {
   flex: 1;
   padding: 10px 16px;
   border-radius: var(--radius);
-  background: rgba(46, 48, 46, 0.192);
+  background: rgba(66, 100, 66, 0.267);
   color: var(--text-muted);
   border: 1px solid var(--border);
   font-size: 12.5px;
@@ -1336,5 +1352,5 @@ select.input option {
   cursor: pointer;
   transition: background var(--transition), color var(--transition), transform var(--transition);
 }
-.cancelBtn:hover { background: rgba(0, 231, 224, 0.10); color: var(--text); transform: translateY(-1px); }
+.cancelBtn:hover { background: rgba(0, 147, 163, 0.389); color: var(--text); transform: translateY(-1px); }
 .cancelBtn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
