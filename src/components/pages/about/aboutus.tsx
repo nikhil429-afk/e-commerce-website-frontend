@@ -1,14 +1,15 @@
 import React from "react";
 import styles from "./aboutus.module.css";
 import { Link, useNavigate } from "react-router-dom";
+import { RightArrowIcon } from "../../../assets/Extra/svg"
 
 function Aboutus() {
   const navigate = useNavigate();
 
   const stats = [
     { num: "15", suffix: "+", label: "Years of Craft" },
-    { num: "500", suffix: "+", label: "Unique Designs" },
-    { num: "12k", suffix: "+", label: "Happy Homes" },
+    { num: "200", suffix: "+", label: "Unique Designs" },
+    { num: "25k", suffix: "+", label: "Happy Homes" },
     { num: "10", suffix: " yr", label: "Warranty" },
   ];
 
@@ -33,7 +34,7 @@ function Aboutus() {
           <div className={styles.heroRingLeft} />
         </div>
 
-        <div className={styles.heroPill}>✦ Est. 2010 · Chandigarh, India</div>
+        <div className={styles.heroPill}>✦ Est. 2015 · Palampur, Himachal Pradesh, India</div>
         <h1 className={styles.heroTitle}>
           Crafting Spaces,
           <br />
@@ -80,7 +81,7 @@ function Aboutus() {
           <h2 className={styles.sectionTitle}>From a Workshop<br />to <em>Your Home</em></h2>
           <div className={styles.sectionLine} />
           <p className={styles.storyText}>
-            Furniture·Co was founded in 2010 by Rajan Mehra, a third-generation woodworker who wanted to bridge the gap between heirloom craftsmanship and modern living. What began as a small workshop in Chandigarh's industrial quarter has grown into one of India's most trusted home furnishing brands.
+            Furniture·Co was founded in 2015 by Dhiman Furniture, a First-generation woodworker who wanted to bridge the gap between heirloom craftsmanship and modern living. What began as a small workshop in Palampur's industrial quarter has grown into one of India's most trusted home furnishing Brands.
           </p>
           <p className={styles.storyText}>
             Every piece we make begins with a conversation — about how you live, what you love, and the moments you want to create. We believe furniture is never just furniture. It's where families gather, where ideas are born, and where memories are made.
@@ -89,7 +90,7 @@ function Aboutus() {
             <p className={styles.storyQuoteText}>
               "A beautiful chair doesn't just fill a corner. It holds conversations, cradles rest, and witnesses a lifetime."
             </p>
-            <p className={styles.storyQuoteAuthor}>— Rajan Mehra, Founder</p>
+            <p className={styles.storyQuoteAuthor}>— Dhiman Furniture, Founder</p>
           </div>
         </div>
       </section>
@@ -122,8 +123,7 @@ function Aboutus() {
         </p>
         <div className={styles.ctaBtns}>
           <button className={styles.ctaBtnPrimary} onClick={() => navigate("/products")}>
-            Shop the Collection
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+            Shop the Collection <RightArrowIcon />
           </button>
           <button className={styles.ctaBtnGhost} onClick={() => navigate("/contact")}>Get in Touch</button>
         </div>

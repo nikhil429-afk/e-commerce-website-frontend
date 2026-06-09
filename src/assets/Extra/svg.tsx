@@ -122,3 +122,38 @@ export const CrossIcon = () => (
     <path d="M18 6L6 18M6 6l12 12" />
   </svg>
 );
+
+
+export const EmptyWishlistIcon = () => (
+  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" />
+  </svg>
+);
+
+export const EmptyCartIcon = () => (
+  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2">
+    <path d="M1 1h4l2.68 13.39a2 2 0 001.98 1.61h9.72a2 2 0 001.98-1.61L23 6H6" />
+  </svg>
+);
+
+
+export const LoadingSpinner = () => (
+  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#c8855a" strokeWidth="2" style={{ animation: 'spin 1s linear infinite' }}>
+    <path d="M21 12a9 9 0 11-6.22-8.56" />
+  </svg>
+);
+
+
+export const RightArrowIcon = () => (
+<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <path d="M5 12h14M12 5l7 7-7 7" />
+</svg>
+);
+
+
+export const SendMessageArrowPlane = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+  </svg>
+
+);

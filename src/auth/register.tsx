@@ -28,18 +28,24 @@ function Register(){
         conf_pwd: "",
     })
 
-    const [ error, setError ] = useState<ErrorData>({});
     const [ message, setMessage ] = useState("");
     const [ showPwd, setShowPwd ] = useState(false);
-    const [ showConfPwd, setShowConfPwd ] = useState(false);
     const [ exiting, setExiting ] = useState(false);
+    const [ error, setError ] = useState<ErrorData>({});
+    const [ showConfPwd, setShowConfPwd ] = useState(false);
+    const [ toast, setToast ] = useState<{ msg: string; ok: boolean } | null>(null);
+
+    const showToastMsg = (msg: string) => {
+        setToast({ msg, ok: true });
+        setTimeout(() => setToast(null), 4000);
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({
             ...form,
             [e.target.name]: e.target.value
         })
-    }
+    };
 
     const navigate = useNavigate();
 
@@ -80,11 +86,13 @@ function Register(){
                     setError({ general: data.detail || "Registration Failed" });
                 }
                 setMessage("");
+                showToastMsg("Registration Failed. Please Try Again.");
                 return;
             } else {
                 setMessage(data.message);
                 setError({});
                 setForm({ username: "", email: "", pwd: "", conf_pwd: "" });
+                showToastMsg("Registration Successful!");
             }
         } catch (error) {
             console.error("Registration Failed:", error);
@@ -153,6 +161,11 @@ function Register(){
 
                     <button type="submit" className={styles.button}>Create Account</button>
 
+                    {toast && (
+                        <div className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}>
+                            {toast.msg}
+                        </div>
+                    )}
                     {message && <p className={styles.successMessage}>{message}</p>}
                     {error.general && <p className={styles.errorMessage}>{error.general}</p>}
 
@@ -167,6 +180,7 @@ function Register(){
             </div>
         </div>
     )
-}
+};
+
 
 export default Register;

@@ -63,16 +63,16 @@ export const checkoutItem = async (itemId: number) => {
     method: "POST",
     headers: authHeaders(),
   });
-  return res.json();
+  return res;
 };
 
 
 export const checkoutCart = async () => {
-  const response = await fetch(`${BASE_URL}/orders/checkout`, {
+  const res = await fetch(`${BASE_URL}/orders/checkout`, {
       method: "POST",
       headers: authHeaders(),
   });
-  return response;
+  return res;
 };
 
 

@@ -5,12 +5,18 @@ import { useLogin } from "../api/auth";
 import { EyeIcon, EyeOffIcon} from "../assets/Extra/svg";
 
 function Login() {
+
   const navigate = useNavigate();
-
-  const { form, error, message, loading, handleChange, handleSubmit } = useLogin();
-
+  
   const [showPwd, setShowPwd] = useState(false);
   const [exiting, setExiting] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+  const { form, error, message, loading, handleChange, handleSubmit } = useLogin();
+
+  const showToastMsg = (msg: string) => {
+    setToast({ msg, ok: true });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   const handleNavigation = () => {
     setExiting(true);
@@ -57,7 +63,11 @@ function Login() {
           <button type="submit" className={styles.button} disabled={loading}>
             {loading ? "Logging in..." : "Log In →"}
           </button>
-
+          {toast && (
+            <div className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}>
+              {toast.msg}
+            </div>
+          )}
           {message && <p className={styles.successMessage}>{message}</p>}
           {error.general && <p className={styles.errorMessage}>{error.general}</p>}
 

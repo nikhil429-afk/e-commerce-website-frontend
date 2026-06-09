@@ -3,7 +3,7 @@ import styles from "./contact.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import { sendContact } from "../../../api/contactus";
 import { getToken } from "../../../utils/tokenUtils";
-import { HomeIcon, CallIcon, MailIcon } from "../../../assets/Extra/svg";
+import { HomeIcon, CallIcon, MailIcon, SendMessageArrowPlane, TickMark } from "../../../assets/Extra/svg";
 
 
 function Contact() {
@@ -11,27 +11,33 @@ function Contact() {
   const token = getToken()
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({ name: "", email: "", subject: "", phone: "", message: "", appointment_date: "",});
   const [submitted, setSubmitted] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+  const [form, setForm] = useState({ name: "", email: "", subject: "", phone: "", message: "", appointment_date: "",});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const showToast = (msg: string, ok = true) => {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 4000);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!token) { alert("Please Login First!");
+    if (!token) { showToast("Please Login First!", false);
       return;
     }
     try {
-      if (form.name.trim().length < 3) { alert("Name is too Short!"); return; }
+      if (form.name.trim().length < 3) { showToast("Name is too Short!", false); return; }
 
-      if (!form.email.includes("@")) { alert("Invalid Email!"); return; }
+      if (!form.email.includes("@")) { showToast("Invalid Email!", false); return; }
       
       const cleanPhone = form.phone.replace(/\D/g, "");
-      if (cleanPhone.length < 10) { alert("Invalid Phone Number!"); return; }
+      if (cleanPhone.length < 10) { showToast("Invalid Phone Number!", false); return; }
 
-      if (form.message.trim().length < 10) { alert("Message too Short!"); return; }
+      if (form.message.trim().length < 10) { showToast("Message too Short!", false); return; }
 
       await sendContact(form);
       setSubmitted(true);
@@ -39,7 +45,7 @@ function Contact() {
       setForm({ name: "", email: "", subject: "", phone: "", message: "", appointment_date: "", });
     } catch (err) {
       console.error(err);
-      alert("Failed to send message");
+      showToast("Failed to Send Message", false);
     }
   };
 
@@ -54,7 +60,7 @@ function Contact() {
 
   const contactInfo = [
     {
-      icon: (<HomeIcon />), label: "Showroom Address", value: "42 Walnut Lane, Design District", note: "Chandigarh, Punjab 160001, India",
+      icon: (<HomeIcon />), label: "Showroom Address", value: "Palampur", note: "Himachal Pradesh, India",
     },
     {
       icon: (<CallIcon />), label: "Phone Number", value: "+91 98765 43210 , +91 9876543211", note: "Mon–Sat, 10am – 7pm",
@@ -166,11 +172,9 @@ function Contact() {
 
               <button type="submit" className={`${styles.submitBtn} ${submitted ? styles.submitBtnSuccess : ""}`} >
                 {submitted ? ( <>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6L9 17l-5-5" /></svg>
-                    Message Sent!
+                  <TickMark /> Message Sent!
                   </>
-                ) : ( <> Send Message
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
+                ) : ( <> Send Message <SendMessageArrowPlane />
                 </>
                 )}
               </button>
@@ -178,6 +182,12 @@ function Contact() {
           </div>
         </div>
       </main>
+
+      {toast && (
+        <div className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}>
+          {toast.msg}
+        </div>
+      )}
 
       <div className={styles.bottomBand}>
         <div className={styles.bandItem}>
@@ -215,7 +225,6 @@ function Contact() {
           </p>
         </div>
       </div>
-
       <footer className={styles.footer}>
         <Link to="/" className={styles.footerLogo}>
           Furniture<span>·</span>Co.

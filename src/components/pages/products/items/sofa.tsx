@@ -20,7 +20,6 @@ interface Sofa {
   in_stock: boolean;
 };
 
-
 function Sofas() {
 
   const token = getToken();
@@ -37,6 +36,7 @@ function Sofas() {
   const [loading, setLoading] = useState<boolean>(true);
   const [, setWishlist] = useState<number[]>([]);
   const [addedToCart, setAddedToCart] = useState<number | null>(null);
+  const [toast, setToast] = useState<{msg: string, ok: boolean} | null>(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -52,6 +52,11 @@ function Sofas() {
     fetchProducts();
   }, []);
 
+  const showToast = (msg: string, ok: boolean) => {
+    setToast({msg, ok});
+    setTimeout(() => setToast(null), 4000);
+  }
+
   const nextImage = (productId: number, total: number) => {
     setCurrentIndexes((prev) => ({ ...prev,
       [productId]: ((prev[productId] || 0) + 1) % total,
@@ -65,7 +70,7 @@ function Sofas() {
   };
 
   const quickView = (productId: number, e: React.MouseEvent<HTMLButtonElement>) => {
-    if(!token){ alert("Please Login First!");
+    if(!token){ showToast("Please Login First!", false);
       return;
     }
     const product = products.find((p) => p.id === productId);
@@ -89,18 +94,18 @@ function Sofas() {
 
   const handleAddToWishlist = async (productId: number) => {
     try {
-      if (!token) { alert("Please Login First!")
+      if (!token) { showToast("Please Login First!", false);
         if (localStorage.getItem("auth_token")) { setShowTokenExpired(true); } return;
       }
       const res = await addToWishlist(productId);
-      if (!res.ok) { alert("Failed to Add this Item to Wishlist"); return; }
+      if (!res.ok) { showToast("Failed to Add this Item to Wishlist", false); return; }
       setWishlist(prev => [...prev, productId]);
       setWished(prev => {
         const next = new Set(prev);
         next.has(productId) ? next.delete(productId) : next.add(productId);
         return next;
       });
-      alert("Item Added to Wishlist Successfully!");
+      showToast("Item Added to Wishlist Successfully!", true);
     } catch (error) {
       console.error(error);
     }
@@ -108,20 +113,20 @@ function Sofas() {
 
   const handleAddToCart = async (product: Sofa) => {
     try {
-      if (!token) { alert("Please Login First!")
+      if (!token) { showToast("Please Login First!", false);
         if (localStorage.getItem("auth_token")) { setShowTokenExpired(true); } return;
       }
       const res = await addToCart(product);
       const data = await res.json();
       if (!res.ok) {
         console.error(data);
-        alert("Failed to add to cart");
+        showToast("Failed to add to cart", false);
         return;
       }
     setAddedToCart(product.id);
-    setTimeout(() => setAddedToCart(null), 3000);
+    setTimeout(() => setAddedToCart(null), 5000);
     } catch (err) {
-      console.error(err);
+      showToast("An error occurred while adding to cart", false);
     }
   };
 
@@ -183,6 +188,11 @@ function Sofas() {
             </div>
           </div>
         ))}
+        {toast && (
+          <div className={`${styles.toast} ${toast.ok ? styles.toastSuccess : styles.toastError}`}>
+            {toast.msg}
+          </div>
+        )}
         {showQuickView && selectedProduct && (
           <div className={styles.quickViewModal} onClick={closeQuickView}>
             <div className={`${styles.quickViewContent} ${closingModal ? styles.quickViewContentClosing : ""}`}

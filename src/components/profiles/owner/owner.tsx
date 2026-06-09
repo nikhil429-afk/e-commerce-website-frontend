@@ -79,6 +79,7 @@ const F = ({ label, children }: FieldProps) => (
 
 const BLANK_PROD = { name: "", images: [] as File[], category: "", price: 0, oldPrice: 0, rating: 0, tag: "", description: "", in_stock: true };
 const BLANK_USER = { username: "", email: "", password: "", role: "user" };
+const STATUS_CYCLE: Record<string, string> = { pending: "shipped", shipped: "delivered", delivered: "pending" };
 
 const NAV_ITEMS: { id: Tab; icon: string; label: string }[] = [
   { id: "stats", icon: "📊", label: "Statistics" },
@@ -111,7 +112,7 @@ function Owner() {
   const [usersData, setUsersData] = useState<UserChart[]>([]);
   const [users, setUsers] = useState<User[]>([]);
 
-  const [visitorData, setVisitorData] = useState<{ label: string; value: number }[]>([]);
+  const [visitorData, ] = useState<{ label: string; value: number }[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -136,7 +137,7 @@ function Owner() {
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
-    setTimeout(() => setToast(null), 3000);
+    setTimeout(() => setToast(null), 4000);
   };
 
   useEffect(() => {
@@ -338,11 +339,11 @@ function Owner() {
   };
 
   const handleShipped = async (o: Order) => {
-    const next = o.status === "pending" ? "shipped" : "pending";
+    const next = STATUS_CYCLE[o.status] ?? "pending";
     setOrders(prev => prev.map(x => x.id === o.id ? { ...x, status: next } : x));
     try {
-      await shipOrder(o.id);
-      showToast(`Order marked as ${ next === "shipped" ? "Shipped" : "Pending"}`);
+      await shipOrder(o.id, next);
+      showToast(`Order #${o.id} marked as ${next}`);
     } catch (e: any) {
       setOrders(prev => prev.map(x => x.id === o.id ? { ...x, status: o.status } : x));
       showToast(e.message ?? "Failed to update order status", false);
@@ -697,12 +698,15 @@ function Owner() {
                           <td className={styles.categoryText}>{o?.category}</td>
                           <td className={styles.categoryText}>{o?.quantity}</td>
                           <td className={styles.priceNew}>{o?.price*o?.quantity}</td>
-                          <td>{o?.status === "shipped" ? <span className={styles.orderStatusDelivered}>✓ Shipped</span>
-                              : <span className={styles.orderStatusPending}>⏳ Pending</span>}
+                          <td>
+                            {o.status === "pending" && <span className={styles.orderStatusPending}>⏳ Pending</span>}
+                            {o.status === "shipped" && <span className={styles.orderStatusDelivered}>✓ Shipped</span>}
+                            {o.status === "delivered" && <span className={styles.orderStatusDelivered}>  Delivered</span>}
+                            {o.status === "cancelled" && <span className={styles.orderStatusPending}>✕ Cancelled</span>}
                           </td>
                           <td>
                             <div className={styles.actions}>
-                              <button className={styles.editBtn} onClick={() => handleShipped(o)}>Change Status</button>
+                              <button className={styles.editBtn} onClick={() => handleShipped(o)}>change Status</button>
                             </div>
                           </td>
                         </tr>
@@ -811,13 +815,11 @@ function Owner() {
           </div>
         )}
       </main>
-
       {toast && (
         <div className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}>
           {toast.msg}
         </div>
       )}
-
       {modal === "editUser" && selUser && (
         <div className={styles.modalOverlay} onClick={close}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
