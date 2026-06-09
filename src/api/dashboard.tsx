@@ -23,3 +23,16 @@ export const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
   });
   return res.json();
 };
+
+
+export const getAddToCart = async (productId: number, token: string) => {
+  const res = await fetch(`${BASE_URL}/cart/${productId}`, {
+    method: 'PUT',
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return res.json();
+};
+

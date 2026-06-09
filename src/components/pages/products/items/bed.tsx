@@ -38,6 +38,7 @@ function Beds() {
   const [loading, setLoading] = useState<boolean>(true);
   const [, setWishlist] = useState<number[]>([]);
   const [addedToCart, setAddedToCart] = useState<number | null>(null);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -54,6 +55,11 @@ function Beds() {
     fetchProducts();
   }, []);
 
+  const showToast = (msg: string, ok = true) => {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 4000);
+  };
+
   const nextImage = (productId: number, total: number) => {
     setCurrentIndexes((prev) => ({ ...prev,
       [productId]: ((prev[productId] || 0) + 1) % total,
@@ -67,7 +73,7 @@ function Beds() {
   };
 
   const quickView = (productId: number, e: React.MouseEvent<HTMLButtonElement>) => {
-    if(!token){ alert("Please Login First!");
+    if(!token){ showToast("Please Login First!", false);
       return;
     }
       const product = products.find((p) => p.id === productId);
@@ -92,18 +98,18 @@ function Beds() {
 
   const handleAddToWishList = async (product: Bed) => {
     try {
-      if (!token) { alert("Please Login First!")
+      if (!token) { showToast("Please Login First!", false);
         if (localStorage.getItem("auth_token")) { setShowTokenExpired(true); } return;
       }
       const res = await addToWishlist(product.id);
-      if (!res.ok) { alert("Failed to Add this Item to Wishlist"); return; }
+      if (!res.ok) { showToast("Failed to Add this Item to Wishlist", false); return; }
       setWishlist(prev => [...prev, product.id]);
       setWished(prev => {
         const next = new Set(prev);
         next.has(product.id) ? next.delete(product.id) : next.add(product.id);
         return next;
       });
-      alert("Item Added to Wishlist Successfully!");
+      showToast("Item Added to Wishlist Successfully!", true);
     } catch (error) {
       console.error(error);
     }
@@ -112,18 +118,19 @@ function Beds() {
   
   const handleAddToCart = async (product: Bed) => {
     try {
-      if (!token) { alert("Please Login First!")
+      if (!token) { showToast("Please Login First!", false);
         if (localStorage.getItem("auth_token")) { setShowTokenExpired(true); } return;
       }
       const res = await addToCart(product);
       const data = await res.json();
       if (!res.ok) {
         console.error(data);
-        alert("Failed to add to cart");
+        showToast("Failed to add to cart", false);
         return;
       }
     } catch (err) {
       console.error(err);
+      showToast("An error occurred while adding to cart", false);
     }
   };
 
@@ -192,7 +199,11 @@ function Beds() {
             </div>
           </div>
         ))}
-        
+        {toast && (
+        <div className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}>
+          {toast.msg}
+        </div>
+      )}
         {showQuickView && selectedProduct && (
           <div className={styles.quickViewModal} onClick={closeQuickView}>
             <div className={`${styles.quickViewContent} ${closingModal ? styles.quickViewContentClosing : ""}`}

@@ -87,10 +87,11 @@ export const getOrders = async () => {
 };
 
 
-export const shipOrder = async (orderId: number) => {
+export const shipOrder = async (orderId: number, status: string) => {
   const res = await fetch(`${BASE_URL}/owner/orders/${orderId}`, {
     method: "PATCH",
     headers: authHeaders(),
+    body: JSON.stringify({ status })
   });
   return res.json();
 };

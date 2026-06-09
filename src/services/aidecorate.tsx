@@ -9,7 +9,7 @@ function Decorate() {
     
     const [search, setSearch] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string>("");
+    const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
 
     const [showUploadModal, setShowUploadModal] = useState(false);
     const [dragOver, setDragOver] = useState(false);
@@ -22,6 +22,11 @@ function Decorate() {
     useEffect(() => {
 
     }, []);
+
+    const showToast = (msg: string, ok = true) => {
+        setToast({ msg, ok });
+        setTimeout(() => setToast(null), 4000);
+    };
 
     const openUploadModal = () => { setUploadFile(null); setUploadProgress(0); setUploadStatus("idle"); setShowUploadModal(true); };
     const closeUploadModal = () => { setShowUploadModal(false); setUploadFile(null); setUploadProgress(0); setUploadStatus("idle"); };
@@ -136,6 +141,13 @@ function Decorate() {
             </div>
           </div>
         )}
+
+        {toast && (
+          <div className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}>
+            {toast.msg}
+          </div>
+        )}
+        
         <div className={styles.Container}>
             {loading ? <p className={styles.loading}>Loading Image...</p> : (
                 <div>

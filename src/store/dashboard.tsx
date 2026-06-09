@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { CartIcon, LazyLoading, LeftArrow, RightArrow, SearchIcon, StarIcon, WishlistIcon } from '../assets/Extra/svg';
 import { fetchProducts, fetchWithAuth } from '../api/dashboard';
 import { getTokenPayload, clearToken } from '../utils/tokenUtils';
@@ -54,6 +54,10 @@ function Dashboard() {
   const [modalOrigin, setModalOrigin] = useState({ x: 0, y: 0 });
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [toast, setToast] = useState<{msg: string, ok: boolean} | null>(null);
+
+  const productsRef = useRef<HTMLElement | null>(null);
+
 
   useEffect(() => {
     fetchProducts()
@@ -68,6 +72,21 @@ function Dashboard() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  const handleSearch = (value: string) => {
+    setSearch(value);
+    if (value.trim()) {
+      productsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
+
+  const showToast = (msg: string, ok = true) => {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 4000);
+  };
+
   const nextImage = (productId: number, total: number) => {
     setCurrentIndexes((prev) => ({ ...prev,
       [productId]: ((prev[productId] || 0) + 1) % total,
@@ -81,9 +100,7 @@ function Dashboard() {
   };
 
   const openQuickView = (product: Products, e: React.MouseEvent<HTMLButtonElement>) => {
-    if (!user) { alert("Please Login First!");
-      return;
-    }
+    if (!user) { showToast("Please Login First!", false); return; }
     const rect = e.currentTarget.getBoundingClientRect();
     setSelectedProduct(product);
     setModalOrigin({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 });
@@ -98,32 +115,42 @@ function Dashboard() {
   };
 
   const detailView = () => {
-    if (!user) { alert ("Please Login First!");
+    if (!user) { showToast("Please Login First!", false);
       return;
     }
     navigate("/products") 
   };
 
   const handleAddToCart = async (productId: number) => {
-    if (!user) { alert("Please Login First!"); navigate('/login'); return; }
+    if (!user) { showToast("Please Login First!", false);
+      return;
+    }
     try {
       await fetchWithAuth(`/cart/${productId}`, { method: 'PUT' });
       setAddedToCart(productId);
+      showToast("Product Added to Cart!");
       setTimeout(() => setAddedToCart(null), 1800);
-    } catch (err) { console.error(err); }
+    } catch (err) { console.error(err);
+      showToast("Failed to Add to Cart", false);
+     }
   };
 
   const toggleWishlist = async (productId: number) => {
-    if (!user) { alert("Please Login First!"); return; }
+    if (!user) { showToast("Please Login First!", false);
+      return;
+    }
     try {
       if (wished.has(productId)) {
         await fetchWithAuth(`/wishlist/${productId}`, { method: 'DELETE' });
+        showToast("Product Removed from Wishlist!");
         setWished(prev => { const s = new Set(prev); s.delete(productId); return s; });
       } else {
-        await fetchWithAuth(`/wishlist/${productId}`, { method: 'POST' });
+        await fetchWithAuth(`/wishlist/${productId}`, { method: 'PUT' });
+        showToast("Product Added to Wishlist!");
         setWished(prev => new Set(prev).add(productId));
       }
-    } catch (err) { console.error(err); }
+    } catch (err) { console.error(err);
+      showToast("Failed to Update Wishlist", false); }
   };
 
   const confirmLogout = () => { clearToken(); setShowLogoutModal(false); navigate('/login'); };
@@ -149,7 +176,7 @@ function Dashboard() {
 
         <div className={styles.searchWrap}>
           <span className={styles.searchIcon}> <SearchIcon /> </span>
-          <input className={styles.search} placeholder="Search pieces…" value={search} onChange={e => setSearch(e.target.value)} />
+          <input className={styles.search} placeholder="Search pieces…" value={search} onChange={(e) => handleSearch(e.target.value)}/>
         </div>
 
         <div className={styles.navActions}>
@@ -232,7 +259,7 @@ function Dashboard() {
         </div>
       </section>
 
-      <section className={styles.products}>
+      <section className={styles.products} ref={productsRef}>
         <div className={styles.sectionHead}>
           <p className={styles.sectionEyebrow}>Handpicked For You</p>
           <h2>Featured Pieces</h2>
@@ -247,7 +274,7 @@ function Dashboard() {
           </div>
         ) : filteredProducts.length === 0 ? (
           <div className={styles.noResults}>
-            {search ? `No results for "${search}"` : 'No products available right now.'}
+            {search ? `No Results for "${search}"` : 'No Products Available Right Now.'}
           </div>
         ) : ( 
           <div className={styles.productGrid}>
@@ -307,6 +334,12 @@ function Dashboard() {
           </div>
         )}
 
+        {toast && (
+          <div className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}>
+            {toast.msg}
+          </div>
+        )}
+        
         {showQuickView && selectedProduct && (
         <div className={styles.quickViewModal} onClick={closeQuickView}>
           <div onClick={e => e.stopPropagation()}
@@ -364,6 +397,7 @@ function Dashboard() {
           </div>
         </div>
       )}
+
         <div className={styles.productsFooter}>
           <button className={styles.viewAllBtn} onClick={() => navigate('/products')}>
             <span>View Full Collection</span>

@@ -36,12 +36,12 @@ function Tables() {
   const [loading, setLoading] = useState<boolean>(true);
   const [, setWishlist] = useState<number[]>([]);
   const [addedToCart, setAddedToCart] = useState<number | null>(null);
+  const [toast, setToast] = useState<{msg: string, ok: boolean} | null>(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const data = await getTables();
-        
         setProducts(data);
       } catch (err) {
         console.error("Error fetching products:", err);
@@ -51,6 +51,11 @@ function Tables() {
     };
     fetchProducts();
   }, []);
+
+  const showToast = (msg: string, ok: boolean) => {
+    setToast({msg, ok});
+    setTimeout(() => setToast(null), 4000);
+  }
 
   const nextImage = (productId: number, total: number) => {
     setCurrentIndexes((prev) => ({ ...prev,
@@ -65,7 +70,7 @@ function Tables() {
   };
 
   const quickView = (productId: number, e: React.MouseEvent<HTMLButtonElement>) => {
-    if(!token){ alert("Please Login First!");
+    if(!token){ showToast("Please Login First!", false);
       return;
     }
     const product = products.find((p) => p.id === productId);
@@ -89,18 +94,18 @@ function Tables() {
 
   const handleAddToWishList = async (product: Table) => {
     try {
-      if (!token) { alert("Please Login First!")
+      if (!token) { showToast("Please Login First!", false);
         if (localStorage.getItem("auth_token")) { setShowTokenExpired(true); } return;
       }
       const res = await addToWishlist(product.id);
-      if (!res.ok) { alert("Failed to Add this Item to Wishlist"); return; }
+      if (!res.ok) { showToast("Failed to Add this Item to Wishlist", false); return; }
       setWishlist(prev => [...prev, product.id]);
       setWished(prev => {
         const next = new Set(prev);
         next.has(product.id) ? next.delete(product.id) : next.add(product.id);
       return next;
       });
-      alert("Item Added to Wishlist Successfully!");
+      showToast("Item Added to Wishlist Successfully!", true);
     } catch (error) {
       console.error(error);
     }
@@ -108,19 +113,19 @@ function Tables() {
 
   const handleAddToCart = async (product: Table) => {
     try {
-      if (!token) { alert("Please Login First!")
+      if (!token) { showToast("Please Login First!", false);
         if (localStorage.getItem("auth_token")) { setShowTokenExpired(true); } return;
       }
       const res = await addToCart(product);
       const data = await res.json();
       if (!res.ok) {
         console.error(data);
-        alert("Failed to add to cart");
+        showToast("Failed to add to cart", false);
         return;
       }
       setAddedToCart(product.id); setTimeout(() => setAddedToCart(null), 3000);
     } catch (err) {
-      console.error(err);
+      showToast("An error occurred while adding to cart", false);
     }
   };
   
@@ -180,7 +185,11 @@ function Tables() {
             </div>
           </div>
         ))}
-
+        {toast && (
+          <div className={`${styles.toast} ${toast.ok ? styles.toastSuccess : styles.toastError}`}>
+            {toast.msg}
+          </div>
+        )}
         {showQuickView && selectedProduct && (
           <div className={styles.quickViewModal} onClick={closeQuickView}>
             <div className={`${styles.quickViewContent} ${closingModal ? styles.quickViewContentClosing : ""}`}

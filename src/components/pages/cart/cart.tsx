@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { getCart, removeFromCart, increaseQuantity, decreaseQuantity, checkoutCart, checkoutItem } from '../../../api/cart';
 import { getToken } from '../../../utils/tokenUtils';
-import { WishlistIcon, CrossIcon } from '../../../assets/Extra/svg';
+import { WishlistIcon, CrossIcon, EmptyCartIcon } from '../../../assets/Extra/svg';
 import BASE_URL from '../../../utils/baseapi';
 import styles from './cart.module.css';
 
@@ -23,9 +23,10 @@ function Cart() {
   const token = getToken();
   const navigate  = useNavigate();
 
-  const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [buying, setBuying] = useState(false);
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
 
   const loadCart = async () => {
     if (!token) { setLoading(false); return; }
@@ -41,9 +42,15 @@ function Cart() {
 
   useEffect(() => { loadCart(); }, []);
   
+  const showToast = (msg: string, ok = true) => {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 3000);
+  };
+  
   const handleRemove = async (itemId: number) => {
     try {
       await removeFromCart(itemId);
+      showToast('Item Removed from Cart');
       setItems(prev => prev.filter(i => i.id !== itemId));
     } catch (err) {
       console.error(err);
@@ -53,6 +60,7 @@ function Cart() {
   const handleIncrease = async (itemId: number) => {
     try {
       await increaseQuantity(itemId);
+      showToast('Quantity Increased by 1');
       setItems(prev =>
       prev.map(i => {
         if (i.id === itemId) {
@@ -72,6 +80,7 @@ function Cart() {
     if (item && item.quantity <= 1) { handleRemove(itemId); return; }
     try {
       await decreaseQuantity(itemId);
+      showToast('Quantity Decreased by 1');
       setItems(prev => prev.map(i => i.id === itemId ? { ...i, quantity: i.quantity - 1 } : i));
     } catch (err) {
       console.error(err);
@@ -80,19 +89,25 @@ function Cart() {
 
 
   const handleCheckoutItem = async (itemId: number) => {
+    if (!token) { showToast('Please Sign in to Place an Order', false);
+      return;
+    }
     try {
       const res = await checkoutItem(itemId);
       if (!res.ok) {
         throw new Error(res.detail || "Checkout failed");
       }
-      alert(`Item Ordered Successfully!`);
+      showToast(`Item Ordered Successfully!`);
       await loadCart();
     } catch (error: any) {
-      alert(error.message);
+      showToast(error.message, false);
     }
   };
 
   const handleAllCheckout = async () => {
+    if (!token) { showToast('Please Sign in to Place an Order', false);
+      return;
+    }
     try {
       setBuying(true);
       const res = await checkoutCart();
@@ -101,10 +116,10 @@ function Cart() {
       if (!res.ok) {
         throw new Error(data.detail || "Checkout failed");
       }
-      alert(`Order Placed Successfully!\nOrder ID: ${data.order_id}`);
+      showToast(`Order Placed Successfully!\nOrder ID: ${data.order_id}`);
       await loadCart();
     } catch (error: any) {
-      alert(error.message);
+      showToast(error.message, false);
     } finally {
       setBuying(false);
     }
@@ -124,7 +139,7 @@ function Cart() {
           </div>
         </nav>
         <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>🛒</div>
+          <div className={styles.emptyIcon}><EmptyCartIcon /></div>
           <h2>Sign in to view your cart</h2>
           <p>You need an account to add and manage cart items.</p>
           <button className={styles.shopBtn} onClick={() => navigate('/login')}>Sign In</button>
@@ -138,6 +153,12 @@ function Cart() {
       <nav className={styles.navbar}>
         <div className={styles.logo} onClick={() => navigate('/')}>Furniture<span>·</span>Co</div>
         <div className={styles.navIcons}>
+          <ul className={styles.navLinks}>
+            <li><Link to="/">Home</Link></li>
+            <li><Link to="/products">Products</Link></li>
+            <li><Link to="/about">About</Link></li>
+            <li><Link to="/contact">Contact</Link></li>
+          </ul>
           <button className={styles.iconBtn} onClick={() => navigate('/wishlist')}>&nbsp;<WishlistIcon/>&nbsp;</button>
           <button className={styles.iconBtn} onClick={() => navigate('/products')}>Shop</button>
         </div>
@@ -217,6 +238,11 @@ function Cart() {
                 </div>
               </div>
             ))}
+            {toast && (
+              <div className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}>
+                {toast.msg}
+              </div>
+            )}
           </div>
         </>
       )}

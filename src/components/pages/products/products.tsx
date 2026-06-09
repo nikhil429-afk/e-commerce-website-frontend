@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { getAddToWishlist, getdetailView, getFetchCart, getProducts, getAddToCart } from "../../../api/products";
-import { CartIcon, FooterLogo, TickMark, WishlistIcon, SearchIcon } from "../../../assets/Extra/svg";
+import { CartIcon, FooterLogo, TickMark, WishlistIcon } from "../../../assets/Extra/svg";
 import { StarRating } from "../../../assets/Extra/extra_functions";
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { getToken} from "../../../utils/tokenUtils";
@@ -127,7 +127,7 @@ function Products() {
   const activeCategory = normalizeCatName(window.location.pathname.split("/").pop() || "All Products");
   
   const [, setShowTokenExpired] = useState(false);
-  const [activeCategoryState, setActiveCategoryState] = useState(productList);
+  const [activeCategoryState, ] = useState(productList);
   const [search, setSearch] = useState("");
   const [finalSearch, setFinalSearch] = useState("");
 
@@ -144,11 +144,18 @@ function Products() {
 
   const [selectedProduct, setSelectedProduct] = useState<Products | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalPages, ] = useState<number>(1);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
+  const productsRef = useRef<HTMLElement | null>(null);
+
+  const showToast = (msg: string, ok = true) => {
+    setToast({ msg, ok });
+    setTimeout(() => setToast(null), 4000);
+  };
 
   useEffect(() => {
     if (token) fetchCart();
@@ -161,7 +168,7 @@ function Products() {
         setProducts(res.map((item: any) => ({
           ...item, oldPrice: item.oldPrice || item.oldPrice })));
       } catch (err) {
-        console.error("Error Fetching Products:", err);
+        showToast("Error Fetching Products", false);
       } finally {
         setLoading(false);
       }
@@ -175,6 +182,16 @@ function Products() {
     }, 4000);
     return () => clearInterval(interval);
   }, []);
+
+  const handleSearch = (value: string) => {
+    setSearch(value);
+    if (value.trim()) {
+      productsRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  };
 
   const nextImage = (productId: number, total: number) => {
     setCurrentIndexes((prev) => ({ ...prev,
@@ -200,9 +217,8 @@ function Products() {
     );
   };
 
-
   const quickView = (product: Products, e: React.MouseEvent<HTMLButtonElement>) => {
-    if(!token){ alert("Please Login First!");
+    if(!token){ showToast("Your session has expired. Please log in First.", false);
       return;
     }
     const rect = e.currentTarget.getBoundingClientRect(); 
@@ -220,7 +236,7 @@ function Products() {
 
   const detailView = async (product: Products) => {
     try {
-      if (!token) { alert("Please Login First!");
+      if (!token) { showToast("Your session has expired. Please log in First.", false);
         if (localStorage.getItem("auth_token")) {
           setShowTokenExpired(true);
         }
@@ -233,7 +249,7 @@ function Products() {
 
       navigate(`/products/${product.id}/detailview`);
     } catch (err) {
-      console.error(err);
+      showToast("Error Fetching Product Details", false);
     }
   };
 
@@ -242,22 +258,21 @@ function Products() {
       if (!token) return;
       const data = await getFetchCart(token);
       if (!Array.isArray(data)) {
-        console.error("Invalid Cart Data");
         return;
       }
       setCart(data.map((item: any) => item.product_id));
     } catch (err) {
-      console.error(err);
+      showToast("Error Fetching Cart", false);
     }
   };
 
   const addToCart = async (productId: number) => {
     try {
-      if (!token) { alert("Please Login First!");
+      if (!token) { showToast("Your session has expired. Please Log in First.", false);
         return;
       }
     const res = await getAddToCart(productId, token);
-    if (!res) { alert("Failed to add product");
+    if (!res) { showToast("Failed Product to Cart", false);
       return;
     }
     await fetchCart();
@@ -266,22 +281,22 @@ function Products() {
       setAddedToCart(null);
     }, 3000);
     } catch (err) {
-      console.error(err);
+      showToast("Error occurred while Adding to Cart", false);
     }
   };
 
   const addToWishList = async (productId: number) => {
     try {
-      if (!token) {
-      if (localStorage.getItem("auth_token")) { setShowTokenExpired(true); } return;
-    }
+      if (!token) { showToast("Your session has expired. Please log in First.", false);
+        return;
+      }
       const res = await getAddToWishlist(productId, token);
-      if (!res) { alert("Failed to Add Wishlist");
+      if (!res) { showToast("Failed to Add to Wishlist", false);
         return;}
       setWishlist(prev => prev.includes(productId) ? prev : [...prev, productId]);
-      alert("Item Added to Wishlist Successfully!");
+      showToast("Item Added to Wishlist Successfully!", true);
     } catch (error) {
-      console.error(error);
+      showToast("Error Adding Item to Wishlist", false);
     }
   };
 
@@ -309,8 +324,8 @@ function Products() {
 
         <div className={styles.navIcons}>
           <div className={styles.searchWrap}>
-            <input type="text" placeholder="Search Products..." value={search}
-              onChange={(e) => {setSearch(e.target.value); setFinalSearch(e.target.value);}} className={styles.search} />
+            <input type="text" placeholder="Search Products..." value={search} className={styles.search}
+              onChange={(e) => {setSearch(e.target.value); setFinalSearch(e.target.value); handleSearch(e.target.value);}} />
           </div>
 
           <button className={styles.iconBtn} title="Wishlist" onClick={() => navigate("/wishlist")}>
@@ -497,6 +512,11 @@ function Products() {
               ))}
           </div>
         </section>
+        {toast && (
+          <div className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}>
+            {toast.msg}
+          </div>
+        )}
 
       <footer className={styles.footer}>
         <div className={styles.footerTop}>
