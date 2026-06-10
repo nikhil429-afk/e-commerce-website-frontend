@@ -145,7 +145,12 @@ function Tables() {
           <h1 className={styles.heading}>Tables &amp; <em>Desks</em></h1>
           <p className={styles.subheading}>Where life happens around.</p>
         </div>
+        {products.length > 0 && (
+          <div className={styles.heroCountBadge}>{products.length}Pieces Available</div>
+        )}
       </div>
+      
+      <div className={styles.categorySeparator} />
 
       <div className={styles.grid}>
         {(filtered || []).map(table => (

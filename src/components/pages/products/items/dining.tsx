@@ -148,7 +148,12 @@ function Dinings() {
           <h1 className={styles.heading}>Dinings &amp; <em>Sittings</em></h1>
           <p className={styles.subheading}>Where Life Happens Around.</p>
         </div>
+        {products.length > 0 && (
+          <div className={styles.heroCountBadge}>{products.length} Pieces Available</div>
+        )}
       </div>
+      
+      <div className={styles.categorySeparator} />
 
       <div className={styles.grid}>
         {(filtered || []).map(dining => (

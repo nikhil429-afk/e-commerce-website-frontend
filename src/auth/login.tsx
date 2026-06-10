@@ -10,13 +10,9 @@ function Login() {
   
   const [showPwd, setShowPwd] = useState(false);
   const [exiting, setExiting] = useState(false);
-  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+
   const { form, error, message, loading, handleChange, handleSubmit } = useLogin();
 
-  const showToastMsg = (msg: string) => {
-    setToast({ msg, ok: true });
-    setTimeout(() => setToast(null), 4000);
-  };
 
   const handleNavigation = () => {
     setExiting(true);
@@ -38,11 +34,11 @@ function Login() {
             <label className={styles.label}>Email Address : </label>
             <input name="email" value={form.email} className={styles.input} onChange={handleChange} placeholder="john@example.com" />
             {error.email && (
-              <div className={styles.errMsg}>
-                <span className={styles.errDot}></span>
-                {error.email}
-              </div>
-            )}
+            <div className={styles.errMsg}>
+              <span className={styles.errDot}></span>
+              {error.email}
+            </div>
+          )}
           </div>
 
           <div className={`${styles.field} ${styles.hasIcon} ${error.pwd ? styles.error : ""}`}>
@@ -53,23 +49,19 @@ function Login() {
               {showPwd ? <EyeIcon /> : <EyeOffIcon />}
             </span>
             {error.pwd && (
-              <div className={styles.errMsg}>
-                <span className={styles.errDot}></span>
-                {error.pwd}
-              </div>
-            )}
+            <div className={styles.errMsg}>
+              <span className={styles.errDot}></span>
+              {error.pwd}
+            </div>
+          )}
           </div>
+
+          {message && <p className={styles.successMessage}>{message}</p>}
+          {error.general && <p className={styles.errorMessage}>{error.general}</p>}
 
           <button type="submit" className={styles.button} disabled={loading}>
             {loading ? "Logging in..." : "Log In →"}
           </button>
-          {toast && (
-            <div className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}>
-              {toast.msg}
-            </div>
-          )}
-          {message && <p className={styles.successMessage}>{message}</p>}
-          {error.general && <p className={styles.errorMessage}>{error.general}</p>}
 
           <div className={styles.footer}>
             <span className={styles.footerTxt}>Don't Have An Account?</span>

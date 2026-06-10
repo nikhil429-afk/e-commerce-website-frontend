@@ -1,8 +1,8 @@
-import React from "react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import styles from "./auth.module.css"
 import { EyeIcon, EyeOffIcon } from "../assets/Extra/svg";
+import { useNavigate } from "react-router-dom";
+import { getRegister } from "../api/register";
+import React, { useState } from "react";
+import styles from "./auth.module.css"
 
 interface FormData {
     username: string;
@@ -28,6 +28,7 @@ function Register(){
         conf_pwd: "",
     })
 
+    const [ loading, setLoading ] = useState();
     const [ message, setMessage ] = useState("");
     const [ showPwd, setShowPwd ] = useState(false);
     const [ exiting, setExiting ] = useState(false);
@@ -51,6 +52,7 @@ function Register(){
 
     const handleNavigation = () => {
         setExiting(true);
+        setLoading;
         setTimeout(() => navigate("/login"), 550);
     }
 
@@ -67,19 +69,8 @@ function Register(){
         if(Object.keys(newError).length !== 0) return;
 
         try {
-            const res = await fetch("http://127.0.0.1:8000/register", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    username: form.username,
-                    email: form.email,
-                    pwd: form.pwd,
-                    conf_pwd: form.conf_pwd,
-
-                })
-            })
-            const data =await res.json();
-            if (!res.ok) {
+            const data = await getRegister(form);
+            if (!data.ok) {
                 if (typeof data.detail === "object") {
                     setError(data.detail);
                 } else {
@@ -159,7 +150,9 @@ function Register(){
                         )}
                     </div>
 
-                    <button type="submit" className={styles.button}>Create Account</button>
+                    <button type="submit" className={styles.button} disabled={loading}>
+                        {loading ? "Creating Your Account..." : "Create Account →"}
+                    </button>
 
                     {toast && (
                         <div className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}>

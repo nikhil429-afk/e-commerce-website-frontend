@@ -128,7 +128,7 @@ function Almirahs() {
       }
     } catch (err) {
       console.error(err);
-      showToast("An error occurred while adding to cart", false);
+      showToast("An Error Occurred while Adding to Cart", false);
     }
   };
 
@@ -153,7 +153,12 @@ function Almirahs() {
         <h1 className={styles.heading}>Almirahs &amp; <em>Cupboards</em></h1>
         <p className={styles.subheading}>Where Life Happens Around.</p>
       </div>
+      {products.length > 0 && (
+        <div className={styles.heroCountBadge}>{products.length}Pieces Available</div>
+      )}
     </div>
+
+    <div className={styles.categorySeparator} />
     
     <div className={styles.grid}>
       {(filtered || []).map(almirah => (

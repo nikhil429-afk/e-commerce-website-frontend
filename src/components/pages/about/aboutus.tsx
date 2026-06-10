@@ -2,9 +2,17 @@ import React from "react";
 import styles from "./aboutus.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import { RightArrowIcon } from "../../../assets/Extra/svg"
+import Products from '../products/products';
 
 function Aboutus() {
   const navigate = useNavigate();
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
 
   const stats = [
     { num: "15", suffix: "+", label: "Years of Craft" },
@@ -21,7 +29,7 @@ function Aboutus() {
         <div className={styles.navLinks}>
           <Link to="/" className={styles.navLink}>Home</Link>
           <Link to="/products" className={styles.navLink}>Products</Link>
-          <Link to="/about" className={`${styles.navLink} ${styles.navLinkActive}`}>About</Link>
+          <Link to="/about" onClick={() => { scrollToTop(); }} className={`${styles.navLink} ${styles.navLinkActive}`}>About</Link>
           <Link to="/contact" className={styles.navLink}>Contact</Link>
         </div>
       </nav>

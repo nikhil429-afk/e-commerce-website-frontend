@@ -1,0 +1,15 @@
+import BASE_URL from "../utils/baseapi";
+
+interface LoginData {
+  email: string;
+  pwd: string;
+}
+
+export const getLogin = async(form: LoginData) => {
+    const res = await fetch(`${BASE_URL}/login/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", },
+        body: JSON.stringify({ email: form.email, pwd: form.pwd, }),
+      });
+    return res.json();
+};
