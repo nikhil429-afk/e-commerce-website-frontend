@@ -1,11 +1,12 @@
-import { useEffect, useRef, useState } from "react";
-import { getAllUsers, updateUser, deleteUser, getProducts, updateProduct, deleteProduct, getOrders, createProduct, getContacts, getAppointments, shipOrder } from "../../../api/owner";
+import { getAllUsers, updateUser, deleteUser, getProducts, updateProduct, deleteProduct, getOrders, createProduct,
+  getContacts, getAppointments, shipOrder } from "../../../api/owner";
 import { LineChart, CartesianGrid, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
-import { getOrdersChart, getUsersChart } from "../../../api/charts";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { getTokenPayload, clearToken } from "../../../utils/tokenUtils";
+import { getOrdersChart, getUsersChart } from "../../../api/charts";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./owner.module.css";
 import dayjs from "dayjs";
@@ -629,8 +630,8 @@ function Owner() {
                   <table className={styles.table}>
                     <thead>
                       <tr>
-                        <th>ID</th> <th>Product</th> <th>Category</th> <th>Price</th> <th>Old Price</th> <th>Rating</th> <th>Tag</th> <th>Stock</th>
-                        <th>Description</th> <th>Actions</th>
+                        <th>ID</th> <th>Product</th> <th>Category</th> <th>Price</th> <th>Old Price</th> <th>Rating</th> <th>Tag</th> <th>Description</th>
+                          <th>Stock</th> <th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>

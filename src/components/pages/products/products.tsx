@@ -8,12 +8,6 @@ import BASE_URL from "../../../utils/baseapi";
 import styles from "./products.module.css";
 // import { person1, person2, person3 } from "../../../assets/images";
 
-const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Shop", href: "/products" },
-    { name: "About us", href: "/about" },
-    { name: "Contact us", href: "/contact" }
-];
 
 type PaginationProps = {
   currentPage: number;
@@ -33,6 +27,21 @@ interface Products {
   tag: string;
   in_stock: boolean;
 }
+
+const heroImages = [
+  {
+    image : "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQfjKNV2_Vvi98UDsTB8BKofnVOlADWw0BRq6sQjiC3R9aP1v7XX4oKWU5E7Pfksz0wjMrUMRaGNVECDp4wViI75Mq_NhIRBNJMzCT7mnQ",
+    name : "HeroImage1",
+  },
+  {
+    image : "https://i.pinimg.com/1200x/12/b2/3c/12b23cfaf506649fe9a86f278aba7845.jpg",
+    name : "HeroImage2",
+  },
+  {
+    image : "https://images.unsplash.com/photo-1634712282287-14ed57b9cc89?q=80&w=1206&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+    name : "HeroImage3",
+  },
+];
 
 const testimonials = [
   {
@@ -127,7 +136,7 @@ function Products() {
   const activeCategory = normalizeCatName(window.location.pathname.split("/").pop() || "All Products");
   
   const [, setShowTokenExpired] = useState(false);
-  const [activeCategoryState, ] = useState(productList);
+  const [activeCategoryState, setActiveCategoryState] = useState(productList);
   const [search, setSearch] = useState("");
   const [finalSearch, setFinalSearch] = useState("");
 
@@ -146,11 +155,12 @@ function Products() {
   const [loading, setLoading] = useState<boolean>(true);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
 
-  const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, ] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [activeHeroImages, setActiveHeroImages] = useState(0);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
-  const productsRef = useRef<HTMLElement | null>(null);
+  const productsRef = useRef<HTMLDivElement | null>(null);
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
@@ -167,6 +177,7 @@ function Products() {
         const res = await getProducts();
         setProducts(res.map((item: any) => ({
           ...item, oldPrice: item.oldPrice || item.oldPrice })));
+          setActiveCategoryState(productList);
       } catch (err) {
         showToast("Error Fetching Products", false);
       } finally {
@@ -174,6 +185,13 @@ function Products() {
       }
     };
     fetchProducts();
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextHeroImages();
+    }, 3000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -193,6 +211,20 @@ function Products() {
     }
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  const scrollToSubRoute = () => {
+    window.scrollTo({
+      top: 390,
+      behavior: "smooth",
+    });
+  };
+
   const nextImage = (productId: number, total: number) => {
     setCurrentIndexes((prev) => ({ ...prev,
       [productId]: ((prev[productId] || 0) + 1) % total,
@@ -205,20 +237,20 @@ function Products() {
     }));
   };
 
+  const nextHeroImages = () => {
+    setActiveHeroImages((prev) =>
+    prev === heroImages.length - 1 ? 0 : prev + 1
+    );
+  };
+
   const nextTestimonial = () => {
     setActiveTestimonial((prev) =>
     prev === testimonials.length - 1 ? 0 : prev + 1
     );
   };
 
-  const prevTestimonial = () => {
-    setActiveTestimonial((prev) =>
-      prev === 0 ? testimonials.length - 1 : prev - 1
-    );
-  };
-
   const quickView = (product: Products, e: React.MouseEvent<HTMLButtonElement>) => {
-    if(!token){ showToast("Your session has expired. Please log in First.", false);
+    if(!token){ showToast("Your Session has Expired. Please Log in First.", false);
       return;
     }
     const rect = e.currentTarget.getBoundingClientRect(); 
@@ -305,7 +337,7 @@ function Products() {
 
   if (loading) return (
     <div className={styles.loadingScreen}>
-      <div className={styles.loadingSpinner} />
+      <div className={styles.loadingSpinner}></div>
       <span>Loading Products…</span>
     </div>
   );
@@ -315,11 +347,10 @@ function Products() {
       <nav className={styles.navbar}>
         <Link to="/" className={styles.logo}>Furni<span>ture</span></Link>
         <ul className={styles.navLinks}>
-          {navLinks.map((item) => (
-            <li key={item.name}>
-              <Link to={item.href} className={item.name === "Shop" ? styles.active : ""}>{item.name}</Link>
-            </li>
-          ))}
+          <li><Link to="/">Home</Link></li>
+          <li><Link to="/products" onClick={() => { scrollToTop(); }}>Products</Link></li>
+          <li><Link to="/about">About</Link></li>
+          <li><Link to="/contact">Contact</Link></li>
         </ul>
 
         <div className={styles.navIcons}>
@@ -347,16 +378,16 @@ function Products() {
           <p className={styles.heroDesc}>Premium Furniture Crafted for Modern Living — Quality that Lasts.</p>
         </div>
         <div className={styles.heroImageWrapper}>
-          <img src="https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcQfjKNV2_Vvi98UDsTB8BKofnVOlADWw0BRq6sQjiC3R9aP1v7XX4oKWU5E7Pfksz0wjMrUMRaGNVECDp4wViI75Mq_NhIRBNJMzCT7mnQ"
-            alt="Hero" className={styles.heroImage} />
-          <p className={styles.heroDesc}>Premium Furniture Crafted for Modern Living — Quality that Lasts.</p>
+          {heroImages.map((img, index) => (
+            <img key={index} src={img.image} alt={img.name} className={`${styles.heroImage} ${index === activeHeroImages ? styles.activeHero : ""}`}/>
+          ))}
         </div>
       </div>
 
       <div className={styles.main}>
         <aside className={styles.sidebar}>
           <div className={styles.sidebarBlock}><h3>All Category</h3>
-            <ul>
+            <ul onClick={() => { scrollToSubRoute(); }}>
               {productList.map((cat) => {
                 const isActive = activeCategory === cat.name ||
                   (cat.name === "Dining Tables" && activeCategory === "Dining Tables");
@@ -378,121 +409,121 @@ function Products() {
             className={styles.sideBannerImage} />
           </div>
         </aside>
-        <div className={styles.productArea}>
-        <Outlet /> <br />
-        {activeCategoryState && (
-          <div className={styles.grid}>
-            {filteredProducts.length > 0 ? (filteredProducts.map(product => (
-              <div key={product.id} className={styles.card}>
-                {product.tag && (<div className={styles.cardTag}>{product.tag}</div>)}
-                <button className={styles.wishlistBtn} onClick={() => addToWishList(product.id)}>♡ Wishlist</button>
-                <div className={styles.imageWrap}>
-                  <img src={`${BASE_URL}${product.images[currentIndexes[product.id] || 0] || product.images[0] }`} alt={product.name} loading="lazy" />
-                  <div className={styles.imageOverlay}>
-                    <button className={styles.quickViewBtn} onClick={(e) => {quickView(product, e)}}>Quick View</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    <button className={styles.detailViewBtn} onClick={() => {detailView(product)}}>Detailed View</button>
+
+        <div ref={productsRef} className={styles.productArea}>
+          {activeCategoryState && (<>
+            <Outlet /> <br />&nbsp;
+            <div className={styles.grid}>
+              {filteredProducts.length > 0 ? (filteredProducts.map(product => (
+                <div key={product.id} className={styles.card}>
+                  {product.tag && (<div className={styles.cardTag}>{product.tag}</div>)}
+                  <button className={styles.wishlistBtn} onClick={() => addToWishList(product.id)}>♡ Wishlist</button>
+                  <div className={styles.imageWrap}>
+                    <img src={`${BASE_URL}${product.images[currentIndexes[product.id] || 0] || product.images[0] }`} alt={product.name} loading="lazy" />
+                    <div className={styles.imageOverlay}>
+                      <button className={styles.quickViewBtn} onClick={(e) => {quickView(product, e)}}>Quick View</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                      <button className={styles.detailViewBtn} onClick={() => {detailView(product)}}>Detailed View</button>
+                    </div>
+                  </div>
+
+                  <div className={styles.cardBody}>
+                    <div className={styles.rating}>
+                      <StarRating rating={product.rating} />
+                      <span className={styles.ratingCount}>{product.rating}</span>
+                    </div>
+
+                    <h3 className={styles.title}>{product.name}</h3>
+                    <p className={`${styles.titleh2} ${product.in_stock ? styles.inStock : styles.outStock}`}>
+                      {product.in_stock ? '● In Stock' : '○ Out of Stock'}
+                    </p>
+
+                    <div className={styles.priceRow}>
+                      <span className={styles.price}>$ {product.price}.00</span>
+                      <span className={styles.oldPrice}>$ {product.oldPrice}.00</span>
+                      {pct(product) > 0 && (
+                        <span className={styles.discount}>-{pct(product)}%</span>
+                      )}
+                    </div>
+                    <button className={styles.button} disabled={!product.in_stock} onClick={(e) => {e.stopPropagation(); addToCart(product.id);}}>
+                      {addedToCart === product.id ? (<>
+                      <TickMark /><span>Added To Cart!</span>
+                      </>
+                      ) : (
+                        <>
+                          <span><CartIcon />&nbsp; {product.in_stock ? 'Add to Cart' : 'Out of Stock'}</span>
+                        </>
+                      )}</button>
                   </div>
                 </div>
+              ))
+              ) : (
+                <center><p className={styles.noResults}>No Products Found.</p></center>
+              )}
+            </div>
+            </>
+          )}
+          {showQuickView && selectedProduct && (
+            <div className={styles.quickViewModal} onClick={closeQuickView}>
+              <div className={`${styles.quickViewContent} ${closingModal ? styles.quickViewContentClosing : ""}`}
+                style={{"--origin-x": `${modalOrigin.x}px`, "--origin-y": `${modalOrigin.y}px`,} as React.CSSProperties}
+                onClick={e => e.stopPropagation()}>
+                <button className={styles.closeBtn} onClick={closeQuickView}>✕</button>
 
-                <div className={styles.cardBody}>
-                  <div className={styles.rating}>
-                    <StarRating rating={product.rating} />
-                    <span className={styles.ratingCount}>{product.rating}</span>
+                <div className={styles.quickViewImage}>
+                  <img src={`${BASE_URL}${selectedProduct.images[currentIndexes[selectedProduct.id] || 0] || selectedProduct.images[0]}`} alt={selectedProduct.name} />
+                  {selectedProduct.images.length > 1 && (
+                    <div className={styles.imageslider}>
+                      <button onClick={(e) => { e.stopPropagation(); prevImage(selectedProduct.id, selectedProduct.images.length)}}>◀</button>
+                      <button onClick={(e) => { e.stopPropagation(); nextImage(selectedProduct.id, selectedProduct.images.length)}}>▶</button>
+                    </div>
+                  )}
+                  {selectedProduct.tag && (<span className={styles.quickViewTag}>{selectedProduct.tag}</span>)}
+                  <div className={styles.quickViewImageOverlay} />
+                </div>
+
+                <div className={styles.quickViewInfo}>
+                  <div className={styles.quickViewCategory}>{selectedProduct.category}</div>
+                  <h2 className={styles.quickViewTitle}>{selectedProduct.name}</h2>
+
+                  <div className={styles.quickViewRating}>
+                    {"★".repeat(selectedProduct.rating)}{"☆".repeat(5 - selectedProduct.rating)}
+                    <span className={styles.quickViewRatingVal}>{selectedProduct.rating}.0</span>
                   </div>
 
-                  <h3 className={styles.title}>{product.name}</h3>
-                  <p className={`${styles.titleh2} ${product.in_stock ? styles.inStock : styles.outStock}`}>
-                    {product.in_stock ? '● In Stock' : '○ Out of Stock'}
-                  </p>
+                  <p className={styles.quickViewDesc}>{selectedProduct.description}</p>
 
-                  <div className={styles.priceRow}>
-                    <span className={styles.price}>$ {product.price}.00</span>
-                    <span className={styles.oldPrice}>$ {product.oldPrice}.00</span>
-                    {pct(product) > 0 && (
-                      <span className={styles.discount}>-{pct(product)}%</span>
+                  <div className={styles.quickViewPriceRow}>
+                    <span className={styles.quickViewPrice}>${selectedProduct.price}.00</span>
+                    {selectedProduct.oldPrice && (
+                      <span className={styles.quickViewOldPrice}>${selectedProduct.oldPrice}.00</span>
                     )}
                   </div>
-                  <button className={styles.button} disabled={!product.in_stock} onClick={(e) => {e.stopPropagation(); addToCart(product.id);}}>
-                    {addedToCart === product.id ? (<>
-                    <TickMark /><span>Added To Cart!</span>
-                    </>
-                    ) : (
-                      <>
-                        <span><CartIcon />&nbsp; {product.in_stock ? 'Add to Cart' : 'Out of Stock'}</span>
-                      </>
-                    )}</button>
-                </div>
-              </div>
-            ))
-          ) : (
-            <center><p className={styles.noResults}>No Products Found.</p></center>
-          )}
-          </div>
-        )}
-        {showQuickView && selectedProduct && (
-          <div className={styles.quickViewModal} onClick={closeQuickView}>
-            <div className={`${styles.quickViewContent} ${closingModal ? styles.quickViewContentClosing : ""}`}
-              style={{"--origin-x": `${modalOrigin.x}px`, "--origin-y": `${modalOrigin.y}px`,} as React.CSSProperties}
-              onClick={e => e.stopPropagation()}>
-              <button className={styles.closeBtn} onClick={closeQuickView}>✕</button>
 
-              <div className={styles.quickViewImage}>
-                <img src={`${BASE_URL}${selectedProduct.images[currentIndexes[selectedProduct.id] || 0] || selectedProduct.images[0]}`} alt={selectedProduct.name} />
-                {selectedProduct.images.length > 1 && (
-                  <div className={styles.imageslider}>
-                    <button onClick={(e) => { e.stopPropagation(); prevImage(selectedProduct.id, selectedProduct.images.length)}}>◀</button>
-                    <button onClick={(e) => { e.stopPropagation(); nextImage(selectedProduct.id, selectedProduct.images.length)}}>▶</button>
+                  <div className={styles.quickViewStock}>
+                    <span className={selectedProduct.in_stock ? styles.stockBadgeIn : styles.stockBadgeOut}>
+                      {selectedProduct.in_stock ? "● In Stock" : "○ Out of Stock"}
+                    </span>
                   </div>
-                )}
-                {selectedProduct.tag && (<span className={styles.quickViewTag}>{selectedProduct.tag}</span>)}
-                <div className={styles.quickViewImageOverlay} />
-              </div>
 
-              <div className={styles.quickViewInfo}>
-                <div className={styles.quickViewCategory}>{selectedProduct.category}</div>
-                <h2 className={styles.quickViewTitle}>{selectedProduct.name}</h2>
-
-                <div className={styles.quickViewRating}>
-                  {"★".repeat(selectedProduct.rating)}{"☆".repeat(5 - selectedProduct.rating)}
-                  <span className={styles.quickViewRatingVal}>{selectedProduct.rating}.0</span>
-                </div>
-
-                <p className={styles.quickViewDesc}>{selectedProduct.description}</p>
-
-                <div className={styles.quickViewPriceRow}>
-                  <span className={styles.quickViewPrice}>${selectedProduct.price}.00</span>
-                  {selectedProduct.oldPrice && (
-                    <span className={styles.quickViewOldPrice}>${selectedProduct.oldPrice}.00</span>
-                  )}
-                </div>
-
-                <div className={styles.quickViewStock}>
-                  <span className={selectedProduct.in_stock ? styles.stockBadgeIn : styles.stockBadgeOut}>
-                    {selectedProduct.in_stock ? "● In Stock" : "○ Out of Stock"}
-                  </span>
-                </div>
-
-                <div className={styles.quickViewActions}>
-                  <button className={styles.quickViewCartBtn} disabled={!selectedProduct.in_stock} onClick={() => {addToCart(selectedProduct.id); closeQuickView(); }}><WishlistIcon /> &nbsp; Add to Cart</button>
-                  <button className={styles.quickViewWishBtn} onClick={() => addToWishList(selectedProduct.id)}>♡</button>
+                  <div className={styles.quickViewActions}>
+                    <button className={styles.quickViewCartBtn} disabled={!selectedProduct.in_stock} onClick={() => {addToCart(selectedProduct.id); closeQuickView(); }}><WishlistIcon /> &nbsp; Add to Cart</button>
+                    <button className={styles.quickViewWishBtn} onClick={() => addToWishList(selectedProduct.id)}>♡</button>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        )}
-        {showDetailView && selectedProduct && (
-          <div className={styles.container}>
-          </div>
-        )}
-        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={(page) => setCurrentPage(page)} />
+          )}
+          {showDetailView && selectedProduct && (
+            <div className={styles.container}></div>
+          )}
+          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={(page) => setCurrentPage(page)} />
+        </div>
       </div>
-    </div>
 
       <section className={styles.testimonialSection}>
         <div className={styles.testimonialContent}>
-          <button className={styles.sliderBtnLeft} onClick={prevTestimonial}>←</button>
             <div className={styles.quoteIcon}>"</div>
-              <p className={styles.testimonialText}> {testimonials[activeTestimonial].text} </p>
+              <p className={styles.testimonialText}>{testimonials[activeTestimonial].text} </p>
             <div className={styles.quoteIcon}>"</div>
 
             <div className={styles.testimonialAuthor}>
@@ -504,7 +535,6 @@ function Products() {
               ))}
             </div>
           </div>
-          <button className={styles.sliderBtnRight} onClick={nextTestimonial}>→</button>
         </div>
           <div className={styles.testimonialDots}>
             {testimonials.map((_, i) => (
@@ -512,6 +542,7 @@ function Products() {
               ))}
           </div>
         </section>
+
         {toast && (
           <div className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}>
             {toast.msg}
@@ -523,13 +554,13 @@ function Products() {
           <div className={styles.footerCol} />
           <div className={styles.footerCol}>
             <h4>Brands</h4>
-            <ul>
+            <ul onClick={() => { scrollToSubRoute(); }}>
               {FooterBrands.map((l) => ( <li key={l.name}><Link to={l.href}>{l.name}</Link></li> ))}
             </ul>
           </div>
           <div className={styles.footerCol}>
-            <h4>Categories</h4>
-            <ul>
+            <h4 onClick={() => { scrollToTop(); }}>Categories</h4>
+            <ul onClick={() => { scrollToSubRoute(); }}>
               {FooterCategories.map((l) => ( <li key={l.name}><Link to={l.href}>{l.name}</Link></li> ))}
             </ul>
           </div>

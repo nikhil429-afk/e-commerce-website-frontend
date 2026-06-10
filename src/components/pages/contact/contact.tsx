@@ -19,6 +19,13 @@ function Contact() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 360,
+      behavior: "smooth",
+    });
+  };
+
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
     setTimeout(() => setToast(null), 4000);
@@ -73,14 +80,12 @@ function Contact() {
   return (
     <div className={styles.container}>
       <nav className={styles.navbar}>
-        <Link to="/" className={styles.logo}>
-          Furniture<span>&nbsp;·&nbsp;</span>Co.
-        </Link>
+        <Link to="/" className={styles.logo}>Furniture<span>&nbsp;·&nbsp;</span>Co.</Link>
         <div className={styles.navLinks}>
           <Link to="/" className={styles.navLink}>Home</Link>
           <Link to="/products" className={styles.navLink}>Products</Link>
           <Link to="/about" className={styles.navLink}>About</Link>
-          <Link to="/contact" className={`${styles.navLink} ${styles.navLinkActive}`}>Contact</Link>
+          <Link to="/contact" onClick={() => { scrollToTop(); }} className={`${styles.navLink} ${styles.navLinkActive}`}>Contact</Link>
         </div>
       </nav>
 

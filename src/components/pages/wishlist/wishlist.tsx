@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { CartIcon, CrossIcon, EmptyWishlistIcon, LoadingSpinner, SearchIcon } from '../../../assets/Extra/svg';
 import { getWishlist, removeFromWishlist } from '../../../api/wishlist';
 import { useNavigate, Link } from 'react-router-dom';
 import { getToken } from '../../../utils/tokenUtils';
 import { addToCart } from '../../../api/cart';
 import BASE_URL from '../../../utils/baseapi';
+import { useState, useEffect } from 'react';
 import styles from './wishlist.module.css';
-import { CartIcon, CrossIcon, EmptyWishlistIcon, LoadingSpinner, SearchIcon } from '../../../assets/Extra/svg';
 
 interface WishlistItem {
   id: number;
@@ -31,17 +31,15 @@ function Wishlist() {
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
     setTimeout(() => setToast(null), 4000);
-  }
+  };
 
   const loadWishlist = async () => {
-    if (!token) { setLoading(false); showToast('Please sign in to view your wishlist', false);
-      return;
-    }
+    if (!token) { setLoading(false); showToast('Please sign in to view your wishlist', false); return; }
     try {
       const data = await getWishlist();
       setItems(Array.isArray(data) ? data : []);
     } catch (err) {
-      showToast('Error fetching wishlist:' + err, false);
+      showToast('Error fetching wishlist: ' + err, false);
     } finally {
       setLoading(false);
     }
@@ -53,9 +51,9 @@ function Wishlist() {
     try {
       await removeFromWishlist(itemId);
       setItems(prev => prev.filter(i => i.id !== itemId));
-      showToast('Item Removed from Wishlist');
+      showToast('Item removed from wishlist');
     } catch (err) {
-      showToast('Error removing item from wishlist:' + err, false);
+      showToast('Error removing item: ' + err, false);
     }
   };
 
@@ -63,10 +61,11 @@ function Wishlist() {
     if (!token) { navigate('/login'); return; }
     try {
       await addToCart(item.product_id ?? item.id);
-      setAddedCart(item.id); showToast('Item Added to Cart!');
+      setAddedCart(item.id);
+      showToast('Item added to cart!');
       setTimeout(() => setAddedCart(null), 1800);
     } catch (err) {
-      showToast('Error adding item to cart:' + err, false);
+      showToast('Error adding to cart: ' + err, false);
     }
   };
 
@@ -87,7 +86,7 @@ function Wishlist() {
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}><EmptyWishlistIcon /></div>
           <h2>Sign in to view your wishlist</h2>
-          <p>Save your Favourite Pieces Here and Revisit them Anytime.</p>
+          <p>Save your Favourite Pieces here and Revisit them anytime.</p>
           <button className={styles.shopBtn} onClick={() => navigate('/login')}>Sign In</button>
         </div>
       </div>
@@ -108,7 +107,6 @@ function Wishlist() {
           <span className={styles.searchIcon}><SearchIcon /></span>
           <input className={styles.search} placeholder="Search saved items…" value={search} onChange={e => setSearch(e.target.value)} />
         </div>
-
         <div className={styles.navIcons}>
           <button className={styles.iconBtn} onClick={() => navigate('/products')}>Shop</button>
           <button className={styles.iconBtn} onClick={() => navigate('/cart')}><CartIcon /></button>
@@ -121,16 +119,15 @@ function Wishlist() {
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}><EmptyWishlistIcon /></div>
           <h2>Your wishlist is empty</h2>
-          <p>Start saving pieces you love and find them here whenever you're ready.</p>
+          <p>Start saving pieces you love and Find them here Whenever you're ready.</p>
           <button className={styles.shopBtn} onClick={() => navigate('/products')}>Browse Collection</button>
         </div>
       ) : (
         <>
           <div className={styles.header}>
-            <h1>
-              My Wishlist
+            <h1> My Wishlist
               <span className={styles.count}>
-                {' '}— {filtered.length} {filtered.length === 1 ? 'piece' : 'pieces'} saved
+                {' '} –— {filtered.length} {filtered.length === 1 ? 'Piece' : 'Pieces'} Saved
               </span>
             </h1>
           </div>
@@ -141,10 +138,15 @@ function Wishlist() {
                 <button className={styles.removeBtn} onClick={() => handleRemove(item.id)} title="Remove from wishlist"><CrossIcon /></button>
 
                 <div className={styles.imageWrap}>
-                  {item.image ? <img src={`${BASE_URL}${item.image}`} alt={item.name} loading="lazy" />
+                  {item.image
+                    ? <img src={`${BASE_URL}${item.image}`} alt={item.name} loading="lazy" />
                     : <div style={{ width: '100%', height: '100%', background: '#f5f0e8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>🪑</div>
                   }
+                  {item.category && (
+                    <div className={styles.cardCategory}>{item.category}</div>
+                  )}
                 </div>
+
                 <div className={styles.cardBody}>
                   <div className={styles.title}>{item.name}</div>
                   {item.description && (
@@ -154,32 +156,31 @@ function Wishlist() {
                     <span className={styles.price}>${Number(item.price).toLocaleString('en-IN')}</span>
                   </div>
                   {item.in_stock === false && (
-                    <p style={{ fontSize: '0.75rem', color: '#e05252', marginBottom: 8, fontWeight: 500 }}>Out of stock</p>
+                    <p style={{ fontSize: '0.75rem', color: '#e05252', margin: 0, fontWeight: 600 }}>Out of Stock</p>
                   )}
-
-                  <button className={styles.cartBtn} onClick={() => handleAddToCart(item)} style={addedCart === item.id ? { background: '#34a46a' } : {}}
-                    disabled={!item.in_stock || addedCart === item.id}>
+                  <button className={styles.cartBtn} onClick={() => handleAddToCart(item)}
+                    style={addedCart === item.id ? { background: '#28a745' } : {}} disabled={!item.in_stock || addedCart === item.id}>
                     {addedCart === item.id ? '✓ Added to Cart' : (
-                      <>
-                        <CartIcon />&nbsp; Move to Cart
-                      </>
+                      <><CartIcon />&nbsp; Move to Cart</>
                     )}
                   </button>
                 </div>
               </div>
             ))}
 
-            {toast && (
-              <div className={`${styles.toast} ${toast.ok ? styles.toastSuccess : styles.toastError}`}>
-                {toast.msg}
-              </div>
-            )}
-
             {filtered.length === 0 && search && (
-              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '60px 20px', color: '#aaa' }}>No Saved Items Found"{search}"</div>
+              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '60px 20px', color: '#aaa' }}>
+                No Item Match Found"{search}"
+              </div>
             )}
           </div>
         </>
+      )}
+
+      {toast && (
+        <div className={`${styles.toast} ${toast.ok ? styles.toastSuccess : styles.toastError}`}>
+          {toast.msg}
+        </div>
       )}
     </div>
   );

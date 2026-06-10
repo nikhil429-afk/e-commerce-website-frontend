@@ -158,7 +158,12 @@ function Beds() {
           <h1 className={styles.heading}>Beds &amp; <em>Frames</em></h1>
           <p className={styles.subheading}>Crafted for comfort. Designed for life.</p>
         </div>
+        {products.length > 0 && (
+          <div className={styles.heroCountBadge}>{products.length} Pieces Available</div>
+        )}
       </div>
+      
+      <div className={styles.categorySeparator} />
 
       <div className={styles.grid}>
         {(filtered || []).map(bed => (

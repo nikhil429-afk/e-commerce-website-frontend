@@ -153,7 +153,12 @@ function Chairs() {
           <h1 className={styles.heading}>Chairs &amp; <em>Seating</em></h1>
           <p className={styles.subheading}>Every Seat Tells a Story.</p>
         </div>
+        {products.length > 0 && (
+          <div className={styles.heroCountBadge}>{products.length} Pieces Available</div>
+        )}
       </div>
+      
+      <div className={styles.categorySeparator} />
 
       <div className={styles.grid}>
         {(filtered || []).map(chair => (

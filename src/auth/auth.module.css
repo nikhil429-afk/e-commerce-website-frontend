@@ -169,7 +169,7 @@
   font-family: 'DM Sans', sans-serif;
   font-size: 0.9rem;
   font-weight: 200;
-  color: grey;
+  color: whitesmoke;
   background: var(--sage-input);
   border: 1.5px solid var(--sage-border);
   border-radius: 50px;
@@ -178,7 +178,6 @@
   transition:
     background var(--transition),
     border-color var(--transition),
-    box-shadow var(--transition);
 }
 
 .input::placeholder {
@@ -196,13 +195,11 @@
   padding-right: 3rem;
 }
 
-/* Error state */
 .field.error .input {
   border-color: var(--error);
   background: var(--error-bg);
 }
 
-/* ─── Eye Icon ───────────────────────────────── */
 .fieldIcon {
   position: absolute;
   right: 1.1rem;
@@ -224,34 +221,33 @@
   color: var(--white);
 }
 
-/* ─── Error Messages ─────────────────────────── */
 .errMsg {
-  display: flex;
-  align-items: center;
   gap: 0.38rem;
+  display: flex;
+  color: black;
   font-size: 0.74rem;
-  color: var(--error);
-  padding: 0.28rem 0.7rem;
   margin-top: 0.3rem;
-  background: var(--error-bg);
-  border-radius: 6px;
+  background: var(--);
+  border-radius: 80px;
+  align-items: center;
+  padding: 0.28rem 0.7rem;
   animation: popIn 0.2s ease;
 }
 
 @keyframes popIn {
   from { opacity: 0; transform: translateY(-4px); }
-  to   { opacity: 1; transform: translateY(0);    }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .errDot {
-  width: 4px;
-  height: 4px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   background: var(--error);
   flex-shrink: 0;
+  background-color: rgba(240, 5, 5, 0.856);
 }
 
-/* ─── Submit Button ──────────────────────────── */
 .button {
   width: 100%;
   padding: 0.9rem 1rem;
@@ -264,7 +260,7 @@
   color: var(--white);
   background: var(--charcoal);
   border: none;
-  border-radius: 50px; /* pill */
+  border-radius: 50px;
   cursor: pointer;
   transition:
     background var(--transition),
@@ -283,29 +279,27 @@
   box-shadow: none;
 }
 
-/* ─── Global Messages ────────────────────────── */
 .successMessage {
   font-size: 0.78rem;
-  color: var(--success);
+  color: White;
   text-align: center;
   padding: 0.45rem 0.8rem;
-  background: rgba(126, 200, 160, 0.15);
+  background: rgba(0, 0, 0, 0.784);
   border-radius: 8px;
   margin-top: 0.6rem;
 }
 
 .errorMessage {
+  color: black;
   font-size: 0.78rem;
-  color: var(--error);
   text-align: center;
   padding: 0.45rem 0.8rem;
-  background: var(--error-bg);
-  border-radius: 8px;
+  background: rgba(255, 0, 0, 0.503);
+  border-radius: 80px;
   margin-top: 0.6rem;
   animation: popIn 0.2s ease;
 }
 
-/* ─── Footer ─────────────────────────────────── */
 .footer {
   display: flex;
   align-items: center;
@@ -353,7 +347,6 @@
   transition: transform var(--transition);
 }
 
-/* ─── Responsive ─────────────────────────────── */
 @media (max-width: 680px) {
   .card {
     flex-direction: column;
@@ -366,7 +359,6 @@
     flex-basis: auto;
   }
 
-  /* On mobile: image becomes a top strip */
   .imagePanel {
     flex-basis: 200px;
     min-height: 200px;
