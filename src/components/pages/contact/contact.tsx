@@ -4,6 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { sendContact } from "../../../api/contactus";
 import { getToken } from "../../../utils/tokenUtils";
 import { HomeIcon, CallIcon, MailIcon, SendMessageArrowPlane, TickMark } from "../../../assets/Extra/svg";
+import PageNavigation from "../../pagenavigation/pagenavigation";
 
 
 function Contact() {
@@ -16,6 +17,7 @@ function Contact() {
   const [form, setForm] = useState({ name: "", email: "", subject: "", phone: "", message: "", appointment_date: "",});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    e.preventDefault();
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
@@ -42,13 +44,13 @@ function Contact() {
       if (!form.email.includes("@")) { showToast("Invalid Email!", false); return; }
       
       const cleanPhone = form.phone.replace(/\D/g, "");
-      if (cleanPhone.length < 10) { showToast("Invalid Phone Number!", false); return; }
+      if (cleanPhone.length < 10 && cleanPhone.length > 10) { showToast("Invalid Phone Number!", false); return; }
 
       if (form.message.trim().length < 10) { showToast("Message too Short!", false); return; }
 
       await sendContact(form);
       setSubmitted(true);
-      setTimeout(() => setSubmitted(false), 4000);
+      setTimeout(() => setSubmitted(false), 5000);
       setForm({ name: "", email: "", subject: "", phone: "", message: "", appointment_date: "", });
     } catch (err) {
       console.error(err);
@@ -81,6 +83,7 @@ function Contact() {
     <div className={styles.container}>
       <nav className={styles.navbar}>
         <Link to="/" className={styles.logo}>Furniture<span>&nbsp;·&nbsp;</span>Co.</Link>
+        <PageNavigation />
         <div className={styles.navLinks}>
           <Link to="/" className={styles.navLink}>Home</Link>
           <Link to="/products" className={styles.navLink}>Products</Link>

@@ -491,7 +491,7 @@ function Owner() {
                 <div className={styles.statsDateCenter}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <div className={styles.datePickers}>
-                      <DatePicker label="Start Date" minDate={dateRange[1] ? dayjs(dateRange[1]).subtract(31, "day") : undefined}
+                      <DatePicker label="Start Date" minDate={dateRange[1] ? dayjs(dateRange[1]).subtract(3650, "day") : undefined}
                         maxDate={dateRange[1] || dayjs()} value={dateRange[0]} onChange={(newStart) => { const updated: [any, any] = [newStart, dateRange[1]];
                         setDateRange(updated);
 
@@ -505,12 +505,13 @@ function Owner() {
                 </div>
               </div>
             </div>
+
             <div className={styles.statsChartBody}>
                 {activeChart === "orders" && (<>
                 {errT ? <ErrBanner msg={errT} retry={() => {if (dateRange[0] && dateRange[1]) {loadChartData(dateRange[0], dateRange[1]);}}} /> : ordersData.length === 0
                   ? <EmptyRow icon="📦" title={search ? "No Charts" : "No Charts"} sub={search ? `Nothing matches "${search}"` : "No accounts found."} />
                   : (<>
-                <div className={styles.cardSub}>Total Orders in past 30 Days</div>
+                <div className={styles.cardSub}>Total Orders in Past 30 Days</div>
                 <div className={styles.chartWrap}>
                   {ordersData.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
@@ -523,7 +524,8 @@ function Owner() {
                         <Line type="monotone" dataKey="value" stroke="url(#lineGrad)" strokeWidth={2.5} dot={{ fill: "#3470d6", r: 3, strokeWidth: 0 }} activeDot={{ r: 5, fill: "#25b6f9", strokeWidth: 0 }} />
                       </LineChart>
                     </ResponsiveContainer>
-                  ) : <div className={styles.chartEmpty}>Loading Chart....</div>}
+                    ) : <div className={styles.chartEmpty}>Loading Chart....</div>
+                  }
                 </div><br />
                 <div className={styles.barFooter}>
                   <div><div className={styles.barTotal}>{chartTotal}</div><div className={styles.barTotalLabel}>Total Orders In Past 30 Days</div></div>
@@ -549,7 +551,8 @@ function Owner() {
                         <Line type="monotone" dataKey="value" stroke="url(#convGrad)" strokeWidth={2.5} dot={{ fill: "#10b981", r: 3, strokeWidth: 0 }} activeDot={{ r: 5, fill: "#6366f1", strokeWidth: 0 }} />
                       </LineChart>
                     </ResponsiveContainer>
-                  ) : <div className={styles.chartEmpty}>Loading Chart....</div>}
+                    ) : <div className={styles.chartEmpty}>Loading Chart....</div>
+                    }
                 </div><br />
                 <div className={styles.barFooter}>
                   <div className={styles.barTotalLabel}>Registered Users (30 Days)</div>

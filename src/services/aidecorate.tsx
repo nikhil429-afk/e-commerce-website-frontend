@@ -1,27 +1,41 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Upload,  } from '../assets/Extra/svg';
-import { getImage } from '../api/aidecorate';
+import { UploadImage } from '../api/aidecorate';
+import { Upload } from '../assets/Extra/svg';
 import styles from "./decorate.module.css"
+
+interface box {
+  box_2d: [number, number, number, number];
+  label: string;
+}
+
+interface DetectionResponse {
+  empty_space: box[];
+}
 
 
 function Decorate() {
 
-    
-    const [search, setSearch] = useState<string>("");
-    const [loading, setLoading] = useState<boolean>(false);
-    const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+  const [activeSection, setActiveSection] = useState<"upload" | "decorate">("upload");
+  const [search, setSearch] = useState<string>("");
+  const [result, SetResult] = useState<box[]>([]);
+  const [product, setProducts] = useState("");
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+  
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null)
+  const [dragOver, setDragOver] = useState(false);
+  const [, setUploadProgress] = useState(0);
+  const [modalFading, setModalFading] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "done" | "error">("idle");
 
-    const [showUploadModal, setShowUploadModal] = useState(false);
-    const [dragOver, setDragOver] = useState(false);
-    const [uploadFile, setUploadFile] = useState<File | null>(null)
-    const [uploadProgress, setUploadProgress] = useState(0);
-    const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "done" | "error">("idle");
-    const [modalFading, setModalFading] = useState(false);
-    const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  // const containerRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
+  useEffect(() => {
 
-    }, []);
+  }, []);
 
     const showToast = (msg: string, ok = true) => {
         setToast({ msg, ok });
@@ -34,24 +48,33 @@ function Decorate() {
     const handleDrop = (e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); setDragOver(false);
     const file = e.dataTransfer.files[0];
         if (file) { setUploadFile(file); setUploadStatus("idle"); }
+        showToast("File Dropped Successfully!", true)
     };
 
     const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-        if (file) { setUploadFile(file); setUploadStatus("idle"); }
+        if (file) {
+          setUploadFile(file);
+          setUploadStatus("idle");
+          setImageSrc(URL.createObjectURL(file));
+        }
+        showToast("File Fetched Successfully!", true)
     };
 
     const handleUploadSubmit = async () => {
         if (!uploadFile) return;
         setUploadStatus("uploading"); setUploadProgress(0);
         const interval = setInterval(() => {
-            setUploadProgress(p => { if (p >= 90) { clearInterval(interval); return p; } return p + Math.floor(Math.random() * 12) + 4; });
+            setUploadProgress(p => {
+              if (p >= 90) { clearInterval(interval); return p; }
+              return p + Math.floor(Math.random() * 12) + 4; });
         }, 160);
         try {
             const formData = new FormData();
             formData.append("file", uploadFile);
-            const res = await getImage();
+            const res = await UploadImage(formData);
             clearInterval(interval);
+            if (!res.ok) throw new Error();
             setUploadProgress(100); setUploadStatus("done");
         } catch {
             clearInterval(interval); setUploadStatus("error");
@@ -62,30 +85,47 @@ function Decorate() {
         setModalFading(true);
         setTimeout(() => { setModalFading(false); closeUploadModal(); }, 300);
     };
-  
-    const formatBytes = (bytes: number) => {
-        if (bytes < 1024) return `${bytes} B`;
-        if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-        return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+
+    const decorate_now = async () => {
+      setLoading(false); showToast("Loading your AI Decoration", true);
+      try{
+        // const res = await ;
+
+      }
+      catch{
+        showToast("An Error Occured", false); closeUploadModal();
+      }
     };
 
-    return(
-    <div>
+    const handleSearch = (value: string) => {
+    setSearch(value);
+    // setProducts(product.filter(p => ));
+    }
+  
+    // const formatBytes = (bytes: number) => {
+    //     if (bytes < 1024) return `${bytes} B`;
+    //     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    //     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+    // };
 
-        <div className={styles.card}>
-          <div className={styles.cardTitle}> Room Decoration With Our AI </div>
-          <div className={styles.cardSub}> Upload Room Images and Get your Room Decorated With AI </div>
-          <button onClick={openUploadModal} className={styles.uploadBtn}
-            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 8px 28px rgba(99,102,241,0.48)"; }}
-            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 18px rgba(99,102,241,0.35)"; }}>
-            <Upload /> Upload Room Image
-          </button>
-        </div>
-        {showUploadModal && (
-          <div onClick={e => e.target === e.currentTarget && smoothCloseUploadModal()}
-            className={styles.uploadModalOverlay}
-            style={{ opacity: modalFading ? 0 : 1 }}>
-            <div className={styles.uploadModalBox}
+    return(
+        <div className={styles.Container}>
+          {loading ? <p className={styles.loading}>Loading Image...</p> : ( 
+          <div className={styles.uploadContainer}>
+            <div className={styles.uploadImage}>
+            <div className={styles.card}>
+              <div className={styles.cardTitle}> Room Decoration With Our AI </div>
+              <div className={styles.cardSub}> Upload Room Images and Get your Room AI Ready </div>
+              <button onClick={openUploadModal} className={styles.uploadBtn}
+                onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 8px 28px rgba(99,102,241,0.48)"; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLButtonElement).style.boxShadow = "0 4px 18px rgba(99,102,241,0.35)"; }}>
+                <Upload />Upload Room Image
+              </button>
+            </div>
+            {showUploadModal && (
+              <div onClick={e => e.target === e.currentTarget && smoothCloseUploadModal()} className={styles.uploadModalOverlay}
+              style={{ opacity: modalFading ? 0 : 1 }}>
+                <div className={styles.uploadModalBox}
               style={{ transform: modalFading ? "scale(0.96) translateY(8px)" : "scale(1) translateY(0)" }}>
               <div className={styles.uploadModalHeader}>
                 <div>
@@ -104,59 +144,57 @@ function Decorate() {
                 {uploadFile ? (
                   <div>
                     <div className={styles.fileEmoji}>📄</div> <div className={styles.fileName}>{uploadFile.name}</div>
-                    <div className={styles.fileSize}> {formatBytes(uploadFile.size)} </div>
-                    <div className={styles.fileReady}>✓ Upload Now — Click To Replace</div>
+                    {/* <div className={styles.fileSize}> {formatBytes(uploadFile.size)} </div> */}
+                    <div className={styles.fileReady}>✓ Loaded — Click To Replace</div>
                   </div>
                 ) : (
                   <div>
                     <div className={styles.dropIconWrap}><Upload /></div>
-                    <div className={styles.dropTitle} >Drop Your File Here</div>
+                    <div className={styles.dropTitle}>Drop Your File Here</div>
                     <div className={styles.dropSub}>or <span className={styles.dropBrowse}>Browse Files</span></div>
                   </div>
                 )}
               </div>
               {uploadStatus === "uploading" && (
                 <div className={styles.progressWrap}>
-                  <div className={styles.progressHeader}>
-                    <span className={styles.progressLabel}>Uploading...</span><span className={styles.progressPct}>{uploadProgress} %</span>
-                  </div>
-                  <div className={styles.progressTrack}>
-                    <div className={styles.progressBar} style={{ width: `${uploadProgress}%` }} />
-                  </div>
                 </div>
               )}
               {uploadStatus === "done" && <div className={styles.uploadSuccess}>✓ File Uploaded Successfully!</div>}
               {uploadStatus === "error" && <div className={styles.uploadError}>✕ Upload Failed! Please Try Again ↻</div>}
               <div className={styles.uploadModalFooter}>
                 {uploadStatus === "done" ? (
-                  <button onClick={smoothCloseUploadModal} className={styles.doneBtnGreen}>Done</button>
+                  <button onClick={() => {decorate_now(); smoothCloseUploadModal()}} className={styles.doneBtnGreen}>Decorate Now</button>
                 ) : (
                   <button onClick={handleUploadSubmit} disabled={!uploadFile || uploadStatus === "uploading"}
                     className={(!uploadFile || uploadStatus === "uploading") ? styles.uploadSubmitDisabled : styles.uploadSubmit}>
-                    {uploadStatus === "uploading" ? "Uploading…" : "Upload File"}
+                    {uploadStatus === "uploading" ? "Uploading..." : "Upload File"}
                   </button>
                 )}
-                <button onClick={smoothCloseUploadModal} className={styles.uploadCancelBtn}>Cancel</button>
+                <button onClick={() => {smoothCloseUploadModal()}} className={styles.uploadCancelBtn}>Cancel</button>
               </div>
             </div>
           </div>
-        )}
-
+          )}
+          </div>
+          <div className={styles.decorateImage}>
+            <center> <input className={styles.search} type="text" placeholder="Search Products..." value={search}
+              onChange={e => handleSearch(e.target.value)} /> </center>
+              {imageSrc && (
+                <div>
+                  <img src={imageSrc} alt="Uploaded Image" className={styles.image} />
+                </div>
+              )}
+          </div>
+       </div>
+      )}
         {toast && (
           <div className={`${styles.toast} ${toast.ok ? styles.toastOk : styles.toastErr}`}>
             {toast.msg}
           </div>
         )}
-        
-        <div className={styles.Container}>
-            {loading ? <p className={styles.loading}>Loading Image...</p> : (
-                <div>
-
-                </div>
-            )}
         </div>
-    </div>
     )
-};
+  };
+
 
 export default Decorate;

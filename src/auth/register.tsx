@@ -20,13 +20,7 @@ interface ErrorData {
 }
 
 function Register(){
-
-    const [ form, setForm ] = useState<FormData>({
-        username: "",
-        email: "",
-        pwd: "",
-        conf_pwd: "",
-    })
+    const navigate = useNavigate();
 
     const [ loading, setLoading ] = useState();
     const [ message, setMessage ] = useState("");
@@ -35,6 +29,7 @@ function Register(){
     const [ error, setError ] = useState<ErrorData>({});
     const [ showConfPwd, setShowConfPwd ] = useState(false);
     const [ toast, setToast ] = useState<{ msg: string; ok: boolean } | null>(null);
+    const [ form, setForm ] = useState<FormData>({username: "", email: "", pwd: "", conf_pwd: "",})
 
     const showToastMsg = (msg: string) => {
         setToast({ msg, ok: true });
@@ -43,12 +38,9 @@ function Register(){
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({
-            ...form,
-            [e.target.name]: e.target.value
+            ...form, [e.target.name]: e.target.value
         })
     };
-
-    const navigate = useNavigate();
 
     const handleNavigation = () => {
         setExiting(true);
@@ -96,7 +88,7 @@ function Register(){
             <div className={styles.card}>
                 <form onSubmit={handleSubmit} className={`${styles.container} ${exiting ? styles.exiting : ""}`}>
                     <div className={styles.heading}>
-                        <h2 className={styles.cardTitle} data-text="Create Account"> Create Account </h2>
+                        <h2 className={styles.cardTitle} data-text="Create Account">Create Account</h2>
                         <p className={styles.subText}>Sign up and Glow Up your life with US.</p>
                         <div className={styles.accentLine}></div>
                     </div>

@@ -5,6 +5,7 @@ import { getToken } from '../../../utils/tokenUtils';
 import { WishlistIcon, CrossIcon, EmptyCartIcon } from '../../../assets/Extra/svg';
 import BASE_URL from '../../../utils/baseapi';
 import styles from './cart.module.css';
+import PageNavigation from '../../pagenavigation/pagenavigation';
 
 interface CartItem {
   id: number;
@@ -134,6 +135,7 @@ function Cart() {
       <div className={styles.page}>
         <nav className={styles.navbar}>
           <div className={styles.logo} onClick={() => navigate('/')}>Furniture<span>·</span>Co</div>
+          <PageNavigation />
           <div className={styles.navIcons}>
             <button className={styles.iconBtn} onClick={() => navigate('/wishlist')}>♡ Wishlist</button>
           </div>

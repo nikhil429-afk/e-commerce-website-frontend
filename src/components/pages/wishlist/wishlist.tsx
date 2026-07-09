@@ -6,6 +6,7 @@ import { addToCart } from '../../../api/cart';
 import BASE_URL from '../../../utils/baseapi';
 import { useState, useEffect } from 'react';
 import styles from './wishlist.module.css';
+import PageNavigation from '../../pagenavigation/pagenavigation';
 
 interface WishlistItem {
   id: number;
@@ -97,6 +98,7 @@ function Wishlist() {
     <div className={styles.page}>
       <nav className={styles.navbar}>
         <div className={styles.logo} onClick={() => navigate('/')}>Furniture<span>·</span>Co</div>
+        <PageNavigation />
         <ul className={styles.navLinks}>
           <li><Link to="/">Home</Link></li>
           <li><Link to="/products">Products</Link></li>
