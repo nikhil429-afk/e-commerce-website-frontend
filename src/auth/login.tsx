@@ -16,7 +16,7 @@ function Login() {
 
   const handleNavigation = () => {
     setExiting(true);
-    setTimeout(() => navigate("/register"), 550);
+    setTimeout(() => navigate("/register"));
   };
 
   return (
@@ -56,13 +56,13 @@ function Login() {
           )}
           </div>
 
-          {message && <p className={styles.successMessage}>{message}</p>}
-          {error.general && <p className={styles.errorMessage}>{error.general}</p>}
-
           <button type="submit" className={styles.button} disabled={loading}>
             {loading ? "Logging in..." : "Log In →"}
           </button>
 
+          {message && <p className={styles.successMessage}>{message}</p>}
+          {error.general && <p className={styles.errorMessage}>{error.general}</p>}
+          
           <div className={styles.footer}>
             <span className={styles.footerTxt}>Don't Have An Account?</span>
             <button type="button" onClick={handleNavigation} className={styles.link}>

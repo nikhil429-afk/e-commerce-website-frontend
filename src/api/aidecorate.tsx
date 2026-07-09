@@ -2,17 +2,14 @@ import BASE_URL from "../utils/baseapi";
 import { getToken } from "../utils/tokenUtils";
 
 
-function authHeaders(): HeadersInit {
-  return {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${getToken()}`,
-  };
+
+export const UploadImage = async (formData: FormData) => {
+    return fetch(`${BASE_URL}/ai-decorate`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${getToken()}` },
+        body: formData
+    });
 };
 
-export const getImage = async () => {
-    const res = await fetch(`${BASE_URL}/upload`, {
-        method: "POST",
-        headers: authHeaders(),
-    });
-    return res.json;
-};
+
+// export const 

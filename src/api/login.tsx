@@ -7,9 +7,11 @@ interface LoginData {
 
 export const getLogin = async(form: LoginData) => {
     const res = await fetch(`${BASE_URL}/login/`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", },
-        body: JSON.stringify({ email: form.email, pwd: form.pwd, }),
-      });
-    return res.json();
+      method: "POST",
+      headers: { "Content-Type": "application/json", },
+      body: JSON.stringify({ email: form.email, pwd: form.pwd, }),
+    });
+    const data = await res.json();
+  return { ok: res.ok, status: res.status, data };
 };
+

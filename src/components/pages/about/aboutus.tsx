@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./aboutus.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import { RightArrowIcon } from "../../../assets/Extra/svg"
-import Products from '../products/products';
+import PageNavigation from "../../pagenavigation/pagenavigation";
 
 function Aboutus() {
   const navigate = useNavigate();
@@ -26,6 +26,7 @@ function Aboutus() {
     <div className={styles.container}>
       <nav className={styles.navbar}>
         <Link to="/" className={styles.logo}>Furniture<span>&nbsp;·&nbsp;</span>Co.</Link>
+        <PageNavigation />
         <div className={styles.navLinks}>
           <Link to="/" className={styles.navLink}>Home</Link>
           <Link to="/products" className={styles.navLink}>Products</Link>

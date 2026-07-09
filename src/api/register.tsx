@@ -16,7 +16,6 @@ export const getRegister = async(form: FormData) => {
             email: form.email,
             pwd: form.pwd,
             conf_pwd: form.conf_pwd,
-
         })
     })
     return res.json();

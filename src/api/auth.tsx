@@ -64,23 +64,16 @@ export function useLogin() {
     try {
       const res = await getLogin(form);
       if (!res.ok) {
-        if (typeof res.detail === "object") {
-          setError(res.detail);
-        } else {
-          setError({
-            general: res.detail || "Login failed",
-          });
-        }
+        setError({ general: res.data.detail || "Login Failed", });
         return;
       }
 
-      const token: string = res.access_token;
-      const role: string = (res.user.role as string).toLowerCase();
-
-      localStorage.setItem("user", JSON.stringify(res.user));
-      saveToken(token);
-
-      setMessage("Login Successful!");
+  const token = res.data.access_token;
+  const role = res.data.user.role.toLowerCase();
+  
+  localStorage.setItem("user", JSON.stringify(res.data.user));
+    saveToken(token);
+    setMessage("Login Successful!");
 
       if (role === "owner") {
         navigate("/owner");
