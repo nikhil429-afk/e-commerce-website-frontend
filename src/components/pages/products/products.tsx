@@ -381,6 +381,7 @@ function Products() {
         <div ref={productsRef} className={styles.productArea}>
           {activeCategoryState && (<>
             <Outlet />
+            <br />
               <div className={styles.grid}>
                 {filteredProducts.length > 0 ? (
                   filteredProducts.map(product => (

@@ -3,26 +3,19 @@ import { UploadImage } from '../api/aidecorate';
 import { Upload } from '../assets/Extra/svg';
 import styles from "./decorate.module.css"
 
-interface box {
+interface EmptySpace {
+  description: string;
   box_2d: [number, number, number, number];
-  label: string;
 }
-
-interface DetectionResponse {
-  empty_space: box[];
-}
-
 
 function Decorate() {
 
-  const [activeSection, setActiveSection] = useState<"upload" | "decorate">("upload");
   const [search, setSearch] = useState<string>("");
-  const [result, SetResult] = useState<box[]>([]);
-  const [product, setProducts] = useState("");
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
-  
+
+  const [spaces,setSpaces]=useState<EmptySpace[]>([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null)
   const [dragOver, setDragOver] = useState(false);
@@ -31,7 +24,7 @@ function Decorate() {
   const [uploadStatus, setUploadStatus] = useState<"idle" | "uploading" | "done" | "error">("idle");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
-  // const containerRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
 
@@ -45,11 +38,6 @@ function Decorate() {
     const openUploadModal = () => { setUploadFile(null); setUploadProgress(0); setUploadStatus("idle"); setShowUploadModal(true); };
     const closeUploadModal = () => { setShowUploadModal(false); setUploadFile(null); setUploadProgress(0); setUploadStatus("idle"); };
 
-    const handleDrop = (e: React.DragEvent<HTMLDivElement>) => { e.preventDefault(); setDragOver(false);
-    const file = e.dataTransfer.files[0];
-        if (file) { setUploadFile(file); setUploadStatus("idle"); }
-        showToast("File Dropped Successfully!", true)
-    };
 
     const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -74,7 +62,11 @@ function Decorate() {
             formData.append("file", uploadFile);
             const res = await UploadImage(formData);
             clearInterval(interval);
+            showToast("Loading Your AI Decoration", true);
             if (!res.ok) throw new Error();
+            const data = await res.json();
+            console.log(data);
+            setSpaces(data.analysis);
             setUploadProgress(100); setUploadStatus("done");
         } catch {
             clearInterval(interval); setUploadStatus("error");
@@ -86,27 +78,9 @@ function Decorate() {
         setTimeout(() => { setModalFading(false); closeUploadModal(); }, 300);
     };
 
-    const decorate_now = async () => {
-      setLoading(false); showToast("Loading your AI Decoration", true);
-      try{
-        // const res = await ;
-
-      }
-      catch{
-        showToast("An Error Occured", false); closeUploadModal();
-      }
-    };
-
     const handleSearch = (value: string) => {
     setSearch(value);
-    // setProducts(product.filter(p => ));
     }
-  
-    // const formatBytes = (bytes: number) => {
-    //     if (bytes < 1024) return `${bytes} B`;
-    //     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
-    //     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-    // };
 
     return(
         <div className={styles.Container}>
@@ -135,7 +109,7 @@ function Decorate() {
                 <button onClick={smoothCloseUploadModal} className={styles.modalCloseBtn}> ✕ </button>
               </div>
               <div onDragOver={e => { e.preventDefault(); setDragOver(true); }} onDragLeave={() => setDragOver(false)}
-                onDrop={handleDrop} onClick={() => fileInputRef.current?.click()} className={styles.dropZone}
+                onClick={() => fileInputRef.current?.click()} className={styles.dropZone}
                 style={{
                   borderColor: dragOver ? "#6366f1" : uploadFile ? "#10b981" : "rgba(255,255,255,0.12)",
                   background: dragOver ? "rgba(99,102,241,0.06)" : uploadFile ? "rgba(16,185,129,0.05)" : "rgba(255,255,255,0.02)",
@@ -163,7 +137,7 @@ function Decorate() {
               {uploadStatus === "error" && <div className={styles.uploadError}>✕ Upload Failed! Please Try Again ↻</div>}
               <div className={styles.uploadModalFooter}>
                 {uploadStatus === "done" ? (
-                  <button onClick={() => {decorate_now(); smoothCloseUploadModal()}} className={styles.doneBtnGreen}>Decorate Now</button>
+                  <button onClick={() => {smoothCloseUploadModal()}} className={styles.doneBtnGreen}>Decorate Now</button>
                 ) : (
                   <button onClick={handleUploadSubmit} disabled={!uploadFile || uploadStatus === "uploading"}
                     className={(!uploadFile || uploadStatus === "uploading") ? styles.uploadSubmitDisabled : styles.uploadSubmit}>
@@ -180,8 +154,16 @@ function Decorate() {
             <center> <input className={styles.search} type="text" placeholder="Search Products..." value={search}
               onChange={e => handleSearch(e.target.value)} /> </center>
               {imageSrc && (
-                <div>
-                  <img src={imageSrc} alt="Uploaded Image" className={styles.image} />
+                <div className={styles.imageWrapper}>
+                  <img ref={imageRef} src={imageSrc!} className={styles.image} alt="Image"/>
+                  {spaces.map((space,index)=>{
+                    const [y1,x1,y2,x2]=space.box_2d;
+                    return(
+                    <div key={index} className={styles.emptyBox} style={{ top:`${(y1/1000)*100}%`, left:`${(x1/1000)*100}%`,
+                      width:`${((x2-x1)/1000)*100}%`, height:`${((y2-y1)/1000)*100}%` }}>
+                        {space.description}
+                    </div>
+                  )})}
                 </div>
               )}
           </div>
