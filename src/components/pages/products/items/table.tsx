@@ -55,7 +55,7 @@ function Tables() {
   const showToast = (msg: string, ok: boolean) => {
     setToast({msg, ok});
     setTimeout(() => setToast(null), 4000);
-  }
+  };
 
   const nextImage = (productId: number, total: number) => {
     setCurrentIndexes((prev) => ({ ...prev,
@@ -133,7 +133,7 @@ function Tables() {
   const pct = (i: Table) => Math.round(((i.oldPrice - i.price) / i.oldPrice) * 100);
   
     if (loading) return <h2 className={styles.loading}>Loading Products....</h2>;
-    if (!products.length) return <h2 className={styles.notFound}>No Product Found!</h2>;
+    if (!products.length) return <h2 className={styles.notFound}>No Product Found for Tables</h2>;
 
   return (
     <div className={styles.container}>

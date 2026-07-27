@@ -4,6 +4,7 @@ import styles from "./auth.module.css";
 import { useLogin } from "../api/auth";
 import { EyeIcon, EyeOffIcon} from "../assets/Extra/svg";
 
+
 function Login() {
 
   const navigate = useNavigate();
@@ -16,7 +17,7 @@ function Login() {
 
   const handleNavigation = () => {
     setExiting(true);
-    setTimeout(() => navigate("/register"));
+    setTimeout(() => navigate("/register"), 200);
   };
 
   return (

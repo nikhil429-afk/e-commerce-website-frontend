@@ -8,15 +8,21 @@ interface FormData {
 }
 
 export const getRegister = async(form: FormData) => {
-    const res = await fetch(`${BASE_URL}/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            username: form.username,
-            email: form.email,
-            pwd: form.pwd,
-            conf_pwd: form.conf_pwd,
+    try {
+        const res = await fetch(`${BASE_URL}/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                username: form.username,
+                email: form.email,
+                pwd: form.pwd,
+                conf_pwd: form.conf_pwd,
+            })
         })
-    })
-    return res.json();
+        const data = await res.json();
+        return { ok: res.ok, status: res.status, data };
+    }
+    catch (err: any) {
+        return { status: 500, data: { message: err.message}};
+    }
 };

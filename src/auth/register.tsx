@@ -36,52 +36,128 @@ function Register(){
         setTimeout(() => setToast(null), 4000);
     };
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm({
-            ...form, [e.target.name]: e.target.value
-        })
-    };
-
     const handleNavigation = () => {
         setExiting(true);
         setLoading;
-        setTimeout(() => navigate("/login"), 550);
+        setTimeout(() => navigate("/login"), 200);
     }
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        const updatedForm = {
+            ...form, [name]: value, 
+        };
+        
+        setForm(updatedForm);
+        const updatedErrors: ErrorData = { ...error };
+
+        const usernamePattern = /^[a-zA-Z]{3,50}$/;
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$#%!]{8,15}$/;
+        
+        if (name === "username") {
+            if (!value.trim()) { updatedErrors.username = "Username should not be Empty!";
+            }
+            else if (!usernamePattern.test(value)) {
+                updatedErrors.username ="Username must be of 3-50 letters Only!";
+            }
+            else {
+                delete updatedErrors.username;
+            }
+        };
+        
+        if (name === "email") {
+            if (!value.trim()) { updatedErrors.email = "Email should not be Empty!";
+            }
+            else if (!emailPattern.test(value)) { updatedErrors.email = "Invalid Email Format!";
+            }
+            else {
+                delete updatedErrors.email;
+            }
+        };
+        
+        if (name === "pwd") {
+            if (!value.trim()) {
+                updatedErrors.pwd = "Password should not be Empty!";
+            }
+            else if (!passwordPattern.test(value)) {
+                updatedErrors.pwd = "Password must contain 1 Uppercase, 1 Lowercase, 1 digit & 1 Special Character (8-15 Characters)";
+            }
+            else {
+                delete updatedErrors.pwd;
+            }
+            
+            if ( updatedForm.conf_pwd && updatedForm.conf_pwd !== value) {
+                updatedErrors.conf_pwd = "Passwords didn't Match!";
+            }
+            else {
+                delete updatedErrors.conf_pwd;
+            }
+        };
+        
+        if (name === "conf_pwd") {
+            if (!value.trim()) {
+                updatedErrors.conf_pwd = "Confirm Password should not be Empty!";
+            }
+            else if (value !== updatedForm.pwd) {
+                updatedErrors.conf_pwd = "Passwords didn't Match!";
+            }
+            else {
+                delete updatedErrors.conf_pwd;
+            }
+        };
+        setError(updatedErrors);
+    };
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const newError: any = {};
+        const newError: ErrorData = {};
+        
+        const usernamePattern = /^[a-zA-Z]{3,50}$/;
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[A-Za-z\d@$#%!]{8,15}$/;
+
         if (!form.username) newError.username = "Username cannot be Empty!";
+        // if (!form.username) newError.username = "Username cannot have digits!"
+        if (!usernamePattern.test(form.username)) newError.username = "Username must be 3-50 letters Only!";
+
         if (!form.email) newError.email = "Email cannot be Empty!";
+        if (!emailPattern.test(form.email)) newError.email = "Email format is Invalid";
+
         if (!form.pwd) newError.pwd = "Password cannot be Empty!";
+        if (!passwordPattern.test(form.pwd)) newError.pwd = "Password must contain 1 Uppercase, 1 Lowercase, 1 digit & 1 Special Character (8-15 Characters)";
+
         if (!form.conf_pwd) newError.conf_pwd = "Please Confirm Your Password!";
+        
         if (form.pwd && form.conf_pwd && form.pwd !== form.conf_pwd) newError.conf_pwd = "Passwords do not Match!";
         setError(newError);
 
         if(Object.keys(newError).length !== 0) return;
 
         try {
-            const data = await getRegister(form);
-            if (!data.ok) {
-                if (typeof data.detail === "object") {
-                    setError(data.detail);
+            const res = await getRegister(form);
+            if (!res.ok) {
+                if (typeof res.data.detail === "object") {
+                    setError(res.data.detail);
                 } else {
-                    setError({ general: data.detail || "Registration Failed" });
+                    setError({ general: res.data.detail || "Registration Failed" });
                 }
-                setMessage("");
-                showToastMsg("Registration Failed. Please Try Again.");
                 return;
             } else {
-                setMessage(data.message);
+                setMessage(res.data.message);
                 setError({});
                 setForm({ username: "", email: "", pwd: "", conf_pwd: "" });
                 showToastMsg("Registration Successful!");
+                setTimeout(() => navigate("/login"), 4000);
             }
         } catch (error) {
             console.error("Registration Failed:", error);
-            setError({ general: "An Error Occurred. Please Try Again." });
+                  const res = await getRegister(form);
+            setError({ general: res.data.detail || "An Error Occurred. Please Try Again." });
+        } finally {
+            setLoading;
         }
-    }
+    };
 
     return (
         <div className={styles.pageWrapper}>
@@ -96,9 +172,9 @@ function Register(){
                     <div className={`${styles.field} ${error.username ? styles.error : ""}`}>
                         <label className={styles.label}>Username : </label>
                         <input name="username" value={form.username} className={styles.input} onChange={handleChange} placeholder="e.g. Johndoe" />
-                        {error.username && ( <div className={styles.errMsg}>
-                            <span className={styles.errDot}></span>
-                                {error.username}
+                        {error.username && (
+                            <div className={styles.errMsg}>
+                                <span className={styles.errDot}></span> {error.username}
                             </div>
                         )}
                     </div>
@@ -106,9 +182,9 @@ function Register(){
                     <div className={`${styles.field} ${error.email ? styles.error : ""}`}>
                         <label className={styles.label}>Email Address : </label>
                         <input name="email" value={form.email} className={styles.input} onChange={handleChange} placeholder="john@example.com" />
-                        {error.email && ( <div className={styles.errMsg}>
-                                <span className={styles.errDot}></span>
-                                {error.email}
+                        {error.email && (
+                            <div className={styles.errMsg}>
+                                <span className={styles.errDot}></span> {error.email}
                             </div>
                         )}
                     </div>
@@ -120,9 +196,9 @@ function Register(){
                         <span className={styles.fieldIcon} onClick={() => setShowPwd(!showPwd)} >
                             {showPwd ? <EyeIcon /> : <EyeOffIcon />}
                         </span>
-                        {error.pwd && ( <div className={styles.errMsg}>
-                                <span className={styles.errDot}></span>
-                                {error.pwd}
+                        {error.pwd && (
+                            <div className={styles.errMsg}>
+                                <span className={styles.errDot}></span> {error.pwd}
                             </div>
                         )}
                     </div>
@@ -136,8 +212,7 @@ function Register(){
                         </span>
                         {error.conf_pwd && (
                             <div className={styles.errMsg}>
-                                <span className={styles.errDot}></span>
-                                {error.conf_pwd}
+                                <span className={styles.errDot}></span> {error.conf_pwd}
                             </div>
                         )}
                     </div>

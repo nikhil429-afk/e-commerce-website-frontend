@@ -8,79 +8,137 @@ function authHeaders(): HeadersInit {
   };
 };
 
+export const getFetchWishlist = async (token: string) => {
+  try {
+    const res = await fetch(`${BASE_URL}/wishlist`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    return await res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
+};
+
 export const getCart = async () => {
-  const res = await fetch(`${BASE_URL}/cart`, {
-    method: "GET",
-    headers: authHeaders() }
-  );
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/cart`, {
+      method: "GET",
+      headers: authHeaders() }
+    );
+    return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 
 export const addToCart = async (productId: number) => {
-  const res = await fetch(`${BASE_URL}/cart/${productId}`, {
-    method: "PUT",
-    headers: authHeaders(),
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/cart/${productId}`, {
+      method: "PUT",
+      headers: authHeaders(),
+    });
+    return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 
 export const removeFromCart = async (itemId: number) => {
-  const res = await fetch(`${BASE_URL}/cart/delete/${itemId}`, {
-    method: "DELETE",
-    headers: authHeaders(),
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/cart/delete/${itemId}`, {
+      method: "DELETE",
+      headers: authHeaders(),
+    });
+    return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 
 export const increaseQuantity = async (itemId: number) => {
-  const res = await fetch(`${BASE_URL}/cart/increase/${itemId}`, {
-    method: "PATCH",
-    headers: authHeaders(),
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/cart/increase/${itemId}`, {
+      method: "PATCH",
+      headers: authHeaders(),
+    });
+    return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 
 export const decreaseQuantity = async (itemId: number) => {
-  const res = await fetch(`${BASE_URL}/cart/decrease/${itemId}`, {
-    method: "PATCH",
-    headers: authHeaders(),
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/cart/decrease/${itemId}`, {
+      method: "PATCH",
+      headers: authHeaders(),
+    });
+    return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 
 
 export const clearCart = async () => {
-  const res = await fetch(`${BASE_URL}/cart/clear`, {
-    method: "DELETE",
-    headers: authHeaders(),
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/cart/clear`, {
+      method: "DELETE",
+      headers: authHeaders(),
+    });
+    return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 
 
 export const checkoutItem = async (itemId: number) => {
-  const res = await fetch(`${BASE_URL}/orders/checkout/${itemId}`, {
-    method: "POST",
-    headers: authHeaders(),
-  });
-  return res;
+  try {
+    const res = await fetch(`${BASE_URL}/orders/checkout/${itemId}`, {
+      method: "POST",
+      headers: authHeaders(),
+    });
+    return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 
 
 export const checkoutCart = async () => {
-  const res = await fetch(`${BASE_URL}/orders/checkout`, {
+  try {
+    const res = await fetch(`${BASE_URL}/orders/checkout`, {
       method: "POST",
       headers: authHeaders(),
-  });
-  return res;
+    });
+    return res;
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 
 
 export const getCartItemCount = async () => {
-  const res = await fetch(`${BASE_URL}/cart/count`, {
-    method: "GET",
-    headers: authHeaders(),
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/cart/count`, {
+      method: "GET",
+      headers: authHeaders(),
+    });
+    return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 

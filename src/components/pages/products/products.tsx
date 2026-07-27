@@ -1,18 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import { getAddToWishlist, getdetailView, getFetchCart, getProducts, getAddToCart } from "../../../api/products";
+import { getProducts, getFetchWishlist, getAddToWishlist,  getFetchCart,  getAddToCart } from "../../../api/products";
 import { CartIcon, FooterLogo, TickMark, WishlistIcon } from "../../../assets/Extra/svg";
 import { StarRating } from "../../../assets/Extra/extra_functions";
 import PageNavigation from "../../pagenavigation/pagenavigation";
-import { Outlet, Link, useNavigate } from 'react-router-dom';
+import { Pagination } from "../../pagination/pagination";
+import { Outlet, useOutlet, Link, useNavigate } from 'react-router-dom';
 import { getToken } from "../../../utils/tokenUtils";
 import BASE_URL from "../../../utils/baseapi";
 import styles from "./products.module.css";
-
-type PaginationProps = {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-};
+// import { getdetailView } from "../../../api/products";
 
 interface Products {
   id: number;
@@ -102,52 +98,16 @@ const normalizeCatName = (raw: string) => {
   return map[raw] || "All Products";
 };
 
-const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
-  if (totalPages <= 1) return null;
 
-  const handleClick = (page: number) => {
-    if (page > 0 && page <= totalPages) onPageChange(page);
-  };
-
-  const getPages = (): (number | "...")[] => {
-    if (totalPages <= 5) return Array.from({ length: totalPages }, (_, i) => i + 1);
-    const pages: (number | "...")[] = [];
-    const delta = 1;
-    const left = currentPage - delta;
-    const right = currentPage + delta;
-    pages.push(1);
-    if (left > 2) pages.push("...");
-    for (let i = Math.max(2, left); i <= Math.min(totalPages - 1, right); i++) pages.push(i);
-    if (right < totalPages - 1) pages.push("...");
-    pages.push(totalPages);
-    return pages;
-  };
-
-  return (
-    <div className={styles.pagination}>
-      <button className={styles.pageNavBtn} onClick={() => handleClick(currentPage - 1)} disabled={currentPage === 1}>Prev.</button>
-      {getPages().map((page, idx) =>
-        page === "..." ? (
-          <span key={`sep-${idx}`} className={styles.pageSep}>···</span>
-        ) : (
-          <button key={page} disabled={currentPage === page} onClick={() => handleClick(page as number)}
-            className={`${styles.pageBtn} ${currentPage === page ? styles.pageBtnActive : ""}`}> {page}
-          </button>
-        )
-      )}
-      <button className={styles.pageNavBtn} onClick={() => handleClick(currentPage + 1)} disabled={currentPage === totalPages}>
-        Next
-      </button>
-    </div>
-  );
-};
 
 function Products() {
   const token = getToken();
   const navigate = useNavigate();
-  const activeCategory = normalizeCatName(window.location.pathname.split("/").pop() || "");
+  const subComponents = useOutlet();
 
-  const [activeCategoryState] = useState(productList);
+  const activeCategory = normalizeCatName(window.location.pathname.split("/").pop() || "");
+  const isSubroute = Boolean(subComponents);
+
   const [search, setSearch] = useState("");
   const [finalSearch, setFinalSearch] = useState("");
 
@@ -156,11 +116,14 @@ function Products() {
   const [wishlist, setWishlist] = useState<number[]>([]);
   const [products, setProducts] = useState<Products[]>([]);
   const [currentIndexes, setCurrentIndexes] = useState<{ [key: number]: number }>({});
+  const [showAllOpen, setShowAllOpen] = useState(false);
+  const [allLoading, setAllLoading] = useState(false);
+  const [allLoaded, setAllLoaded] = useState(false);
 
   const [showQuickView, setShowQuickView] = useState(false);
   const [closingModal, setClosingModal] = useState(false);
   const [modalOrigin, setModalOrigin] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
-  const [showDetailView, setShowDetailView] = useState(false);
+  const [showDetailView] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [selectedProduct, setSelectedProduct] = useState<Products | null>(null);
@@ -185,7 +148,7 @@ function Products() {
   const scrollToSubRoute = () => window.scrollTo({ top: 380, behavior: "smooth" });
 
   useEffect(() => {
-    if (token) fetchCart();
+    if (token) fetchCart(); fetchWishlist();
   }, [token]);
 
   useEffect(() => {
@@ -219,6 +182,27 @@ function Products() {
     return () => clearInterval(interval);
   }, []);
 
+  useEffect(() => {
+    setShowAllOpen(false);
+  }, [activeCategory]);
+
+  
+  const handleShowAll = async () => {
+    setShowAllOpen(prev => !prev);
+    if (!allLoaded) {
+      setAllLoading(true);
+      try {
+        const data = await getProducts();
+        setProducts(Array.isArray(data) ? data : []);
+        setAllLoaded(true);
+      } catch (err) {
+        console.error("Error fetching all products:", err);
+      } finally {
+        setAllLoading(false);
+      }
+    }
+  };
+
   const nextImage = (productId: number, total: number) =>
     setCurrentIndexes(prev => ({ ...prev, [productId]: ((prev[productId] || 0) + 1) % total }));
 
@@ -229,7 +213,7 @@ function Products() {
     setSearch(value);
     setFinalSearch(value);
     if (value.trim()) {
-      productsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      productsRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
     }
   };
 
@@ -246,19 +230,19 @@ function Products() {
     setTimeout(() => { setShowQuickView(false); setSelectedProduct(null); setClosingModal(false); }, 350);
   };
 
-  const detailView = async (product: Products) => {
-    if (!token) {
-      showToast("Please log in to View Product Details.", false);
-    }
-    try {
-      const res = await getdetailView(product.id);
-      setSelectedProduct({ ...res, oldPrice: res.old_price ?? res.oldPrice ?? 0 });
-      setShowDetailView(true);
-      navigate(`/products/${product.id}/detailview`);
-    } catch {
-      showToast("Error fetching product details.", false);
-    }
-  };
+  // const detailView = async (product: Products) => {
+  //   if (!token) {
+  //     showToast("Please log in to View Product Details.", false);
+  //   }
+  //   try {
+  //     const res = await getdetailView(product.id);
+  //     setSelectedProduct({ ...res, oldPrice: res.old_price ?? res.oldPrice ?? 0 });
+  //     setShowDetailView(true);
+  //     navigate(`/products/${product.id}/detailview`);
+  //   } catch {
+  //     showToast("Error fetching product details.", false);
+  //   }
+  // };
 
   const fetchCart = async () => {
     try {
@@ -270,25 +254,39 @@ function Products() {
   };
 
   const addToCart = async (productId: number) => {
-    if (!token) { showToast("Please Log in to Add items to your Cart.", false); return; }
+    if (!token) { showToast("Please Log in to Add items to your Cart.", false);
+      return;
+    }
     try {
       const res = await getAddToCart(productId, token);
       if (!res) { showToast("Could not add item to cart.", false); return; }
       await fetchCart();
       setAddedToCart(productId);
+      showToast("Product Added To Cart", true);
       setTimeout(() => setAddedToCart(null), 3000);
     } catch {
       showToast("Error Adding item to Cart.", false);
     }
   };
 
+  const fetchWishlist = async () => {
+    try {
+      if (!token) return;
+      const data = await getFetchWishlist(token);
+      if (!Array.isArray(data)) return;
+      setWishlist(data.map((item: any) => item.product_id));
+    } catch {}
+  };
+
   const addToWishList = async (productId: number) => {
-    if (!token) { showToast("Please Log in to save to your Wishlist.", false); return; }
+    if (!token) { showToast("Please Log in to save to your Wishlist.", false);
+      return;
+    }
     try {
       const res = await getAddToWishlist(productId, token);
       if (!res) { showToast("Could not add item to wishlist.", false); return; }
       setWishlist(prev => prev.includes(productId) ? prev : [...prev, productId]);
-      showToast("Added to Wishlist!", true);
+      showToast("Product Added to Wishlist!", true);
     } catch {
       showToast("Error Adding Item to Wishlist.", false);
     }
@@ -304,6 +302,8 @@ function Products() {
       <span>Loading Products…</span>
     </div>
   );
+  
+  if (!products.length) return <h2 className={styles.notFound}>No Product Found</h2>;
 
   return (
     <>
@@ -379,62 +379,77 @@ function Products() {
         </aside>
 
         <div ref={productsRef} className={styles.productArea}>
-          {activeCategoryState && (<>
-            <Outlet />
-            <br />
-              <div className={styles.grid}>
-                {filteredProducts.length > 0 ? (
-                  filteredProducts.map(product => (
-                    <div key={product.id} className={styles.card}>
-                      {product.tag && <div className={styles.cardTag}>{product.tag}</div>}
-                      <button className={styles.wishlistBtn} onClick={() => addToWishList(product.id)}>♡ Wishlist</button>
-
-                      <div className={styles.imageWrap}>
-                        <img src={`${BASE_URL}${product.images[currentIndexes[product.id] || 0] || product.images[0]}`}
-                          alt={product.name} loading="lazy" />
-                        <div className={styles.imageOverlay}>
-                          <button className={styles.quickViewBtn} onClick={e => quickView(product, e)}>Quick View</button>
-                          <button className={styles.detailViewBtn} onClick={() => detailView(product)}>Details</button>
-                        </div>
-                      </div>
-
-                      <div className={styles.cardBody}>
-                        <div className={styles.rating}>
-                          <StarRating rating={product.rating} />
-                          <span className={styles.ratingCount}>{product.rating}</span>
-                        </div>
-
-                        <h3 className={styles.title}>{product.name}</h3>
-                        <p className={`${styles.titleh2} ${product.in_stock ? styles.inStock : styles.outStock}`}>
-                          {product.in_stock ? "● In Stock" : "○ Out of Stock"}
-                        </p>
-
-                        <div className={styles.priceRow}>
-                          <span className={styles.price}>₹{product.price.toLocaleString()}</span>
-                          {product.oldPrice > 0 && (
-                            <span className={styles.oldPrice}>₹{product.oldPrice.toLocaleString()}</span>
-                          )}
-                          {pct(product) > 0 && (
-                            <span className={styles.discount}>-{pct(product)}%</span>
-                          )}
-                        </div>
-
-                        <button className={styles.button} disabled={!product.in_stock}
-                          onClick={e => { e.stopPropagation(); addToCart(product.id); }}>
-                          {addedToCart === product.id ? (
-                            <><TickMark /><span>&nbsp;Added!</span></>
-                          ) : (
-                            <span><CartIcon />&nbsp;{product.in_stock ? "Add to Cart" : "Out of Stock"}</span>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <p className={styles.noResults}>No products found for "{finalSearch}".</p>
-                )}
+          {isSubroute && <Outlet /> }
+          {isSubroute && (
+            <>
+              <br />
+              <div className={styles.showAllSection}>
+                <div className={styles.showAllLeft}>
+                  <span className={styles.showAllLabel}>Explore More</span>
+                  <h3 className={styles.showAllTitle}>Browse Our Full Collection</h3>
+                </div>
+                <button className={styles.showAllBtn} onClick={handleShowAll} disabled={allLoading}>
+                  {allLoading ? 'Loading…' : (showAllOpen ? 'Hide All Products' : 'Show All Products')}
+                  <span className={`${styles.caretIcon} ${showAllOpen ? styles.caretOpen : ''}`}>▼</span>
+                </button>
               </div>
             </>
+          )}
+
+          {(!isSubroute || showAllOpen) && (
+            <div className={styles.grid}>
+              {filteredProducts.length > 0 ? (
+                filteredProducts.map(product => (
+                  <div key={product.id} className={styles.card}>
+                    {product.tag && <div className={styles.cardTag}>{product.tag}</div>}
+                    <button className={styles.wishlistBtn} onClick={() => addToWishList(product.id)}>
+                      ♡ Wishlist
+                    </button>
+                    <div className={styles.imageWrap}>
+                      <img src={`${BASE_URL}${product.images[currentIndexes[product.id] || 0] || product.images[0]}`}
+                        alt={product.name} loading="lazy" />
+                      <div className={styles.imageOverlay}>
+                        <button className={styles.quickViewBtn} onClick={e => quickView(product, e)}>Quick View</button>
+                        {/* <button className={styles.detailViewBtn} onClick={() => detailView(product)}>Details</button>  */}
+                      </div>
+                    </div>
+
+                    <div className={styles.cardBody}>
+                      <div className={styles.rating}>
+                        <StarRating rating={product.rating} />
+                        <span className={styles.ratingCount}>{product.rating}</span>
+                      </div>
+
+                      <h3 className={styles.title}>{product.name}</h3>
+                      <p className={`${styles.titleh2} ${product.in_stock ? styles.inStock : styles.outStock}`}>
+                        {product.in_stock ? "● In Stock" : "○ Out of Stock"}
+                      </p>
+
+                      <div className={styles.priceRow}>
+                        <span className={styles.price}>₹{product.price.toLocaleString()}</span>
+                        {product.oldPrice > 0 && (
+                          <span className={styles.oldPrice}>₹{product.oldPrice.toLocaleString()}</span>
+                        )}
+                        {pct(product) > 0 && (
+                          <span className={styles.discount}>-{pct(product)}%</span>
+                        )}
+                      </div>
+
+                      <button className={styles.button} disabled={!product.in_stock}
+                        onClick={e => { e.stopPropagation(); addToCart(product.id); }}>
+                        {addedToCart === product.id ? (
+                          <><TickMark /><span>&nbsp;Added!</span></>
+                        ) : (
+                          <span><CartIcon />&nbsp;{product.in_stock ? "Add to Cart" : "Out of Stock"}</span>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className={styles.noResults}>No products found for "{finalSearch}".</p>
+              )}
+            </div>
           )}
 
           {showQuickView && selectedProduct && (
@@ -491,17 +506,21 @@ function Products() {
               </div>
             </div>
           )}
-
           {showDetailView && selectedProduct && <div />}
+
           <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
         </div>
       </div>
 
       <section className={styles.testimonialSection}>
-        <div className={styles.testimonialContent}>
+        <div className={styles.testimonialGlow} />
+
+        <span className={styles.testimonialLabel}>Testimonials</span>
+        <h2 className={styles.testimonialHeading}>What Our Customers Say</h2>
+
+        <div className={styles.testimonialCard}>
           <div className={styles.quoteIcon}>"</div>
-          <p className={styles.testimonialText}>{testimonials[activeTestimonial].text}</p>
-          <div className={styles.quoteIcon}>"</div>
+          <p key={activeTestimonial} className={styles.testimonialText}>{testimonials[activeTestimonial].text}</p>
 
           <div className={styles.testimonialAuthor}>
             <img src={testimonials[activeTestimonial].image || "https://ui-avatars.com/api/?name=" + encodeURIComponent(testimonials[activeTestimonial].name) + "&background=ff7a00&color=fff&size=46"}

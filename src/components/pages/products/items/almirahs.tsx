@@ -141,7 +141,7 @@ function Almirahs() {
   const pct = (i: Almirah) => Math.round(((i.oldPrice - i.price) / i.oldPrice) * 100);
   
     if (loading) return <h2 className={styles.loading}>Loading Products....</h2>;
-    if (!products.length) return <h2 className={styles.notFound}>No Product Found!</h2>;
+    if (!products.length) return <h2 className={styles.notFound}>No Product Found for Almirahs</h2>;
 
   return (
   <div className={styles.container}>

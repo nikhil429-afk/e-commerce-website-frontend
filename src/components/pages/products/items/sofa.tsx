@@ -3,7 +3,6 @@ import { StarRating } from "../../../../assets/Extra/extra_functions";
 import { CartIcon, TickMark } from "../../../../assets/Extra/svg";
 import { addToWishlist } from "../../../../api/wishlist";
 import { getToken } from "../../../../utils/tokenUtils";
-import { getProducts } from "../../../../api/products";
 import React, { useState, useEffect } from "react";
 import BASE_URL from "../../../../utils/baseapi";
 import { Link } from "react-router-dom";
@@ -29,10 +28,6 @@ function Sofas() {
   const [, setShowTokenExpired] = useState(false);
   const [wished, setWished] = useState<Set<number>>(new Set());
   const [products, setProducts] = useState<Sofa[]>([]);
-  const [allProducts, setAllProducts] = useState<any[]>([]);
-  const [showAllOpen, setShowAllOpen] = useState(false);
-  const [allLoading, setAllLoading] = useState(false);
-  const [allLoaded, setAllLoaded] = useState(false);
   const [currentIndexes, setCurrentIndexes] = useState<{ [key:number]: number }>({});
   const [selectedProduct, setSelectedProduct] = useState<Sofa | null>(null);
   const [showQuickView, setShowQuickView] = useState(false);
@@ -60,22 +55,6 @@ function Sofas() {
   const showToast = (msg: string, ok: boolean) => {
     setToast({msg, ok});
     setTimeout(() => setToast(null), 4000);
-  };
-
-  const handleShowAll = async () => {
-    setShowAllOpen(prev => !prev);
-    if (!allLoaded) {
-      setAllLoading(true);
-      try {
-        const data = await getProducts();
-        setAllProducts(Array.isArray(data) ? data : []);
-        setAllLoaded(true);
-      } catch (err) {
-        console.error("Error fetching all products:", err);
-      } finally {
-        setAllLoading(false);
-      }
-    }
   };
 
   const nextImage = (productId: number, total: number) => {
@@ -135,7 +114,6 @@ function Sofas() {
         if (localStorage.getItem("auth_token")) { setShowTokenExpired(true); } return;
       }
       const res = await addToCart(product);
-      const data = await res.json();
       if (!res.ok) { showToast("Failed to add to cart", false); return; }
       setAddedToCart(product.id);
       setTimeout(() => setAddedToCart(null), 5000);
@@ -148,7 +126,7 @@ function Sofas() {
   const filtered = products;
 
   if (loading) return <h2 className={styles.loading}>Loading Products....</h2>;
-  if (!products.length) return <h2 className={styles.notFound}>No Product Found!</h2>;
+  if (!products.length) return <h2 className={styles.notFound}>No Product Found for Sofa</h2>;
 
   return (
     <div className={styles.container}>
@@ -256,68 +234,6 @@ function Sofas() {
             </div>
           </div>
         )}
-      </div>
-
-      <div className={styles.showAllSection}>
-        <div className={styles.showAllLeft}>
-          <span className={styles.showAllLabel}>Explore More</span>
-          <h3 className={styles.showAllTitle}>Browse Our Full Collection</h3>
-        </div>
-        <button className={styles.showAllBtn} onClick={handleShowAll}>
-          {showAllOpen ? 'Hide All Products' : 'Show All Products'}
-          <span className={`${styles.caretIcon} ${showAllOpen ? styles.caretOpen : ''}`}>▼</span>
-        </button>
-      </div>
-
-      <div className={`${styles.allProductsPanel} ${showAllOpen ? styles.allProductsPanelOpen : ''}`}>
-        <div className={styles.sectionDivider}>
-          <span className={styles.sectionDividerLabel}>All Products</span>
-        </div>
-        <div className={styles.allProductsGrid}>
-          {allLoading ? (
-            <div className={styles.panelLoading}>Loading all products…</div>
-          ) : allProducts.length > 0 ? (
-            allProducts.map((product: any) => (
-              <div key={product.id} className={styles.card}>
-                {product.tag && <div className={styles.badge}>{product.tag}</div>}
-                <button className={styles.wishBtn} onClick={() => handleAddToWishlist(product.id)}>♡</button>
-                <div className={styles.imageWrap}>
-                  <img
-                    src={`${BASE_URL}${product.images?.[0] || ''}`}
-                    alt={product.name}
-                    loading="lazy"
-                  />
-                </div>
-                <div className={styles.cardBody}>
-                  <div className={styles.rating}>
-                    <StarRating rating={product.rating} />
-                    <span className={styles.ratingCount}>{product.rating}</span>
-                  </div>
-                  <h3 className={styles.title}>{product.name}</h3>
-                  <p className={`${styles.titleh2} ${product.in_stock ? styles.inStock : styles.outStock}`}>
-                    {product.in_stock ? '● In Stock' : '○ Out of Stock'}
-                  </p>
-                  <div className={styles.priceRow}>
-                    <span className={styles.price}>$ {product.price}.00</span>
-                    {product.oldPrice && <span className={styles.oldPrice}>$ {product.oldPrice}.00</span>}
-                    {product.oldPrice && product.oldPrice > product.price && (
-                      <span className={styles.discount}>-{Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100)}%</span>
-                    )}
-                  </div>
-                  <button className={styles.button} disabled={!product.in_stock} onClick={() => handleAddToCart(product)}>
-                    {addedToCart === product.id ? (
-                      <><TickMark /><span>Added!</span></>
-                    ) : (
-                      <><CartIcon />&nbsp; {product.in_stock ? 'Add to Cart' : 'Out of Stock'}</>
-                    )}
-                  </button>
-                </div>
-              </div>
-            ))
-          ) : allLoaded ? (
-            <div className={styles.panelLoading}>No products found.</div>
-          ) : null}
-        </div>
       </div>
     </div>
   );

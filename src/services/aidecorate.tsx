@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { UploadImage } from '../api/aidecorate';
 import { Upload } from '../assets/Extra/svg';
 import styles from "./decorate.module.css"
@@ -6,6 +6,7 @@ import styles from "./decorate.module.css"
 interface EmptySpace {
   description: string;
   box_2d: [number, number, number, number];
+  products: [number];
 }
 
 function Decorate() {
@@ -15,7 +16,7 @@ function Decorate() {
   const [loading, setLoading] = useState<boolean>(false);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
 
-  const [spaces,setSpaces]=useState<EmptySpace[]>([]);
+  const [products,setProducts]=useState<EmptySpace[]>([]);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadFile, setUploadFile] = useState<File | null>(null)
   const [dragOver, setDragOver] = useState(false);
@@ -25,10 +26,6 @@ function Decorate() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
-
-  useEffect(() => {
-
-  }, []);
 
     const showToast = (msg: string, ok = true) => {
         setToast({ msg, ok });
@@ -65,8 +62,8 @@ function Decorate() {
             showToast("Loading Your AI Decoration", true);
             if (!res.ok) throw new Error();
             const data = await res.json();
-            console.log(data);
-            setSpaces(data.analysis);
+            // console.log(data);
+            setProducts(data.analysis);
             setUploadProgress(100); setUploadStatus("done");
         } catch {
             clearInterval(interval); setUploadStatus("error");
@@ -150,22 +147,24 @@ function Decorate() {
           </div>
           )}
           </div>
-          <div className={styles.decorateImage}>
+          <div className={styles.decorateImage}><br />
             <center> <input className={styles.search} type="text" placeholder="Search Products..." value={search}
-              onChange={e => handleSearch(e.target.value)} /> </center>
+              onChange={e => handleSearch(e.target.value)} />
+              <br /><br />
               {imageSrc && (
                 <div className={styles.imageWrapper}>
                   <img ref={imageRef} src={imageSrc!} className={styles.image} alt="Image"/>
-                  {spaces.map((space,index)=>{
-                    const [y1,x1,y2,x2]=space.box_2d;
+                  {products?.map((products,index)=>{
+                    const [y1,x1,y2,x2]=products.box_2d;
                     return(
                     <div key={index} className={styles.emptyBox} style={{ top:`${(y1/1000)*100}%`, left:`${(x1/1000)*100}%`,
                       width:`${((x2-x1)/1000)*100}%`, height:`${((y2-y1)/1000)*100}%` }}>
-                        {space.description}
+                        {products.description}
                     </div>
                   )})}
                 </div>
               )}
+            </center>
           </div>
        </div>
       )}
