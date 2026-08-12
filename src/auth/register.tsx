@@ -22,7 +22,7 @@ interface ErrorData {
 function Register(){
     const navigate = useNavigate();
 
-    const [ loading, setLoading ] = useState();
+    const [ loading, setLoading ] = useState(false);
     const [ message, setMessage ] = useState("");
     const [ showPwd, setShowPwd ] = useState(false);
     const [ exiting, setExiting ] = useState(false);
@@ -38,7 +38,6 @@ function Register(){
 
     const handleNavigation = () => {
         setExiting(true);
-        setLoading;
         setTimeout(() => navigate("/login"), 200);
     }
 
@@ -133,7 +132,7 @@ function Register(){
         setError(newError);
 
         if(Object.keys(newError).length !== 0) return;
-
+        setLoading(true);
         try {
             const res = await getRegister(form);
             if (!res.ok) {
@@ -155,7 +154,7 @@ function Register(){
                   const res = await getRegister(form);
             setError({ general: res.data.detail || "An Error Occurred. Please Try Again." });
         } finally {
-            setLoading;
+            setLoading(false);
         }
     };
 

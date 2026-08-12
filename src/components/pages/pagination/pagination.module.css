@@ -1,0 +1,71 @@
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+  margin-top: 2.5rem;
+  padding: 1.25rem 0;
+}
+
+.pageNavBtn {
+  padding: 8px 18px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--charcoal);
+  font-family: var(--sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+}
+
+.pageNavBtn:hover:not(:disabled) {
+  border-color: var(--orange);
+  color: var(--orange);
+  background: var(--orange-soft);
+}
+
+.pageNavBtn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.pageBtn {
+  width: 36px;
+  height: 36px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--charcoal);
+  font-family: var(--sans);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pageBtn:hover:not(:disabled) {
+  border-color: var(--orange);
+  color: var(--orange);
+  background: var(--orange-soft);
+}
+
+.pageBtnActive {
+  background: var(--orange) !important;
+  color: var(--white) !important;
+  border-color: var(--orange) !important;
+  font-weight: 700;
+  cursor: default;
+}
+
+.pageSep {
+  width: 36px;
+  text-align: center;
+  color: var(--soft);
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+}

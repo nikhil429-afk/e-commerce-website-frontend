@@ -107,10 +107,10 @@ export const checkoutItem = async (itemId: number) => {
       method: "POST",
       headers: authHeaders(),
     });
-    return res.json();
+    return res;
   }
   catch (err: any) {
-    return { status: 500, data: { message: err.message}};
+    throw new Error(err.message || "Checkout failed");
   }
 };
 
@@ -124,7 +124,7 @@ export const checkoutCart = async () => {
     return res;
   }
   catch (err: any) {
-    return { status: 500, data: { message: err.message}};
+    throw new Error(err.message || "Checkout failed");
   }
 };
 

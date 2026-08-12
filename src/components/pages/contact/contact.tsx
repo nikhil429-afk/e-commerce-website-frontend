@@ -44,7 +44,7 @@ function Contact() {
       if (!form.email.includes("@")) { showToast("Invalid Email!", false); return; }
       
       const cleanPhone = form.phone.replace(/\D/g, "");
-      if (cleanPhone.length < 10 && cleanPhone.length > 10) { showToast("Invalid Phone Number!", false); return; }
+      if (cleanPhone.length !== 10) { showToast("Invalid Phone Number!", false); return; }
 
       if (form.message.trim().length < 10) { showToast("Message too Short!", false); return; }
 

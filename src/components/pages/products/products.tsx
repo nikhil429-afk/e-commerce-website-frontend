@@ -3,7 +3,7 @@ import { getProducts, getFetchWishlist, getAddToWishlist,  getFetchCart,  getAdd
 import { CartIcon, FooterLogo, TickMark, WishlistIcon } from "../../../assets/Extra/svg";
 import { StarRating } from "../../../assets/Extra/extra_functions";
 import PageNavigation from "../../pagenavigation/pagenavigation";
-import { Pagination } from "../../pagination/pagination";
+import { Pagination } from "../pagination/pagination";
 import { Outlet, useOutlet, Link, useNavigate } from 'react-router-dom';
 import { getToken } from "../../../utils/tokenUtils";
 import BASE_URL from "../../../utils/baseapi";

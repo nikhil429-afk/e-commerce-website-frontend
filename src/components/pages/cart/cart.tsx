@@ -104,10 +104,11 @@ function Cart() {
     }
     try {
       const res = await checkoutItem(itemId);
+      const data = await res.json();
       if (!res.ok) {
-        throw new Error(res.detail || "Checkout failed");
+        throw new Error(data.detail || "Checkout failed");
       }
-      showToast(`Item Ordered Successfully!`);
+      showToast(`Item Ordered Successfully!`, true);
       await loadCart();
     } catch (error: any) {
       showToast(error.message, false);
@@ -126,7 +127,7 @@ function Cart() {
       if (!res.ok) {
         throw new Error(data.detail || "Checkout failed");
       }
-      showToast(`Order Placed Successfully!\nOrder ID: ${data.order_id}`);
+      showToast(`Order Placed Successfully!`, true);
       navigate('/');
       await loadCart();
     } catch (error: any) {

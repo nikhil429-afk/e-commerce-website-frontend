@@ -294,9 +294,8 @@ const fetchUsers = async () => {
       pForm.images.forEach((img) => {
         formData.append("images", img);
       });
-      const res = await createProduct(formData);
-      if (res.detail) { throw new Error(res.detail); }
-      setProducts(prev => [...prev, res.product]);
+      await createProduct(formData);
+      await fetchProducts();
       close();
       showToast("Product added");
     } catch (e: any) {
@@ -324,12 +323,10 @@ const fetchUsers = async () => {
       pForm.images.forEach((img) => {
         formData.append("images", img);
       });
-      const updated = await updateProduct(selProd[0], formData);
-      setProducts(prev => prev.map(p =>
-        p[0] === selProd[0] ? updated : p)
-      );
+      await updateProduct(selProd[0], formData);
+      await fetchProducts();
       close();
-      showToast("Product updated");
+      showToast("Product updated", true);
     } catch (e: any) {
       showToast(e.message ?? "Failed to update product", false);
     } finally {
@@ -399,6 +396,9 @@ const fetchUsers = async () => {
   const FO = orders.filter(o => !q || String(o[0])?.includes(q) || o[1]?.toLowerCase().includes(q) || o[2]?.toLowerCase().includes(q) || o[3]?.toLowerCase().includes(q) || o[4]?.toLowerCase().includes(q) || o[9]?.toLowerCase().includes(q));
   const FC = contacts.filter(c => !q || String(c[0]).includes(q) || c[1]?.toLowerCase().includes(q) || c[2]?.toLowerCase().includes(q) || c[4]?.toLowerCase().includes(q) || c[5]?.toLowerCase().includes(q));
   const FA = appointments.filter(a => !q || String(a[0])?.includes(q) || a[1]?.toLowerCase().includes(q) || a[2]?.toLowerCase().includes(q) || a[4]?.toLowerCase().includes(q) || a[4]?.toLowerCase().includes(q) || a[5]?.toLowerCase().includes(q));
+
+  // console.log(FP.map((p) => p[0]));
+
 
   const ErrBanner = ({ msg, retry }: { msg: string; retry: () => void }) => (
     <div className={styles.error}> {msg}
@@ -670,7 +670,7 @@ const fetchUsers = async () => {
                       {(FP || []).map((p) => (
                         <tr key={p[0]} className={styles.tableRow}>
                           <td className={styles.indexCell}>{p[0]}</td>
-                          <td><div className={styles.productCell}>{p[1]}</div></td>
+                          <td className={styles.productCell}>{p[1]}</td>
                           <td className={styles.categoryText}>{p[3]}</td>
                           <td><span className={styles.priceNew}>${p[4]}</span></td>
                           <td><del>${p[5]}</del></td>
