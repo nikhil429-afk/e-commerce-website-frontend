@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { addToCart, addToWishlist, getDinings } from "../../../../api/Product_items_API/dining";
 import { StarRating } from "../../../../assets/Extra/extra_functions";
 import { CartIcon, TickMark } from "../../../../assets/Extra/svg";
+import bgDining from "../../../../assets/images/dining.png";
 import { getToken } from "../../../../utils/tokenUtils";
 import BASE_URL from "../../../../utils/baseapi";
 import styles from "./items.module.css";
-import bgDining from "../../../../assets/images/dining.png";
 
 type Dining = { 
   id: number;
@@ -136,7 +136,7 @@ function Dinings() {
   const pct = (i: Dining) => Math.round(((i.oldPrice - i.price) / i.oldPrice) * 100);
   
     if (loading) return <h2 className={styles.loading}>Loading Products....</h2>;
-    if (!products.length) return <h2 className={styles.notFound}>No Product Found!</h2>;
+    if (!products.length) return <h2 className={styles.notFound}>No Product Found for Dining Tables</h2>;
 
   return (
     <div className={styles.container}>

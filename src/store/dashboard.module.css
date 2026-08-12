@@ -58,9 +58,9 @@
 .navLinks {
   display: flex;
   list-style: none;
+  align-items: center;
   gap: 32px;
-  margin: 0 auto;
-  padding: 0;
+  margin-left: 460px;
 }
 
 .navLinks li a {
@@ -166,9 +166,9 @@
 
 .searchWrap {
   flex: 1;
-  max-width: 340px;
+  max-width: 200px;
   position: relative;
-  margin: 0 auto;
+  margin-left: 100px;
 }
 
 .searchIcon {

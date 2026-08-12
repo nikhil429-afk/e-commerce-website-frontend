@@ -18,56 +18,57 @@ type Modal = "editUser" | "delUser" | "addProduct" | "editProduct" | "delProduct
 type OrderChart = { label: string; value: number };
 type UserChart = { label: string; value: number };
 
-interface User {
-  id: number;
-  username: string;
-  email: string;
-  role: string;
-}
+type User = [
+  id: number,        //id = [0]
+  username: string,  //username = [1]
+  email: string,     //email = [2]
+  role: string,      //role = [3]
+];
 
-interface Product {
-  id: number;
-  name: string;
-  images: (string | File)[];
-  category: string;
-  price: number;
-  oldPrice: number;
-  rating: number;
-  tag: string;
-  description: string;
-  in_stock: boolean;
-}
 
-interface Order {
-  id: number;
-  user_name: string;
-  userEmail: string;
-  name: string;
-  category: string;
-  price: number;
-  quantity: number;
-  description: string;
-  in_stock: boolean;
-  status: string;
-}
+type Product = [
+  id: number,                //id = [0]
+  name: string,              //name = [1]
+  images: (string | File)[], //images = [2]
+  category: string,          //category = [3]
+  price: number,             //price = [4] 
+  oldPrice: number,          //oldPrice = [5]
+  rating: number,            //rating = [6]
+  tag: string,               //tag = [7]
+  description: string,       //description = [8]
+  in_stock: boolean          //in_stock = [9]
+];
 
-interface Contact {
-  id: number;
-  name: string;
-  email: string;
-  phone: number;
-  subject: string;
-  message: string;
-}
+type Order = [
+  id: number,            // id = [0]
+  user_name: string,     // user_name = [1]
+  userEmail: string,     // userEmail = [2]
+  product_name: string,  // product_name = [3]
+  category: string,      // category = [4]
+  price: number,         // price = [5]
+  quantity: number,      // quantity = [6]
+  total_price: number,   // total_price = [7]
+  in_stock: boolean,     // in_stock = [8]
+  status: string         // status = [9]
+];
 
-interface Appointment {
-  id: number;
-  name: string;
-  email: string;
-  phone: number;
-  message: string;
-  appointment_date: string;
-}
+type Contact = [
+  id: number,            // id = [0]
+  name: string,          // name = [1]
+  email: string,         // email = [2]
+  phone: number,         // phone = [3]
+  subject: string,       // subject = [4]
+  message: string        // message = [5]
+];
+
+type Appointment = [
+  id: number,               // id = [0]
+  name: string,             // name = [1]
+  email: string,            // email = [2]
+  phone: number,            // phone = [3]
+  message: string,          // message = [4]
+  appointment_date: string  // appointment_date = [5]
+];
 
 
 type FieldProps = { label: string; children: React.ReactNode };
@@ -80,7 +81,7 @@ const F = ({ label, children }: FieldProps) => (
 
 const BLANK_PROD = { name: "", images: [] as File[], category: "", price: 0, oldPrice: 0, rating: 0, tag: "", description: "", in_stock: true };
 const BLANK_USER = { username: "", email: "", password: "", role: "user" };
-const STATUS_CYCLE: Record<string, string> = { pending: "shipped", shipped: "delivered", delivered: "pending" };
+const STATUS_CYCLE: Record<string, string> = { pending: "shipped", shipped: "delivered", delivered: "cancelled", cancelled: "pending"};
 
 const NAV_ITEMS: { id: Tab; icon: string; label: string }[] = [
   { id: "stats", icon: "📊", label: "Statistics" },
@@ -160,11 +161,15 @@ function Owner() {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const fetchUsers = async () => {
-    setErrU("");
-    try   { setUsers(await getAllUsers()); }
-    catch (e: any) { setErrU(e.message ?? "Failed to load Users"); }
-  };
+const fetchUsers = async () => {
+    try {
+        const res = await getAllUsers();
+        // console.log("User:", res);              //<---- Users data is coming in arrays.
+        setUsers(res);
+    } catch (e: any) {
+        setErrU(e.message ?? "Failed to load Users");
+    }
+};
 
   const loadChartData = async (startDate: any, endDate: any) => {
     setErrT("");
@@ -187,21 +192,33 @@ function Owner() {
 
   const fetchProducts = async () => {
     setErrP("");
-    try { setProducts(await getProducts()); }
-    catch (e: any) { setErrP(e.message ?? "Failed to load Products!"); }
+    try {
+      const res = await getProducts();
+      // console.log("Products:", typeof res);            // <---- Products data is coming in array.
+      setProducts(res);
+    }
+    catch (e: any) {
+      setErrP(e.message ?? "Failed to load Products!");
+    }
   };
 
   const fetchOrders = async () => {
-    setErrO("");
-    try { setOrders(await getOrders()); }
-    catch (e: any) { setErrO(e.message ?? "Failed to load Orders!"); }
+    try {
+      const res = await getOrders();
+      //console.log("Orders:", typeof res);             // <---- Orders data is coming in array.
+      setOrders(res);
+    }
+    catch (e: any) {
+      setErrO(e.message ?? "Failed to load Orders!");
+    }
   };
 
   const fetchContactUs = async () => {
     setErrC("");
     try {
-      const data = await getContacts();
-      setContacts(data);
+      const res = await getContacts();
+      // console.log("Contacts:", typeof res)            // <---- Contact us data is coming in array.
+      setContacts(res);
     } catch (e: any) {
       setErrC(e.message ?? "Failed to load Contacts");
     };
@@ -210,8 +227,9 @@ function Owner() {
   const fetchAppointments = async () => {
     setErrA("");
     try {
-    const data = await (getAppointments());
-    setAppointments(data);
+    const res = await (getAppointments());
+    // console.log("Appointments", typeof res)           // <---- Appointments data is coming in array.
+    setAppointments(res);
   } catch (e: any) {
     setErrA(e.message ?? "Failed to Load Appointments");
   }
@@ -222,14 +240,14 @@ function Owner() {
 
   const openEditUser = (u: User) => {
     setSelUser(u);
-    setUForm({ username: u.username, email: u.email ?? "", password: "", role: u.role });
+    setUForm({ username: u[1], email: u[2] ?? "", password: "", role: u[3] });
     setModal("editUser");
   };
   const openDelUser  = (u: User) => { setSelUser(u); setModal("delUser"); };
   const openAddProd  = () => { setPForm({ ...BLANK_PROD }); setModal("addProduct"); };
   const openEditProd = (p: Product) => {
     setSelProd(p);
-    setPForm({ name: p.name, images: [], category: p.category, price: p.price, oldPrice: p.oldPrice, rating: p.rating, tag: p.tag, description: p.description, in_stock: p.in_stock, });
+    setPForm({ name: p[1], images: [], category: p[3], price: p[4], oldPrice: p[5], rating: p[6], tag: p[7], description: p[8], in_stock: p[9], });
     setModal("editProduct");
   };
   const openDelProd = (p: Product) => { setSelProd(p); setModal("delProduct"); };
@@ -238,8 +256,10 @@ function Owner() {
     if (!selUser) return;
     setSaving(true);
     try {
-      const updated = await updateUser(selUser.id, { username: uForm.username.trim() || undefined, role: uForm.role || undefined });
-      setUsers(prev => prev.map(u => u.id === selUser.id ? { ...u, ...updated } : u));
+      const updated = await updateUser(selUser[0], { username: uForm.username.trim() || undefined, role: uForm.role || undefined });
+      setUsers(prev =>
+        prev.map(u => u[0] === selUser[0] ? updated : u)
+      );
       close(); showToast("User updated");
     } catch (e: any) { showToast(e.message ?? "Failed to update user", false); }
     finally { setSaving(false); }
@@ -249,8 +269,8 @@ function Owner() {
     if (!selUser) return;
     setSaving(true);
     try {
-      await deleteUser(selUser.id);
-      setUsers(prev => prev.filter(u => u.id !== selUser.id));
+      await deleteUser(selUser[0]);
+      setUsers(prev => prev.filter(u => u[0] !== selUser[0]));
       close(); showToast("User deleted");
     } catch (e: any) { showToast(e.message ?? "Failed to delete user", false); }
     finally { setSaving(false); }
@@ -274,9 +294,8 @@ function Owner() {
       pForm.images.forEach((img) => {
         formData.append("images", img);
       });
-      const res = await createProduct(formData);
-      if (res.detail) { throw new Error(res.detail); }
-      setProducts(prev => [...prev, res.product]);
+      await createProduct(formData);
+      await fetchProducts();
       close();
       showToast("Product added");
     } catch (e: any) {
@@ -304,10 +323,10 @@ function Owner() {
       pForm.images.forEach((img) => {
         formData.append("images", img);
       });
-      const updated = await updateProduct(selProd.id, formData);
-      setProducts(prev => prev.map(p => p.id === selProd.id ? { ...p, ...updated } : p));
+      await updateProduct(selProd[0], formData);
+      await fetchProducts();
       close();
-      showToast("Product updated");
+      showToast("Product updated", true);
     } catch (e: any) {
       showToast(e.message ?? "Failed to update product", false);
     } finally {
@@ -315,38 +334,45 @@ function Owner() {
     }
   };
 
-
   const toggleStock = async (p: Product) => {
-    const next = !p.in_stock;
-    setProducts(prev => prev.map(x => x.id === p.id ? { ...x, in_stock: next } : x));
+    const next = !p[9];
+    setProducts(prev =>
+      prev.map(x => x[0] === p[0] ? [ ...x.slice(0, 9), next ]as Product : x)
+    );
     try {
       const formData = new FormData();
 
-      formData.append("name", p.name);
-      formData.append("category", p.category);
-      formData.append("price", String(p.price));
-      formData.append("oldPrice", String(p.oldPrice));
-      formData.append("rating", String(p.rating));
-      formData.append("tag", p.tag);
-      formData.append("description", p.description);
+      formData.append("name", p[1]);
+      formData.append("category", p[3]);
+      formData.append("price", String(p[4]));
+      formData.append("oldPrice", String(p[5]));
+      formData.append("rating", String(p[6]));
+      formData.append("tag", p[7]);
+      formData.append("description", p[8]);
       formData.append("in_stock", String(next));
 
-      await updateProduct(p.id, formData);
+      await updateProduct(p[0], formData);
       showToast(`Stock set to ${ next ? "In Stock" : "Out of Stock"}`);
     } catch (e: any) {
-      setProducts(prev => prev.map(x => x.id === p.id ? { ...x, in_stock: !next } : x));
+      setProducts(prev =>
+        prev.map(x => x[0] === p[0] ? { ...x, in_stock: !next } : x)
+      );
       showToast(e.message ?? "Failed to toggle stock", false);
     }
   };
 
   const handleShipped = async (o: Order) => {
-    const next = STATUS_CYCLE[o.status] ?? "pending";
-    setOrders(prev => prev.map(x => x.id === o.id ? { ...x, status: next } : x));
+    const next = STATUS_CYCLE[o[9]] ?? "pending";
+    setOrders(prev =>
+      prev.map(x => x[0] === o[0] ? [ ...x.slice(0, 9), next ]as Order : x)
+    );
     try {
-      await shipOrder(o.id, next);
-      showToast(`Order #${o.id} marked as ${next}`);
+      await shipOrder(o[0], next);
+      showToast(`Order Number ${o[0]} marked as ${next}`);
     } catch (e: any) {
-      setOrders(prev => prev.map(x => x.id === o.id ? { ...x, status: o.status } : x));
+      setOrders(prev =>
+        prev.map(x => x[0] === o[0] ? { ...x, status: o[8] } : x)
+      );
       showToast(e.message ?? "Failed to update order status", false);
     }
   };
@@ -355,8 +381,8 @@ function Owner() {
     if (!selProd) return;
     setSaving(true);
     try {
-      await deleteProduct(selProd.id);
-      setProducts(prev => prev.filter(p => p.id !== selProd.id));
+      await deleteProduct(selProd[0]);
+      setProducts(prev => prev.filter(p => p[0] !== selProd[0]));
       close(); showToast("Product deleted");
     } catch (e: any) { showToast(e.message ?? "Failed to delete product", false); }
     finally { setSaving(false); }
@@ -365,11 +391,14 @@ function Owner() {
   const confirmLogout = () => { clearToken(); setShowLogoutModal(false); navigate('/login'); };
 
   const q  = search.toLowerCase();
-  const FU = users.filter(u => !q || u.username?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q) || u.role?.toLowerCase().includes(q));
-  const FP = products.filter(p => !q || p.name?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q) || p.tag?.toLowerCase().includes(q));
-  const FO = orders.filter(o => !q || String(o.id).includes(q) || o.name?.toLowerCase().includes(q) || o.category?.toLowerCase().includes(q) || o.status?.toLowerCase().includes(q));
-  const FC = contacts.filter(c => !q || String(c.id).includes(q) || c.name?.toLowerCase().includes(q) || c.email?.toLowerCase().includes(q) || c.subject?.toLowerCase().includes(q));
-  const FA = appointments.filter(a => !q || String(a.id).includes(q) || a.name?.toLowerCase().includes(q) || a.email?.toLowerCase().includes(q) || a.message?.toLowerCase().includes(q) || a.appointment_date?.toLowerCase().includes(q));
+  const FU = users.filter(u => !q || u[1]?.toLowerCase().includes(q) || u[2]?.toLowerCase().includes(q) || u[3]?.toLowerCase().includes(q));
+  const FP = products.filter(p => !q || p[1]?.toLowerCase().includes(q) || p[3]?.toLowerCase().includes(q) || p[7]?.toLowerCase().includes(q));
+  const FO = orders.filter(o => !q || String(o[0])?.includes(q) || o[1]?.toLowerCase().includes(q) || o[2]?.toLowerCase().includes(q) || o[3]?.toLowerCase().includes(q) || o[4]?.toLowerCase().includes(q) || o[9]?.toLowerCase().includes(q));
+  const FC = contacts.filter(c => !q || String(c[0]).includes(q) || c[1]?.toLowerCase().includes(q) || c[2]?.toLowerCase().includes(q) || c[4]?.toLowerCase().includes(q) || c[5]?.toLowerCase().includes(q));
+  const FA = appointments.filter(a => !q || String(a[0])?.includes(q) || a[1]?.toLowerCase().includes(q) || a[2]?.toLowerCase().includes(q) || a[4]?.toLowerCase().includes(q) || a[4]?.toLowerCase().includes(q) || a[5]?.toLowerCase().includes(q));
+
+  // console.log(FP.map((p) => p[0]));
+
 
   const ErrBanner = ({ msg, retry }: { msg: string; retry: () => void }) => (
     <div className={styles.error}> {msg}
@@ -398,7 +427,7 @@ function Owner() {
 
         <nav className={styles.nav}>
           <ul className={styles.navList}>
-            {NAV_ITEMS.map(item => (
+            {NAV_ITEMS?.map(item => (
               <li key={item.id} className={`${styles.navItem} ${tab === item.id ? styles.active : ""}`}
               onClick={() => { setTab(item.id); setSearch(""); }}>
                 <span className={styles.navIcon}>{item.icon}</span>
@@ -440,8 +469,8 @@ function Owner() {
             </h1>
             <p className={styles.headerSub}>
               {tab === "stats" && `Overview of your store's performance and activity`}
-              {tab === "products" && `${products.length} products · ${products.filter(p => p.in_stock).length} in stock`}
-              {tab === "orders" && `${orders.length} total · ${orders.filter(o => o.status === "pending").length} pending`}
+              {tab === "products" && `${products.length} products · ${products.filter(p => p[9]).length} in stock`}
+              {tab === "orders" && `${orders.length} total · ${orders.filter(o => o[9] === "pending").length} pending`}
               {tab === "contacts" && `Total of ${contacts.length} Contacts, trying to Reach you `}
               {tab === "appointments" && `Manage your appointments and bookings Here`}
               {tab === "users" && `${users.length} Registered Accounts`}
@@ -459,7 +488,7 @@ function Owner() {
           {[
             { cls: styles.statCardUsers, icon: "👥", label: "New Users", val: users.length },
             { cls: styles.statCardTotalOrders, icon: "📦", label: "Total Orders", val: orders.length },
-            { cls: styles.statCardNewOrders, icon: "⏰", label: "New Orders", val: orders.filter(o => o.status === "pending").length },
+            { cls: styles.statCardNewOrders, icon: "⏰", label: "New Orders", val: orders.filter(o => o[9] === "pending").length },
             { cls: styles.statCardVisitors, icon: "👀", label: "New Visitors", val: visitorData.reduce((s, d) => s + d.value, 0) },
           ].map((s, i) => (
             <div key={i} className={`${styles.statCard} ${s.cls}`}>
@@ -581,21 +610,21 @@ function Owner() {
                   <table className={styles.table}>
                     <thead>
                       <tr>
-                        <th>ID</th> <th>User</th> <th>Email</th> <th>Role</th> <th>Actions</th>
+                        <th>ID</th><th>User</th><th>Email</th><th>Role</th><th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {(FU || []).map((u) => (
-                        <tr key={u?.id} className={styles.tableRow}>
-                          <td className={styles.indexCell}>{u?.id}</td>
+                        <tr key={u[0]} className={styles.tableRow}>
+                          <td className={styles.indexCell}>{u[0]}</td>
                           <td>
                             <div className={styles.userCell}>
-                              <span className={styles.userName}>{u?.username}</span>
+                              <span className={styles.userName}>{u[1]}</span>
                             </div>
                           </td>
-                          <td className={styles.emailText}>{u?.email || "—"}</td>
+                          <td className={styles.emailText}>{u[2]}</td>
                           <td>
-                            <span className={`${styles.role} ${u?.role === "owner" ? styles.owner : styles.user}`}>{u?.role}</span>
+                            <span className={`${styles.role} ${u[3] === "owner" ? styles.owner : styles.user}`}>{u[3]}</span>
                           </td>
                           <td>
                             <div className={styles.actions}>
@@ -633,25 +662,25 @@ function Owner() {
                   <table className={styles.table}>
                     <thead>
                       <tr>
-                        <th>ID</th> <th>Product</th> <th>Category</th> <th>Price</th> <th>Old Price</th> <th>Rating</th> <th>Tag</th> <th>Description</th>
-                          <th>Stock</th> <th>Actions</th>
+                        <th>ID</th><th>Product</th><th>Category</th><th>Price</th><th>Old Price</th><th>Rating</th><th>Tag</th>
+                        <th>Description</th><th>Stock</th><th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {(FP || []).map((p) => (
-                        <tr key={p?.id} className={styles.tableRow}>
-                          <td className={styles.indexCell}>{p?.id}</td>
-                          <td><div className={styles.productCell}>{p?.name}</div></td>
-                          <td className={styles.categoryText}>{p?.category}</td>
-                          <td><span className={styles.priceNew}>${p?.price}</span></td>
-                          <td><del>${p?.oldPrice}</del></td>
-                          <td>{p?.rating} / 5</td>
-                          <td>{p?.tag}</td>
-                          <td><span className={styles.descCell}>({p?.description})</span></td>
+                        <tr key={p[0]} className={styles.tableRow}>
+                          <td className={styles.indexCell}>{p[0]}</td>
+                          <td className={styles.productCell}>{p[1]}</td>
+                          <td className={styles.categoryText}>{p[3]}</td>
+                          <td><span className={styles.priceNew}>${p[4]}</span></td>
+                          <td><del>${p[5]}</del></td>
+                          <td>{p[6]} / 5</td>
+                          <td>{p[7]}</td>
+                          <td><span className={styles.descCell}>({p[8]})</span></td>
                           <td>
                             <button onClick={() => toggleStock(p)}
-                              className={`${styles.stockToggle} ${p?.in_stock ? styles.stockToggleOn : styles.stockToggleOff}`}>
-                              <span className={styles.stockLabel}>{p?.in_stock ? "In Stock" : "Out of Stock"}</span>
+                              className={`${styles.stockToggle} ${p[9] ? styles.stockToggleOn : styles.stockToggleOff}`}>
+                              <span className={styles.stockLabel}>{p[9] ? "In Stock" : "Out of Stock"}</span>
                             </button>
                           </td>
                           <td>
@@ -678,7 +707,7 @@ function Owner() {
                 <div className={styles.sectionPanelSub}>Track and fulfil customer orders</div>
               </div>
               <div className={styles.sectionStatusPill}>
-                {orders.filter(o => o.status === "pending").length} pending
+                {orders.filter(o => o[9] === "pending").length} Pending
               </div>
             </div>
 
@@ -689,28 +718,29 @@ function Owner() {
                   <table className={styles.table}>
                     <thead>
                       <tr>
-                        <th>Order</th> <th>Customer Name</th> <th>Customer Email</th> <th>Product</th> <th>Category</th> <th>Qty</th> <th>Total($)</th> <th>Status</th> <th>Actions</th>
+                        <th>Order Id</th><th>Customer Name</th><th>Customer Email</th><th>Product</th><th>Category</th><th>Qty</th>
+                        <th>Total($)</th><th>Status</th><th>Actions</th>
                       </tr>
                     </thead>
                     <tbody>
                       {(FO || []).map((o) => (
-                        <tr key={o?.id} className={styles.tableRow}>
-                          <td className={styles.indexCell}>{o?.id}</td>
-                          <td className={styles.orderName}>{o?.user_name}</td>
-                          <td className={styles.orderName}>{o?.userEmail}</td>
-                          <td className={styles.orderName}>{o?.name}</td>
-                          <td className={styles.categoryText}>{o?.category}</td>
-                          <td className={styles.categoryText}>{o?.quantity}</td>
-                          <td className={styles.priceNew}>{o?.price*o?.quantity}</td>
+                        <tr key={o[0]} className={styles.tableRow}>
+                          <td className={styles.indexCell}>{o[0]}</td>
+                          <td className={styles.orderName}>{o[1]}</td>
+                          <td className={styles.orderName}>{o[2]}</td>
+                          <td className={styles.orderName}>{o[3]}</td>
+                          <td className={styles.categoryText}>{o[4]}</td>
+                          <td className={styles.categoryText}>{o[6]}</td>
+                          <td className={styles.priceNew}>{o[5]*o[6]}</td>
                           <td>
-                            {o.status === "pending" && <span className={styles.orderStatusPending}>⏳ Pending</span>}
-                            {o.status === "shipped" && <span className={styles.orderStatusDelivered}>✓ Shipped</span>}
-                            {o.status === "delivered" && <span className={styles.orderStatusDelivered}>  Delivered</span>}
-                            {o.status === "cancelled" && <span className={styles.orderStatusPending}>✕ Cancelled</span>}
+                            {o[9] === "pending" && <span className={styles.orderStatusPending}> Pending</span>}
+                            {o[9] === "shipped" && <span className={styles.orderStatusDelivered}> Shipped</span>}
+                            {o[9] === "delivered" && <span className={styles.orderStatusDelivered}>✓  Delivered</span>}
+                            {o[9] === "cancelled" && <span className={styles.orderStatusPending}>✕ Cancelled</span>}
                           </td>
                           <td>
                             <div className={styles.actions}>
-                              <button className={styles.editBtn} onClick={() => handleShipped(o)}>change Status</button>
+                              <button className={styles.editBtn} onClick={() => handleShipped(o)}>Change Status</button>
                             </div>
                           </td>
                         </tr>
@@ -740,18 +770,18 @@ function Owner() {
                   <table className={styles.table}>
                     <thead>
                       <tr>
-                        <th>ID</th> <th>Name</th> <th>Email</th> <th>Phone Number</th> <th>Subject</th> <th>Message</th>
+                        <th>ID</th><th>Name</th><th>Email</th><th>Phone Number</th><th>Subject</th><th>Message</th>
                       </tr>
                     </thead>
                     <tbody>
                       {(FC || []).map((c) => (
-                        <tr key={c?.id} className={styles.tableRow}>
-                          <td className={styles.indexCell}>{c?.id}</td>
-                          <td className={styles.orderName}>{c?.name}</td>
-                          <td className={styles.categoryText}>{c?.email}</td>
-                          <td className={styles.categoryText}>{c?.phone}</td>
-                          <td className={styles.priceNew}>{c?.subject}</td>
-                          <td className={styles.message}>{c?.message}</td>
+                        <tr key={c[0]} className={styles.tableRow}>
+                          <td className={styles.indexCell}>{c[0]}</td>
+                          <td className={styles.orderName}>{c[1]}</td>
+                          <td className={styles.categoryText}>{c[2]}</td>
+                          <td className={styles.categoryText}>{c[3]}</td>
+                          <td className={styles.priceNew}>{c[4]}</td>
+                          <td className={styles.message}>{c[5]}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -779,18 +809,18 @@ function Owner() {
                   <table className={styles.table}>
                     <thead>
                       <tr>
-                        <th>ID</th> <th>Name</th> <th>Email</th> <th>Number</th> <th>Message</th> <th>Date</th>
+                        <th>ID</th><th>Name</th><th>Email</th><th>Number</th><th>Message</th><th>Date</th>
                       </tr>
                     </thead>
                     <tbody>
                       {(FA || []).map((a) => (
-                        <tr key={a?.id} className={styles.tableRow}>
-                          <td className={styles.indexCell}>{a?.id}</td>
-                          <td className={styles.orderName}>{a?.name}</td>
-                          <td className={styles.categoryText}>{a?.email}</td>
-                          <td className={styles.categoryText}>{a?.phone}</td>
-                          <td className={styles.message}>{a?.message}</td>
-                          <td className={styles.priceNew}>{a?.appointment_date}</td>
+                        <tr key={a[0]} className={styles.tableRow}>
+                          <td className={styles.indexCell}>{a[0]}</td>
+                          <td className={styles.orderName}>{a[1]}</td>
+                          <td className={styles.categoryText}>{a[2]}</td>
+                          <td className={styles.categoryText}>{a[3]}</td>
+                          <td className={styles.message}>{a[4]}</td>
+                          <td className={styles.priceNew}>{a[5]}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -832,7 +862,7 @@ function Owner() {
               <button className={styles.modalClose} onClick={close}>✕</button>
             </div>
             <p className={styles.modalDesc}>
-              Editing <strong className={styles.modalStrong}>{selUser.username}</strong> — ID #{selUser.id}
+              Editing <strong className={styles.modalStrong}>{selUser[1]}</strong> — ID #{selUser[0]}
             </p>
             <div className={styles.modalForm}>
               <F label="Username">
@@ -861,7 +891,7 @@ function Owner() {
               <span className={styles.modalTitle}>Delete User?</span>
             </div>
             <p className={styles.modalDescCenter}>
-              Permanently remove <strong className={styles.modalStrong}>{selUser.username}</strong>. This cannot be undone.
+              Permanently remove <strong className={styles.modalStrong}>{selUser[1]}</strong>. This cannot be undone.
             </p>
             <div className={styles.modalActions}>
               <button className={styles.cancelBtn}  onClick={close} disabled={saving}>Cancel</button>
@@ -954,7 +984,7 @@ function Owner() {
               <button className={styles.modalClose} onClick={close}>✕</button>
             </div>
             <p className={styles.modalDesc}>
-              Editing <strong className={styles.modalStrong}>{selProd.name}</strong> — ID #{selProd.id}
+              Editing <strong className={styles.modalStrong}>{selProd[1]}</strong> — ID #{selProd[0]}
             </p>
             <div className={styles.modalForm}>
               <F label="Name">
@@ -1030,7 +1060,7 @@ function Owner() {
               <span className={styles.modalTitle}>Delete Product?</span>
             </div>
             <p className={styles.modalDescCenter}>
-              Permanently remove <strong className={styles.modalStrong}>{selProd.name}</strong> from the catalogue. This cannot be undone.
+              Permanently remove <strong className={styles.modalStrong}>{selProd[1]}</strong> from the catalogue. This cannot be undone.
             </p>
             <div className={styles.modalActions}>
               <button className={styles.cancelBtn} onClick={close} disabled={saving}>Cancel</button>

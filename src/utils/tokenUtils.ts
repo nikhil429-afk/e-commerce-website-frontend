@@ -1,6 +1,6 @@
 import { jwtDecode } from "jwt-decode";
 
-export const TOKEN_KEY = "auth_token";
+export const auth_token = "auth_token";
 
 interface DecodedToken {
   id: number;
@@ -12,11 +12,11 @@ interface DecodedToken {
 }
 
 export function saveToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token);
+  localStorage.setItem(auth_token, token);
 }
 
 export function getToken(): string | null {
-  const token = localStorage.getItem(TOKEN_KEY);
+  const token = localStorage.getItem(auth_token);
   if (!token) return null;
   try {
     const decoded: DecodedToken = jwtDecode(token);
@@ -50,6 +50,6 @@ export function isTokenExpired(): boolean {
 }
 
 export function clearToken(): void {
-  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem(auth_token);
   localStorage.removeItem("user");
 }

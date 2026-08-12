@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { getCart, removeFromCart, increaseQuantity, decreaseQuantity, checkoutCart, checkoutItem } from '../../../api/cart';
-import { getToken } from '../../../utils/tokenUtils';
+import { getCart, removeFromCart, increaseQuantity, decreaseQuantity, checkoutCart, checkoutItem, getFetchWishlist } from '../../../api/cart';
 import { WishlistIcon, CrossIcon, EmptyCartIcon } from '../../../assets/Extra/svg';
+import PageNavigation from '../../pagenavigation/pagenavigation';
+import { getToken } from '../../../utils/tokenUtils';
 import BASE_URL from '../../../utils/baseapi';
 import styles from './cart.module.css';
-import PageNavigation from '../../pagenavigation/pagenavigation';
 
 interface CartItem {
   id: number;
@@ -27,6 +27,7 @@ function Cart() {
   const [loading, setLoading] = useState(true);
   const [buying, setBuying] = useState(false);
   const [items, setItems] = useState<CartItem[]>([]);
+  const [wishlist, setWishlist] = useState<number[]>([]);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
 
   const loadCart = async () => {
@@ -41,7 +42,16 @@ function Cart() {
     }
   };
 
-  useEffect(() => { loadCart(); }, []);
+  useEffect(() => { loadCart(); fetchWishlist(); }, []);
+
+  const fetchWishlist = async () => {
+    try {
+      if (!token) return;
+      const data = await getFetchWishlist(token);
+      if (!Array.isArray(data)) return;
+      setWishlist(data.map((item: any) => item.product_id));
+    } catch {}
+  };
   
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
@@ -88,17 +98,17 @@ function Cart() {
     }
   };
 
-
   const handleCheckoutItem = async (itemId: number) => {
     if (!token) { showToast('Please Sign in to Place an Order', false);
       return;
     }
     try {
       const res = await checkoutItem(itemId);
+      const data = await res.json();
       if (!res.ok) {
-        throw new Error(res.detail || "Checkout failed");
+        throw new Error(data.detail || "Checkout failed");
       }
-      showToast(`Item Ordered Successfully!`);
+      showToast(`Item Ordered Successfully!`, true);
       await loadCart();
     } catch (error: any) {
       showToast(error.message, false);
@@ -117,7 +127,8 @@ function Cart() {
       if (!res.ok) {
         throw new Error(data.detail || "Checkout failed");
       }
-      showToast(`Order Placed Successfully!\nOrder ID: ${data.order_id}`);
+      showToast(`Order Placed Successfully!`, true);
+      navigate('/');
       await loadCart();
     } catch (error: any) {
       showToast(error.message, false);
@@ -155,19 +166,21 @@ function Cart() {
       <nav className={styles.navbar}>
         <div className={styles.logo} onClick={() => navigate('/')}>Furniture<span>·</span>Co</div>
         <div className={styles.navIcons}>
+          <PageNavigation />
           <ul className={styles.navLinks}>
             <li><Link to="/">Home</Link></li>
             <li><Link to="/products">Products</Link></li>
             <li><Link to="/about">About</Link></li>
             <li><Link to="/contact">Contact</Link></li>
           </ul>
-          <button className={styles.iconBtn} onClick={() => navigate('/wishlist')}>&nbsp;<WishlistIcon/>&nbsp;</button>
           <button className={styles.iconBtn} onClick={() => navigate('/products')}>Shop</button>
+          <button className={styles.iconBtn} onClick={() => navigate('/wishlist')}><WishlistIcon />
+          </button>
         </div>
       </nav>
 
       {loading ? (
-        <div className={styles.loading}>Loading your cart…</div>
+        <div className={styles.loading}>Loading your cart...</div>
       ) : items.length === 0 ? (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>🛒</div>
@@ -250,7 +263,7 @@ function Cart() {
       )}
     </div>
   );
-}
+};
 
 
 export default Cart;

@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { CartIcon, FacebookIcon, InstagramIcon, LazyLoading, LeftArrow, RightArrow, RightBigArrow, SearchIcon, StarIcon, WishlistIcon } from '../assets/Extra/svg';
-import { fetchProducts, fetchWithAuth } from '../api/dashboard';
-import { getTokenPayload, clearToken } from '../utils/tokenUtils';
+import { fetchProducts, getFetchCart, getAddToCart, getAddToWishlist, getFetchWishlist } from '../api/dashboard';
+import { getTokenPayload, clearToken, getToken } from '../utils/tokenUtils';
 import { StarRating } from '../assets/Extra/extra_functions';
 import { useNavigate, Link } from 'react-router-dom';
 import bed from "../assets/images/platform_bed.webp";
-import chair from "../assets/images/living_room.jpg";
+import chair from "../assets/images/chair.avif";
 import almirah from "../assets/images/almirah.webp";
 import dining from "../assets/images/dining.png";
 import table from "../assets/images/table.jpg";
@@ -36,6 +36,7 @@ const CATEGORIES = [
 ];
 
 function Dashboard() {
+  const token = getToken();
   const user = getTokenPayload();
   const navigate = useNavigate();
 
@@ -44,8 +45,9 @@ function Dashboard() {
   const [products, setProducts] = useState<Products[]>([]);
 
   const [search, setSearch] = useState('');
-  const [wished, setWished] = useState<Set<number>>(new Set());
+  const [cart, setCart] = useState<number[]>([]);
   const [addedToCart, setAddedToCart] = useState<number | null>(null);
+  const [wishlist, setWishlist] = useState<number[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<Products | null>(null);
   const [currentIndexes, setCurrentIndexes] = useState<{ [key:number]: number }>({});
 
@@ -61,6 +63,7 @@ function Dashboard() {
 
 
   useEffect(() => {
+    fetchCart(); fetchWishlist();
     fetchProducts()
       .then((data) => setProducts(Array.isArray(data) ? data : []))
       .catch(() => setProducts([]))
@@ -87,8 +90,17 @@ function Dashboard() {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
-    });
+    })
   };
+
+  const scrollToCenter = () => {
+    window.scrollTo({
+      behavior: "smooth",
+      top: 350,
+    })
+  };
+
+  const scrollToSubRoute = () => window.scrollTo({ top: 380, behavior: "smooth" });
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
@@ -129,36 +141,54 @@ function Dashboard() {
     navigate("/products") 
   };
 
-  const handleAddToCart = async (productId: number) => {
-    if (!user) { showToast("Please Login First!", false);
-      return;
-    }
+  const fetchCart = async () => {
     try {
-      await fetchWithAuth(`/cart/${productId}`, { method: 'PUT' });
-      setAddedToCart(productId);
-      showToast("Product Added to Cart!");
-      setTimeout(() => setAddedToCart(null), 1800);
-    } catch (err) { console.error(err);
-      showToast("Failed to Add to Cart", false);
-     }
+      if (!token) return;
+      const data = await getFetchCart(token);
+      if (!Array.isArray(data)) return;
+      setCart(data.map((item: any) => item.product_id));
+    } catch {}
   };
 
-  const toggleWishlist = async (productId: number) => {
-    if (!user) { showToast("Please Login First!", false);
+  const addToCart = async (productId: number) => {
+    if (!token) { showToast("Please Log in to Add items to your Cart.", false);
       return;
     }
     try {
-      if (wished.has(productId)) {
-        await fetchWithAuth(`/wishlist/${productId}`, { method: 'DELETE' });
-        showToast("Product Removed from Wishlist!");
-        setWished(prev => { const s = new Set(prev); s.delete(productId); return s; });
-      } else {
-        await fetchWithAuth(`/wishlist/${productId}`, { method: 'PUT' });
-        showToast("Product Added to Wishlist!");
-        setWished(prev => new Set(prev).add(productId));
+      const res = await getAddToCart(productId, token);
+      if (!res) { showToast("Could not add item to cart.", false); return; }
+      await fetchCart();
+      setAddedToCart(productId);
+      setTimeout(() => setAddedToCart(null), 3000);
+    } catch {
+      showToast("Error Adding item to Cart.", false);
+    }
+  };
+
+  const fetchWishlist = async () => {
+    try {
+      if (!token) return;
+      const data = await getFetchWishlist(token);
+      if (!Array.isArray(data)) return;
+      setWishlist(data.map((item: any) => item.product_id));
+    } catch {}
+  };
+
+  const addToWishList = async (productId: number) => {
+    if (!token) { showToast("Please Log in to save to your Wishlist.", false);
+      return;
+    }
+    try {
+      const res = await getAddToWishlist(productId, token);
+      if (!res) { showToast("Could not add item to wishlist.", false);
+        return;
       }
-    } catch (err) { console.error(err);
-      showToast("Failed to Update Wishlist", false); }
+      await fetchWishlist();
+      setWishlist(prev => prev.includes(productId) ? prev : [...prev, productId]);
+      showToast("Added to Wishlist!", true);
+    } catch {
+      showToast("Error Adding Item to Wishlist.", false);
+    }
   };
 
   const confirmLogout = () => { clearToken(); setShowLogoutModal(false); navigate('/login'); };
@@ -168,7 +198,7 @@ function Dashboard() {
     p.category.toLowerCase().includes(search.toLowerCase())
   );
 
-  const pct = (p: Products) =>
+  const percent = (p: Products) =>
     p.oldPrice > p.price ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0;
 
   return (
@@ -178,8 +208,8 @@ function Dashboard() {
         <ul className={styles.navLinks}>
           <li><Link to="/" onClick={() => { scrollToTop(); }}>Home</Link></li>
           <li><Link to="/products">Products</Link></li>
-          <li><Link to="/about">About</Link></li>
-          <li><Link to="/contact">Contact</Link></li>
+          <li><Link to="/about" onClick={() => {scrollToTop(); }}>About</Link></li>
+          <li><Link to="/contact" onClick={() => {scrollToCenter(); }}>Contact</Link></li>
         </ul>
 
         <div className={styles.searchWrap}>
@@ -189,21 +219,22 @@ function Dashboard() {
 
         <div className={styles.navActions}>
           <button className={styles.navCartBtn} onClick={() => navigate('/wishlist')} title="Wishlist"> <WishlistIcon/>
+            {wishlist.length > 0 && <span className={styles.cartBadge}>{wishlist.length}</span>}
           </button>
 
           <button className={styles.navCartBtn} onClick={() => navigate('/cart')} title="Cart"> <CartIcon />
-            {addedToCart && <span className={styles.cartBadge}>!</span>}
+            {cart.length > 0 && <span className={styles.cartBadge}>{cart.length}</span>}
           </button>
 
           {user ? (
             <div className={styles.profileAvatar} title={user.username} onClick={() => setShowLogoutModal(true)}>
               {user.username?.slice(0, 2).toUpperCase()}
-              <span className={styles.profileTooltip}>Click to sign out</span>
+              <span className={styles.profileTooltip}>Click to Sign out</span>
             </div>
           ) : (
             <>
               <button className={styles.navBtnOutline} onClick={() => navigate('/login')}>Sign In</button>
-              <button className={styles.navBtnFill}    onClick={() => navigate('/register')}>Join</button>
+              <button className={styles.navBtnFill} onClick={() => navigate('/register')}>Join</button>
             </>
           )}
         </div>
@@ -253,8 +284,7 @@ function Dashboard() {
         </div>
         <div className={styles.categoryGrid}>
           {CATEGORIES.map(cat => (
-            <div key={cat.label} className={styles.categoryCard} onClick={() => navigate(cat.to)}>
-              <div className={styles.categoryGlow} />
+            <div key={cat.label} className={styles.categoryCard} onClick={() => {navigate(cat.to); scrollToSubRoute(); }}>
               <div className={styles.categoryCountBadge}>{cat.count}</div>
               <div className={styles.categoryIcon}>
                 <img src={cat.src} alt={cat.label} />
@@ -290,9 +320,8 @@ function Dashboard() {
               <div key={product.id} className={styles.card}>
                 {product.tag && <span className={styles.cardTag}>{product.tag}</span>}
 
-                <button onClick={() => toggleWishlist(product.id)} title={wished.has(product.id) ? 'Remove from wishlist' : 'Add to wishlist'}
-                  className={`${styles.wishlistBtn} ${wished.has(product.id) ? styles.wishlistBtnActive : ''}`}>
-                  {wished.has(product.id) ? '♥' : '♡'}
+                <button onClick={() => addToWishList(product.id)} className={styles.wishlistBtn}>
+                  ♡ Wishlist
                 </button>
 
                 <div className={styles.cardImageWrap}>
@@ -325,7 +354,7 @@ function Dashboard() {
                       <span className={styles.cardOldPrice}>${Number(product.oldPrice).toLocaleString('en-IN')}</span>
                     )}
                   </div>
-                  <button onClick={() => handleAddToCart(product.id)}
+                  <button onClick={() => addToCart(product.id)}
                     disabled={!product.in_stock}
                     className={`${styles.cardBtn} ${addedToCart === product.id ? styles.cardBtnAdded : ''} ${!product.in_stock ? styles.cardBtnDisabled : ''}`}>
                     <span>
@@ -382,7 +411,7 @@ function Dashboard() {
                 {selectedProduct.oldPrice > selectedProduct.price && (
                   <>
                     <span className={styles.quickViewOldPrice}>${selectedProduct.oldPrice?.toLocaleString('en-IN')}</span>
-                    <span className={styles.quickViewDiscountBadge}>-{pct(selectedProduct)}%</span>
+                    <span className={styles.quickViewDiscountBadge}>-{percent(selectedProduct)}%</span>
                   </>
                 )}
               </div>
@@ -393,12 +422,12 @@ function Dashboard() {
 
               <div className={styles.quickViewActions}>
                 <button className={styles.quickViewCartBtn} disabled={!selectedProduct.in_stock}
-                  onClick={() => { handleAddToCart(selectedProduct.id); closeQuickView(); }}>
+                  onClick={() => { addToCart(selectedProduct.id); closeQuickView(); }}>
                   <CartIcon />
                   <span>Add to Cart</span>
                 </button>
-                <button className={styles.quickViewWishBtn} onClick={() => toggleWishlist(selectedProduct.id)}>
-                  {wished.has(selectedProduct.id) ? '♥' : '♡'}
+                <button className={styles.quickViewWishBtn} onClick={() => addToWishList(selectedProduct.id)}>
+                  ♡ Wishlist
                 </button>
               </div>
             </div>
@@ -440,18 +469,18 @@ function Dashboard() {
           <div className={styles.footerCol}>
             <h4>Shop</h4>
             <ul>
-              <li><a onClick={() => navigate('products/beds')}>Beds</a></li>
-              <li><a onClick={() => navigate('products/sofas')}>Sofas</a></li>
-              <li><a onClick={() => navigate('products/chairs')}>Chairs</a></li>
-              <li><a onClick={() => navigate('products/tables')}>Tables</a></li>
-              <li><a onClick={() => navigate('products/dinings')}>Dining</a></li>
+              <li><a onClick={() => {navigate('products/beds'); scrollToSubRoute();}}>Beds</a></li>
+              <li><a onClick={() => {navigate('products/sofas'); scrollToSubRoute();}}>Sofas</a></li>
+              <li><a onClick={() => {navigate('products/chairs'); scrollToSubRoute();}}>Chairs</a></li>
+              <li><a onClick={() => {navigate('products/tables'); scrollToSubRoute();}}>Tables</a></li>
+              <li><a onClick={() => {navigate('products/dinings'); scrollToSubRoute();}}>Dining</a></li>
             </ul>
           </div>
           <div className={styles.footerCol}>
             <h4>Company</h4>
             <ul>
               <li onClick={() => { scrollToTop(); }}><Link to="/">Home</Link></li>
-              <li><Link to="/products">Products</Link></li>
+              <li><Link to="/products" onClick={() => scrollToSubRoute()}>Products</Link></li>
               <li><Link to="/about">About Us</Link></li>
               <li><Link to="/contact">Showroom</Link></li>
             </ul>

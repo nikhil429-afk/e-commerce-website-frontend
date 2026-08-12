@@ -1,116 +1,160 @@
 import { getToken } from "../utils/tokenUtils";
 import BASE_URL from "../utils/baseapi";
-const token = localStorage.getItem("auth_token");
-
-function authHeaders(): HeadersInit {
-  return {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
-  };
-};
-
 
 export const getAllUsers = async () => {
+  try{
     const res = await fetch(`${BASE_URL}/owner/users`, {
       method: "GET",
-      headers: authHeaders(),
+      headers: { Authorization: `Bearer ${getToken()}`,}
     });
     return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 
 
 export const deleteUser = async (userId: number) => {
-  const res = await fetch(`${BASE_URL}/owner/users/${userId}`, {
-    method: "DELETE",
-    headers: authHeaders(),
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/owner/users/${userId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${getToken()}`,}
+    });
+    return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 
 
 export const updateUser = async (userId: number, data: { username?: string; role?: string }) => {
-  const res = await fetch(`${BASE_URL}/owner/users/${userId}`, {
-    method: "PATCH",
-    headers: authHeaders(),
-    body: JSON.stringify(data),
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/owner/users/${userId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}`},
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 
 
 export const getProducts = async () => {
-  const token = getToken();
-  const res = await fetch(`${BASE_URL}/owner/products`, {
-    method: "GET",
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  try {
+    const res = await fetch(`${BASE_URL}/owner/products`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${getToken()}`,}
+    });
   return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 
 
 export const createProduct = async (formData: FormData) => {
-  const token = getToken();
-  const res = await fetch(`${BASE_URL}/products/`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-    body: formData,
-  });
+  try {
+    const res = await fetch(`${BASE_URL}/products/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}` },
+      body: formData,
+    });
   return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 
 
 export const updateProduct = async (id: number, formData: FormData) => {
-  const token = getToken();
-  const res = await fetch(`${BASE_URL}/products/${id}`, {
-    method: "PUT",
-    headers: { Authorization: `Bearer ${token}` },
-    body: formData,
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/products/${id}`, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${getToken()}` },
+      body: formData,
+    });
+    return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 
 
 export const deleteProduct = async (productId: number) => {
-  const res = await fetch(`${BASE_URL}/owner/products/${productId}`, {
-    method: "DELETE",
-    headers: authHeaders(),
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/owner/products/${productId}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${getToken()}`,}
+    });
+    return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 
 
 export const getOrders = async () => {
-  const res = await fetch(`${BASE_URL}/owner/orders/`, {
-    method: "GET",
-    headers: authHeaders() });
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/owner/orders`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${getToken()}`,}
+    });
+    return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 
 
 export const shipOrder = async (orderId: number, status: string) => {
-  const res = await fetch(`${BASE_URL}/owner/orders/${orderId}`, {
-    method: "PATCH",
-    headers: authHeaders(),
-    body: JSON.stringify({ status })
-  });
-  return res.json();
+  try{
+    const res = await fetch(`${BASE_URL}/owner/orders/${orderId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${getToken()}`},
+      body: JSON.stringify({ status })
+    });
+    return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 
 
 export const getContacts = async () => {
-  const res = await fetch(`${BASE_URL}/owner/contact`, {
-    method: "GET",
-    headers: authHeaders(),
-  });
-  return res.json();
+  try{
+    const res = await fetch(`${BASE_URL}/owner/contact`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${getToken()}`,}
+    });
+    return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 
 
 export const getAppointments = async () => {
-  const res = await fetch(`${BASE_URL}/owner/appointments`, {
-    method: "GET",
-    headers: authHeaders(),
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/owner/appointments`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${getToken()}`,}
+    });
+    return res.json();
+  }
+  catch (err: any) {
+    return { status: 500, data: { message: err.message}};
+  }
 };
 

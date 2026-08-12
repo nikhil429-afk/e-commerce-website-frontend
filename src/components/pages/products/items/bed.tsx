@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import styles from "./items.module.css";
 import { addToCart, addToWishlist, getBeds } from "../../../../api/Product_items_API/beds";
-import { getToken } from "../../../../utils/tokenUtils";
 import { StarRating } from "../../../../assets/Extra/extra_functions";
 import { CartIcon, TickMark } from "../../../../assets/Extra/svg";
+import { getToken } from "../../../../utils/tokenUtils";
 import BASE_URL from "../../../../utils/baseapi";
 
 
@@ -148,7 +148,7 @@ function Beds() {
   };
   
     if (loading) return <h2 className={styles.loading}>Loading Products....</h2>;
-    if (!products.length) return <h2 className={styles.notFound}>No Product Found!</h2>;
+    if (!products.length) return <h2 className={styles.notFound}>No Product Found for Beds</h2>;
 
   return (
     <div className={styles.container}>

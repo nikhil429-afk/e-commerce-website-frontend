@@ -1,5 +1,5 @@
 import { CartIcon, CrossIcon, EmptyWishlistIcon, LoadingSpinner, SearchIcon } from '../../../assets/Extra/svg';
-import { getWishlist, removeFromWishlist } from '../../../api/wishlist';
+import { getWishlist, removeFromWishlist, getFetchCart } from '../../../api/wishlist';
 import { useNavigate, Link } from 'react-router-dom';
 import { getToken } from '../../../utils/tokenUtils';
 import { addToCart } from '../../../api/cart';
@@ -26,8 +26,13 @@ function Wishlist() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<WishlistItem[]>([]);
+  const [cart, setCart] = useState<number[]>([]);
   const [addedCart, setAddedCart] = useState<number | null>(null);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
+
+  useEffect(() => {
+    if (token) fetchCart();
+  }, [token]);
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
@@ -56,6 +61,15 @@ function Wishlist() {
     } catch (err) {
       showToast('Error removing item: ' + err, false);
     }
+  };
+
+  const fetchCart = async () => {
+    try {
+      if (!token) return;
+      const data = await getFetchCart(token);
+      if (!Array.isArray(data)) return;
+      setCart(data.map((item: any) => item.product_id));
+    } catch {}
   };
 
   const handleAddToCart = async (item: WishlistItem) => {
@@ -111,7 +125,9 @@ function Wishlist() {
         </div>
         <div className={styles.navIcons}>
           <button className={styles.iconBtn} onClick={() => navigate('/products')}>Shop</button>
-          <button className={styles.iconBtn} onClick={() => navigate('/cart')}><CartIcon /></button>
+          <button className={styles.iconBtn} onClick={() => navigate('/cart')}>
+            <CartIcon />
+          </button>
         </div>
       </nav>
 
@@ -129,7 +145,7 @@ function Wishlist() {
           <div className={styles.header}>
             <h1> My Wishlist
               <span className={styles.count}>
-                {' '} –— {filtered.length} {filtered.length === 1 ? 'Piece' : 'Pieces'} Saved
+                {' '} –— {filtered.length} {filtered.length === 1 ? 'Product' : 'Products'} Saved
               </span>
             </h1>
           </div>

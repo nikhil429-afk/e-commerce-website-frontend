@@ -328,3 +328,223 @@
   color: #f87171;
 }
 
+/* ---------- Page layout ---------- */
+
+.Container {
+  width: 100%;
+  min-height: 100vh;
+  padding: 32px 24px;
+  box-sizing: border-box;
+}
+
+.loading {
+  color: #94a3b8;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 60px;
+}
+
+/* Before an image is uploaded: center the upload card alone on the page */
+.uploadContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70vh;
+}
+
+.uploadContainer .uploadImage {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* After an image is uploaded: compact bar up top, decoration area below */
+.uploadContainerActive {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ---------- Upload section ---------- */
+
+.uploadImage {
+  position: relative;
+}
+
+.uploadImageCompact {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.uploadAnotherBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  border-radius: 10px;
+  color: #a5b4fc;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+
+.uploadAnotherBtn:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.55);
+  transform: translateY(-1px);
+}
+
+/* ---------- Decoration / recommendations area ---------- */
+
+.decorateImage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.search {
+  width: 100%;
+  max-width: 420px;
+  padding: 11px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #e2e8f0;
+  font-size: 13.5px;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+  animation: toastIn 0.25s ease both;
+}
+
+.search::placeholder {
+  color: #475569;
+}
+
+.search:focus {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.05);
+}
+
+.imageWrapper {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.image {
+  display: block;
+  max-width: 100%;
+  max-height: 70vh;
+  border-radius: 16px;
+}
+
+/* Overlay marking a detected empty space on the room image */
+.emptyBox {
+  position: absolute;
+  border: 1.5px dashed rgba(99, 102, 241, 0.7);
+  border-radius: 10px;
+  background: rgba(10, 13, 20, 0.25);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+.spaceLabel {
+  margin: 0 0 6px 2px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #f1f5f9;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+/* Horizontally scrolling row of recommended products within a space */
+.productScrollRow {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding-bottom: 6px;
+}
+
+.productScrollRow::-webkit-scrollbar {
+  height: 6px;
+}
+
+.productScrollRow::-webkit-scrollbar-thumb {
+  background: rgba(99, 102, 241, 0.4);
+  border-radius: 6px;
+}
+
+.productScrollRow::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.productCard {
+  flex: 0 0 auto;
+  scroll-snap-align: start;
+  width: 160px;
+  background: rgba(20, 23, 32, 0.92);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px;
+  box-sizing: border-box;
+  backdrop-filter: blur(4px);
+}
+
+.productImage {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 6px;
+}
+
+.productName {
+  margin: 0 0 2px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.productCategory {
+  margin: 0 0 4px;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: #818cf8;
+}
+
+.productPrice {
+  margin: 0 0 2px;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #00c9b1;
+}
+
+.productRating {
+  margin: 0 0 4px;
+  font-size: 10.5px;
+  color: #94a3b8;
+}
+
+.productReason {
+  margin: 0;
+  font-size: 10px;
+  color: #64748b;
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

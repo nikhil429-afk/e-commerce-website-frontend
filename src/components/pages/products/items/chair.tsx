@@ -141,7 +141,7 @@ function Chairs() {
     const pct = (i: Chair) => Math.round(((i.oldPrice - i.price) / i.oldPrice) * 100);
     
     if (loading) return <h2 className={styles.loading}>Loading Products....</h2>;
-    if (!products.length) return <h2 className={styles.notFound}>No Product Found!</h2>;
+    if (!products.length) return <h2 className={styles.notFound}>No Product Found for Chairs</h2>;
   
   return (
     <div className={styles.container}>

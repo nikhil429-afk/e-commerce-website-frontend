@@ -12,4 +12,3 @@ export const UploadImage = async (formData: FormData) => {
 };
 
 
-// export const 
