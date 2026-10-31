@@ -5,6 +5,7 @@ import { sendContact } from "../../../api/contactus";
 import { getToken } from "../../../utils/tokenUtils";
 import { HomeIcon, CallIcon, MailIcon, SendMessageArrowPlane, TickMark } from "../../../assets/Extra/svg";
 import PageNavigation from "../../pagenavigation/pagenavigation";
+import ThemeToggle from "../../../theme/ThemeToggle";
 
 
 function Contact() {
@@ -90,6 +91,7 @@ function Contact() {
           <Link to="/about" className={styles.navLink}>About</Link>
           <Link to="/contact" onClick={() => { scrollToTop(); }} className={`${styles.navLink} ${styles.navLinkActive}`}>Contact</Link>
         </div>
+        <ThemeToggle className={styles.themeToggle} />
       </nav>
 
       <section className={styles.hero}>

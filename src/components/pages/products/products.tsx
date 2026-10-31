@@ -7,6 +7,7 @@ import { Pagination } from "../pagination/pagination";
 import { Outlet, useOutlet, Link, useNavigate } from 'react-router-dom';
 import { getToken } from "../../../utils/tokenUtils";
 import BASE_URL from "../../../utils/baseapi";
+import ThemeToggle from "../../../theme/ThemeToggle";
 import styles from "./products.module.css";
 // import { getdetailView } from "../../../api/products";
 
@@ -318,6 +319,7 @@ function Products() {
           <li><Link to="/contact">Contact</Link></li>
         </ul>
         <div className={styles.navIcons}>
+          <ThemeToggle className={styles.themeToggle} />
           <div className={styles.searchWrap}>
             <input type="text" placeholder="Search products…" value={search} className={styles.search} onChange={e => handleSearch(e.target.value)} />
           </div>

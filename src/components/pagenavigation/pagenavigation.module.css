@@ -27,3 +27,7 @@
 .navButton:active {
   transform: scale(0.98);
 }
+
+.themeToggle {
+  margin-left: 4px;
+}

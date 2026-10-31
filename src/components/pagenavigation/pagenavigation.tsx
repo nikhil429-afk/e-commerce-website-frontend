@@ -1,4 +1,4 @@
-import styles from "./PageNavigation.module.css";
+import styles from "./pagenavigation.module.css";
 
 function PageNavigation() {
 

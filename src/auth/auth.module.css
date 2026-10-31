@@ -132,7 +132,7 @@
   font-family: 'Outfit', sans-serif;
   font-size: 1.75rem;
   font-weight: 700;
-  color: var(--white);
+  color: #fff;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   margin: 0 0 0.45rem;
@@ -218,7 +218,7 @@
 }
 
 .fieldIcon:hover {
-  color: var(--white);
+  color: #fff;
 }
 
 .errMsg {
@@ -322,7 +322,7 @@
   font-family: 'DM Sans', sans-serif;
   font-size: 0.8rem;
   font-weight: 600;
-  color: var(--white);
+  color: #fff;
   background: none;
   border: none;
   cursor: pointer;
@@ -409,4 +409,88 @@
     from { transform: translateY(0);    opacity: 1; }
     to   { transform: translateY(60px); opacity: 0; }
   }
+}
+
+
+/* ---- theme toggle + "Continue with Google" ---- */
+.themeCorner {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  z-index: 5;
+}
+
+.socialBlock {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  color: var(--sage-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--sage-border);
+}
+
+.googleWrap {
+  display: flex;
+  justify-content: center;
+  min-height: 44px;
+  transition: opacity 0.2s ease;
+}
+
+.googleBusy {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.googleFallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 280px;
+  max-width: 100%;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 999px;
+  background: #fff;
+  color: #3c4043;
+  font: 600 0.92rem 'Roboto', 'Segoe UI', sans-serif;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.googleFallback:hover {
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
+}
+
+.socialBlock .errorMessage {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.28);
+  color: #fff;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  text-align: center;
 }

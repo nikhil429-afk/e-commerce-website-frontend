@@ -41,7 +41,7 @@
   align-items: center;
   gap: 24px;
   padding: 18px 48px;
-  background: rgba(250, 247, 242, 0.49);
+  background: rgba(250,246,240, 0.49);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(232, 226, 217, 0.7);
@@ -50,7 +50,7 @@
 }
 
 .navScrolled {
-  background: rgba(250, 247, 242, 0.98);
+  background: rgba(250,246,240, 0.98);
   box-shadow: 0 4px 40px rgba(44, 26, 14, 0.10);
   padding: 12px 48px;
 }
@@ -108,7 +108,7 @@
   position: relative;
   overflow: hidden;
   background:
-    radial-gradient(ellipse 80% 80% at 50% 0%, rgba(200, 133, 90, 0.09) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 80% at 50% 0%, rgba(var(--brass-rgb), 0.09) 0%, transparent 70%),
     var(--cream);
 }
 
@@ -126,8 +126,8 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--caramel);
-  background: rgba(200, 133, 90, 0.1);
-  border: 1px solid rgba(200, 133, 90, 0.25);
+  background: rgba(var(--brass-rgb), 0.1);
+  border: 1px solid rgba(var(--brass-rgb), 0.25);
   padding: 6px 18px;
   border-radius: 50px;
   margin-bottom: 20px;
@@ -269,12 +269,12 @@
   padding: 20px 24px;
   background: var(--cream);
   border-radius: var(--radius-md);
-  border: 1px solid rgba(212, 168, 83, 0.15);
+  border: 1px solid rgba(var(--brass-rgb), 0.15);
   transition: all var(--transition);
 }
 
 .contactCard:hover {
-  border-color: rgba(200, 133, 90, 0.3);
+  border-color: rgba(var(--brass-rgb), 0.3);
   box-shadow: var(--shadow-soft);
   transform: translateX(4px);
 }
@@ -283,8 +283,8 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, rgba(200, 133, 90, 0.15), rgba(212, 168, 83, 0.1));
-  border: 1px solid rgba(200, 133, 90, 0.2);
+  background: linear-gradient(135deg, rgba(var(--brass-rgb), 0.15), rgba(var(--brass-rgb), 0.1));
+  border: 1px solid rgba(var(--brass-rgb), 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -319,7 +319,7 @@
 .formCard {
   background: var(--cream);
   border-radius: var(--radius-lg);
-  border: 1px solid rgba(212, 168, 83, 0.15);
+  border: 1px solid rgba(var(--brass-rgb), 0.15);
   padding: 48px;
   box-shadow: var(--shadow-soft);
   animation: fadeUp 0.7s ease both;
@@ -354,7 +354,7 @@
 
 .formInput, .formSelect, .formTextarea {
   padding: 13px 18px;
-  border: 1.5px solid rgba(214, 196, 168, 0.6);
+  border: 1.5px solid rgba(var(--brass-rgb), 0.6);
   border-radius: var(--radius-sm);
   background: var(--warm-white);
   font-family: var(--font-body);
@@ -368,8 +368,8 @@
 
 .formInput:focus, .formSelect:focus, .formTextarea:focus {
   border-color: var(--caramel);
-  box-shadow: 0 0 0 3px rgba(200, 133, 90, 0.1);
-  background: #fff;
+  box-shadow: 0 0 0 3px rgba(var(--brass-rgb), 0.1);
+  background: var(--c-surface);
 }
 
 .formInput::placeholder, .formTextarea::placeholder { color: var(--sand); font-style: italic; }
@@ -419,7 +419,7 @@
 
 .submitBtn:hover {
   background: linear-gradient(135deg, #b8714a, #c8952e);
-  box-shadow: 0 8px 32px rgba(200, 133, 90, 0.3);
+  box-shadow: 0 8px 32px rgba(var(--brass-rgb), 0.3);
   transform: translateY(-2px);
 }
 
@@ -492,7 +492,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 1px solid rgba(212, 168, 83, 0.15);
+  border-top: 1px solid rgba(var(--brass-rgb), 0.15);
 }
 
 .footerLogo {
@@ -521,4 +521,29 @@
   .formRow { grid-template-columns: 1fr; }
   .navbar { padding: 16px 24px; }
   .footer { flex-direction: column; gap: 12px; text-align: center; padding: 24px; }
+}
+
+/* ==========================================================================
+   DARK THEME
+   Most colors here flow from the shared --cream/--warm-white/--charcoal
+   tokens, which are re-declared for dark mode in dashboard.module.css
+   (loaded globally). This block only patches this page's own hardcoded
+   values: the translucent navbar and the dark accent band.
+   ========================================================================== */
+html[data-theme='dark'] .navbar {
+  background: rgba(20,17,15, 0.55);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme='dark'] .navScrolled {
+  background: rgba(20,17,15, 0.96);
+  box-shadow: 0 4px 40px rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme='dark'] .bottomBand {
+  background: #0e0c0a;
+}
+
+html[data-theme='dark'] .infoText {
+  color: #c9b8a8;
 }

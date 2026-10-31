@@ -3,6 +3,7 @@ import styles from "./aboutus.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import { RightArrowIcon } from "../../../assets/Extra/svg"
 import PageNavigation from "../../pagenavigation/pagenavigation";
+import ThemeToggle from "../../../theme/ThemeToggle";
 
 function Aboutus() {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ function Aboutus() {
           <Link to="/about" onClick={() => { scrollToTop(); }} className={`${styles.navLink} ${styles.navLinkActive}`}>About</Link>
           <Link to="/contact" className={styles.navLink}>Contact</Link>
         </div>
+        <ThemeToggle className={styles.themeToggle} />
       </nav>
 
       <section className={styles.hero}>

@@ -1,6 +1,6 @@
 .page {
   min-height: 100vh;
-  background: #f7f4f0;
+  background: var(--c-bg);
   font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
 }
 
@@ -10,8 +10,8 @@
   gap: 2rem;
   padding: 0 4rem;
   height: 68px;
-  background: #fff;
-  border-bottom: 1px solid #ede8e0;
+  background: var(--c-surface);
+  border-bottom: 1px solid var(--c-line);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -29,7 +29,7 @@
 .navLinks li a {
   font-size: 0.85rem;
   font-weight: 500;
-  color: #555;
+  color: var(--c-ink-2);
   text-decoration: none;
   position: relative;
   padding-bottom: 4px;
@@ -41,11 +41,11 @@
   position: absolute;
   bottom: 0; left: 0;
   width: 0; height: 1.5px;
-  background: #ff7a00;
+  background: var(--brand);
   transition: width 0.25s;
 }
 
-.navLinks li a:hover { color: #ff7a00; }
+.navLinks li a:hover { color: var(--brand-fg); }
 .navLinks li a:hover::after { width: 100%; }
 
 .cartBadge {
@@ -53,7 +53,7 @@
   top: -6px;
   right: -6px;
   background: var(--orange);
-  color: var(--white);
+  color: #fff;
   font-size: 0.65rem;
   font-weight: 700;
   width: 18px;
@@ -70,13 +70,13 @@
 .logo {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #1a1a2e;
+  color: var(--c-ink);
   cursor: pointer;
   letter-spacing: -0.5px;
   white-space: nowrap;
   flex-shrink: 0;
 }
-.logo span { color: #ff7a00; }
+.logo span { color: var(--brand-fg); }
 
 .navIcons {
   display: flex;
@@ -88,12 +88,12 @@
 
 .iconBtn {
   background: none;
-  border: 1px solid #e8e3db;
+  border: 1px solid var(--c-line);
   border-radius: 8px;
   padding: 7px 16px;
   font-size: 0.82rem;
   font-weight: 600;
-  color: #333;
+  color: var(--c-ink);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -101,8 +101,8 @@
   transition: all 0.2s;
 }
 .iconBtn:hover {
-  background: #ff7a00;
-  border-color: #ff7a00;
+  background: var(--brand);
+  border-color: var(--brand);
   color: #fff;
 }
 
@@ -114,14 +114,14 @@
 .header h1 {
   font-size: 2.2rem;
   font-weight: 800;
-  color: #1a1a2e;
+  color: var(--c-ink);
   letter-spacing: -0.5px;
   margin: 0;
 }
 .count {
   font-size: 1rem;
   font-weight: 400;
-  color: #999;
+  color: var(--c-muted);
   margin-left: 10px;
 }
 
@@ -135,8 +135,8 @@
 }
 
 .totalprice {
-  background: #fff;
-  border: 1px solid #ede8e0;
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
   border-radius: 16px;
   padding: 24px 32px;
   display: flex;
@@ -151,12 +151,12 @@
 .h2_totalprice {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--c-ink);
   margin: 0;
 }
 
 .buyAllBtn {
-  background: linear-gradient(135deg, #ff7a00, #ff9c40);
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
   color: #fff;
   border: none;
   border-radius: 12px;
@@ -165,12 +165,12 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.25s;
-  box-shadow: 0 4px 16px rgba(255,122,0,0.35);
+  box-shadow: 0 4px 16px rgba(var(--brand-rgb),0.35);
   letter-spacing: 0.3px;
 }
 .buyAllBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(255,122,0,0.45);
+  box-shadow: 0 8px 24px rgba(var(--brand-rgb),0.45);
 }
 .buyAllBtn:disabled {
   opacity: 0.6;
@@ -179,8 +179,8 @@
 }
 
 .card {
-  background: #fff;
-  border: 1px solid #ede8e0;
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
   border-radius: 20px;
   display: grid;
   grid-template-columns: 220px 90px 1fr;
@@ -198,7 +198,7 @@
 .removeBtn {
   position: absolute;
   top: 14px; right: 14px;
-  background: #fff3ee;
+  background: var(--brand-soft);
   border: none;
   border-radius: 50%;
   width: 34px; height: 34px;
@@ -206,13 +206,13 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #ff7a00;
+  color: var(--brand-fg);
   font-size: 1rem;
   transition: all 0.2s;
   z-index: 2;
 }
 .removeBtn:hover {
-  background: #ff7a00;
+  background: var(--brand);
   color: #fff;
   transform: scale(1.1);
 }
@@ -223,7 +223,7 @@
   overflow: hidden;
   position: relative;
   flex-shrink: 0;
-  background: #f5f0e8;
+  background: var(--c-bg-alt);
 }
 .imageWrap img {
   width: 100%;
@@ -236,7 +236,7 @@
 .imageOverlay {
   position: absolute;
   inset: 0;
-  background: rgba(26,26,46,0.45);
+  background: rgba(30,26,23,0.45);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -247,7 +247,7 @@
 
 .quickViewBtn {
   background: rgba(255,255,255,0.95);
-  color: #1a1a2e;
+  color: var(--c-ink);
   border: none;
   border-radius: 8px;
   padding: 8px 18px;
@@ -257,7 +257,7 @@
   letter-spacing: 0.4px;
   transition: background 0.2s;
 }
-.quickViewBtn:hover { background: #ff7a00; color: #fff; }
+.quickViewBtn:hover { background: var(--brand); color: #fff; }
 
 .toggleBtn {
   display: flex;
@@ -280,7 +280,7 @@
 
 .quantity {
   font-size: 0.72rem;
-  color: #aaa;
+  color: var(--c-muted);
   text-transform: uppercase;
   letter-spacing: 0.6px;
 }
@@ -292,7 +292,7 @@
 }
 
 .Btn {
-  background: #f5f0e8;
+  background: var(--c-bg-alt);
   border: none;
   border-radius: 6px;
   width: 28px; height: 28px;
@@ -301,11 +301,11 @@
   justify-content: center;
   font-size: 1rem;
   font-weight: 700;
-  color: #333;
+  color: var(--c-ink);
   cursor: pointer;
   transition: all 0.2s;
 }
-.Btn:hover { background: #ff7a00; color: #fff; }
+.Btn:hover { background: var(--brand); color: #fff; }
 
 .cardBody {
   padding: 24px 28px;
@@ -318,7 +318,7 @@
 .title {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #1a1a2e;
+  color: var(--c-ink);
   line-height: 1.35;
 }
 
@@ -340,14 +340,14 @@
 .price {
   font-size: 1.4rem;
   font-weight: 800;
-  color: #ff7a00;
+  color: var(--brand-fg);
 }
 
 .buyRow {
   margin-top: 10px;
 }
 .buy {
-  background: #1a1a2e;
+  background: var(--brand-strong);
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -359,7 +359,7 @@
   letter-spacing: 0.3px;
 }
 .buy:hover {
-  background: #ff7a00;
+  background: var(--brand);
   transform: translateY(-1px);
 }
 .buy:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
@@ -367,7 +367,7 @@
 .loading {
   text-align: center;
   padding: 100px 20px;
-  color: #888;
+  color: var(--c-muted);
   font-size: 1rem;
   animation: pulse 1.5s ease-in-out infinite;
 }
@@ -385,30 +385,30 @@
 }
 .emptyIcon {
   width: 100px; height: 100px;
-  background: #fff3ee;
+  background: var(--brand-soft);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 2.8rem;
   margin-bottom: 8px;
-  box-shadow: 0 4px 20px rgba(255,122,0,0.15);
+  box-shadow: 0 4px 20px rgba(var(--brand-rgb),0.15);
 }
 .emptyState h2 {
   font-size: 1.6rem;
   font-weight: 800;
-  color: #1a1a2e;
+  color: var(--c-ink);
   margin: 0;
 }
 .emptyState p {
   font-size: 0.95rem;
-  color: #888;
+  color: var(--c-muted);
   max-width: 380px;
   line-height: 1.6;
   margin: 0;
 }
 .shopBtn {
-  background: linear-gradient(135deg, #ff7a00, #ff9c40);
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
   color: #fff;
   border: none;
   border-radius: 12px;
@@ -418,11 +418,11 @@
   cursor: pointer;
   margin-top: 8px;
   transition: all 0.25s;
-  box-shadow: 0 4px 16px rgba(255,122,0,0.3);
+  box-shadow: 0 4px 16px rgba(var(--brand-rgb),0.3);
 }
 .shopBtn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(255,122,0,0.4);
+  box-shadow: 0 8px 24px rgba(var(--brand-rgb),0.4);
 }
 
 .toast {
@@ -440,7 +440,7 @@
   white-space: pre-line;
   text-align: center;
 }
-.toastOk { background: #1a1a2e; color: #fff; }
+.toastOk { background: var(--brand-strong); color: #fff; }
 .toastErr { background: #e05252; color: #fff; }
 
 @keyframes slideUp {
@@ -470,4 +470,59 @@
     position: static;
   }
   .buyAllBtn { text-align: center; }
+}
+
+/* ==========================================================================
+   DARK THEME
+   This page uses hardcoded hex colors rather than CSS variables, so each
+   surface/text pairing is patched explicitly here for <html data-theme="dark">.
+   ========================================================================== */
+html[data-theme='dark'] .page {
+  background: #131817;
+}
+
+html[data-theme='dark'] .navbar {
+  background: #191f1d;
+  border-bottom-color: #352e28;
+}
+
+html[data-theme='dark'] .navLinks li a {
+  color: #c7c2ba;
+}
+
+html[data-theme='dark'] .logo {
+  color: #f3ede4;
+}
+
+html[data-theme='dark'] .iconBtn {
+  border-color: #352e28;
+  color: #e3ddd1;
+  background: transparent;
+}
+
+html[data-theme='dark'] .header h1,
+html[data-theme='dark'] .h2_totalprice,
+html[data-theme='dark'] .title,
+html[data-theme='dark'] .emptyState h2 {
+  color: #f3ede4;
+}
+
+html[data-theme='dark'] .count,
+html[data-theme='dark'] .emptyState p {
+  color: #8b8578;
+}
+
+html[data-theme='dark'] .totalprice,
+html[data-theme='dark'] .card {
+  background: #1e1a17;
+  border-color: #352e28;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+html[data-theme='dark'] .card:hover {
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+}
+
+html[data-theme='dark'] .emptyIcon {
+  background: rgba(var(--brand-rgb), 0.12);
 }

@@ -1,6 +1,7 @@
 import './App.css';
 import { Route, Routes, BrowserRouter } from 'react-router-dom';
 import ProtectedRoute from './auth/Protectedroute';
+import ProfileSettings from './components/profiles/settings/ProfileSettings';
 import Dashboard from '../src/store/dashboard';
 import Register from './auth/register';
 import Login from './auth/login';
@@ -17,6 +18,7 @@ import Dinings from './components/pages/products/items/dining';
 import Beds from './components/pages/products/items/bed';
 import Owner from './components/profiles/owner/owner';
 import Decorate from './services/aidecorate';
+import NotFound from './components/pages/notfound/notfound';
 
 
 function App() {
@@ -40,7 +42,9 @@ function App() {
         <Route path="/about" element={<Aboutus />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/ai-decorate" element={<Decorate />} />
+        <Route path="/profile" element={<ProtectedRoute allowedRole="any"> <ProfileSettings /> </ProtectedRoute>} />
         <Route path="/owner" element={<ProtectedRoute allowedRole="owner"> <Owner /> </ProtectedRoute>} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
     </>

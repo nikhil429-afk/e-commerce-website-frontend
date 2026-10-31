@@ -4,12 +4,14 @@ import { LineChart, CartesianGrid, Line, XAxis, YAxis, ResponsiveContainer, Tool
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { getTokenPayload, clearToken } from "../../../utils/tokenUtils";
 import { getOrdersChart, getUsersChart } from "../../../api/charts";
+import ProfileSettings from "../settings/ProfileSettings";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./owner.module.css";
 import dayjs from "dayjs";
+import ThemeToggle from "../../../theme/ThemeToggle";
 
 
 type Tab = "stats" | "users" | "products" | "orders" | "contacts" | "appointments" | "settings";
@@ -277,7 +279,8 @@ const fetchUsers = async () => {
   };
 
   const submitAddProd = async () => {
-    if (!pForm.name.trim() || !pForm.category.trim()) return;
+    if (!pForm.name.trim() || !pForm.category.trim()) { showToast("Name and category are required", false); return; }
+    if (pForm.images.length === 0) { showToast("Please add at least one product image", false); return; }
     setSaving(true);
     try {
       const formData = new FormData();
@@ -307,6 +310,7 @@ const fetchUsers = async () => {
 
   const submitEditProd = async () => {
     if (!selProd) return;
+    if (!pForm.name.trim() || !pForm.category.trim()) { showToast("Name and category are required", false); return; }
     setSaving(true);
     try {
       const formData = new FormData();
@@ -355,7 +359,7 @@ const fetchUsers = async () => {
       showToast(`Stock set to ${ next ? "In Stock" : "Out of Stock"}`);
     } catch (e: any) {
       setProducts(prev =>
-        prev.map(x => x[0] === p[0] ? { ...x, in_stock: !next } : x)
+        prev.map(x => x[0] === p[0] ? [ ...x.slice(0, 9), !next ] as Product : x)
       );
       showToast(e.message ?? "Failed to toggle stock", false);
     }
@@ -371,7 +375,7 @@ const fetchUsers = async () => {
       showToast(`Order Number ${o[0]} marked as ${next}`);
     } catch (e: any) {
       setOrders(prev =>
-        prev.map(x => x[0] === o[0] ? { ...x, status: o[8] } : x)
+        prev.map(x => x[0] === o[0] ? [ ...x.slice(0, 9), o[9] ] as Order : x)
       );
       showToast(e.message ?? "Failed to update order status", false);
     }
@@ -445,6 +449,7 @@ const fetchUsers = async () => {
                 <span className={styles.profileMenuName}>{owner?.username ?? "Owner"}</span>
                 <span className={styles.profileMenuRole}>Owner · Administrator</span>
               </div>
+              <button className={styles.logoutBtn} style={{ marginBottom: 6 }} onClick={() => { setProfileOpen(false); setTab("settings"); }}>Profile Settings</button>
               <button className={styles.logoutBtn} onClick={() => { setProfileOpen(false); setShowLogoutModal(true);}}>Log Out</button>
             </div>
           )}
@@ -478,6 +483,7 @@ const fetchUsers = async () => {
             </p>
           </div>
           <div className={styles.headerRight}>
+          <ThemeToggle className={styles.themeToggle} />
             <div className={styles.searchWrap}>
               <input className={styles.search} placeholder={`Search ${tab}...`} value={search} onChange={e => setSearch(e.target.value)} />
             </div>
@@ -836,16 +842,11 @@ const fetchUsers = async () => {
             <div className={styles.sectionPanelHeader}>
               <div>
                 <div className={styles.sectionPanelTitle}>Settings</div>
-                <div className={styles.sectionPanelSub}>Customize your Profile, Preferences, etc.</div>
+                <div className={styles.sectionPanelSub}>Update your name, email, contact number and password</div>
               </div>
               <div className={styles.sectionStatusPill}>Settings</div>
             </div>
-            <div className={styles.preferences}>
-            </div>
-            <div className={styles.button}>
-              
-            </div>
-            <div className={styles.section}></div>
+            <ProfileSettings embedded />
           </div>
         )}
       </main>
@@ -871,7 +872,7 @@ const fetchUsers = async () => {
               <F label="Role">
                 <select className={styles.input} value={uForm.role} onChange={e => setUForm(f => ({ ...f, role: e.target.value }))}>
                   <option value="user">User</option>
-                  <option value="Admin">Admin</option>
+                  <option value="owner">Owner</option>
                 </select>
               </F>
             </div>

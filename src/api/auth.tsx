@@ -1,7 +1,7 @@
 import { getLogin } from "./login";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { saveToken } from "../utils/tokenUtils";
+import { saveToken, clearToken } from "../utils/tokenUtils";
 
 interface FormData {
   email: string;
@@ -26,7 +26,6 @@ export function useLogin() {
     const { name, value } = e.target;
     
     const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$#%!])[A-Za-z\d@$#%!]{8,15}$/;
 
     setForm((prev) => ({
       ...prev, [name]: value, }));
@@ -48,12 +47,9 @@ export function useLogin() {
         if (!value.trim()) {
           updatedErrors.pwd = "Password should not be Empty!";
         }
-        else if (!passwordPattern.test(value)) {
-          updatedErrors.pwd = "Password must contain 1 Uppercase, 1 Lowercase, 1 digit & 1 Special Character (8-15 Characters)";
-      }
-      else{
-      delete updatedErrors.pwd;
-      }
+        else {
+          delete updatedErrors.pwd;
+        }
     }
     setError(updatedErrors);
   };
@@ -62,7 +58,6 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   e.preventDefault();
   const newError: ErrorData = {};
   const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$#%!])[A-Za-z\d@$#%!]{8,15}$/;
 
   if (!form.email.trim()) {
     newError.email = "Email cannot be Empty!";
@@ -73,9 +68,6 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
   if (!form.pwd.trim()) {
     newError.pwd = "Password cannot be Empty!";
-  }
-  else if (!passwordPattern.test(form.pwd)) {
-    newError.pwd = "Password must contain 1 Uppercase, 1 Lowercase, 1 Digit & 1 Special Character (8-15 Characters)";
   }
 
   setError(newError);
@@ -109,7 +101,7 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
   } catch (err: any) {
     console.error("Login Error:", err);
 
-    setError({ general: err?.response?.data?.detail || err?.message || "Something went wrong. Please try again.", });
+    setError({ general: err?.message || "Something went wrong. Please try again.", });
   } finally {
     setLoading(false);
   }
@@ -121,6 +113,6 @@ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 
 export function Logout() {
   const navigate = useNavigate();
-  const logout = () => { localStorage.removeItem("auth_token"); localStorage.removeItem("user"); navigate("/login"); };
+  const logout = () => { clearToken(); navigate("/login"); };
   return { logout };
 };

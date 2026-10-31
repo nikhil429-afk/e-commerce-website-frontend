@@ -56,7 +56,7 @@
 
 .pageBtnActive {
   background: var(--orange) !important;
-  color: var(--white) !important;
+  color: #fff !important;
   border-color: var(--orange) !important;
   font-weight: 700;
   cursor: default;
