@@ -1,4 +1,6 @@
 import { EyeIcon, EyeOffIcon } from "../assets/Extra/svg";
+import GoogleAuthButton from "./GoogleAuthButton";
+import ThemeToggle from "../theme/ThemeToggle";
 import { useNavigate } from "react-router-dom";
 import { getRegister } from "../api/register";
 import React, { useState } from "react";
@@ -160,6 +162,7 @@ function Register(){
 
     return (
         <div className={styles.pageWrapper}>
+            <div className={styles.themeCorner}><ThemeToggle /></div>
             <div className={styles.card}>
                 <form onSubmit={handleSubmit} className={`${styles.container} ${exiting ? styles.exiting : ""}`}>
                     <div className={styles.heading}>
@@ -227,6 +230,8 @@ function Register(){
                     )}
                     {message && <p className={styles.successMessage}>{message}</p>}
                     {error.general && <p className={styles.errorMessage}>{error.general}</p>}
+
+                    <GoogleAuthButton mode="signup" />
 
                     <div className={styles.footer}>
                         <span className={styles.footerTxt}>Already Have An Account?</span>

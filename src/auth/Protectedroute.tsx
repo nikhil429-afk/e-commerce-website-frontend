@@ -3,7 +3,7 @@ import { Navigate } from "react-router-dom";
 import TokenExpiredModal from "./TokenExpiredModal";
 import { getToken, getUserRole, isTokenExpired, clearToken } from "../utils/tokenUtils";
 
-type Role = "owner" | "user";
+type Role = "owner" | "user" | "any";
 type Props = { children: React.ReactNode; allowedRole: Role };
 
 function ProtectedRoute({ children, allowedRole }: Props) {
@@ -39,7 +39,7 @@ function ProtectedRoute({ children, allowedRole }: Props) {
   }
 
   const role = getUserRole();
-  if (role !== allowedRole) {
+  if (allowedRole !== "any" && role !== allowedRole) {
     return <Navigate to="/" replace />;
   }
 

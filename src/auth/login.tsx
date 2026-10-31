@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import styles from "./auth.module.css";
 import { useLogin } from "../api/auth";
 import { EyeIcon, EyeOffIcon} from "../assets/Extra/svg";
+import GoogleAuthButton from "./GoogleAuthButton";
+import ThemeToggle from "../theme/ThemeToggle";
 
 
 function Login() {
@@ -22,6 +24,7 @@ function Login() {
 
   return (
     <div className={styles.pageWrapper}>
+      <div className={styles.themeCorner}><ThemeToggle /></div>
       <div className={styles.card}>
         <form onSubmit={handleSubmit} className={`${styles.container} ${exiting ? styles.exiting : ""}`}>
           <div className={styles.heading}>
@@ -63,7 +66,9 @@ function Login() {
 
           {message && <p className={styles.successMessage}>{message}</p>}
           {error.general && <p className={styles.errorMessage}>{error.general}</p>}
-          
+
+          <GoogleAuthButton mode="signin" />
+
           <div className={styles.footer}>
             <span className={styles.footerTxt}>Don't Have An Account?</span>
             <button type="button" onClick={handleNavigation} className={styles.link}>

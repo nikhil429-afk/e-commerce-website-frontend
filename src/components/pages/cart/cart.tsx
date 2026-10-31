@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { getCart, removeFromCart, increaseQuantity, decreaseQuantity, checkoutCart, checkoutItem, getFetchWishlist } from '../../../api/cart';
 import { WishlistIcon, CrossIcon, EmptyCartIcon } from '../../../assets/Extra/svg';
 import PageNavigation from '../../pagenavigation/pagenavigation';
+import ThemeToggle from '../../../theme/ThemeToggle';
 import { getToken } from '../../../utils/tokenUtils';
 import BASE_URL from '../../../utils/baseapi';
 import styles from './cart.module.css';
@@ -27,7 +28,7 @@ function Cart() {
   const [loading, setLoading] = useState(true);
   const [buying, setBuying] = useState(false);
   const [items, setItems] = useState<CartItem[]>([]);
-  const [wishlist, setWishlist] = useState<number[]>([]);
+  const [, setWishlist] = useState<number[]>([]);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
 
   const loadCart = async () => {
@@ -147,6 +148,7 @@ function Cart() {
         <nav className={styles.navbar}>
           <div className={styles.logo} onClick={() => navigate('/')}>Furniture<span>·</span>Co</div>
           <PageNavigation />
+          <ThemeToggle />
           <div className={styles.navIcons}>
             <button className={styles.iconBtn} onClick={() => navigate('/wishlist')}>♡ Wishlist</button>
           </div>
@@ -167,6 +169,7 @@ function Cart() {
         <div className={styles.logo} onClick={() => navigate('/')}>Furniture<span>·</span>Co</div>
         <div className={styles.navIcons}>
           <PageNavigation />
+          <ThemeToggle />
           <ul className={styles.navLinks}>
             <li><Link to="/">Home</Link></li>
             <li><Link to="/products">Products</Link></li>

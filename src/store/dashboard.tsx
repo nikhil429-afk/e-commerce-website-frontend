@@ -12,6 +12,7 @@ import table from "../assets/images/table.jpg";
 import sofa from "../assets/images/sofa.jpg"
 import styles from './dashboard.module.css';
 import BASE_URL from '../utils/baseapi';
+import ThemeToggle from '../theme/ThemeToggle';
 
 interface Products {
   id: number;
@@ -56,6 +57,14 @@ function Dashboard() {
   const [modalOrigin, setModalOrigin] = useState({ x: 0, y: 0 });
 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const close = (e: MouseEvent) => { if (menuRef.current && !menuRef.current.contains(e.target as Node)) setShowMenu(false); };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, []);
   const [toast, setToast] = useState<{msg: string, ok: boolean} | null>(null);
 
 
@@ -218,6 +227,7 @@ function Dashboard() {
         </div>
 
         <div className={styles.navActions}>
+          <ThemeToggle className={styles.themeToggle} />
           <button className={styles.navCartBtn} onClick={() => navigate('/wishlist')} title="Wishlist"> <WishlistIcon/>
             {wishlist.length > 0 && <span className={styles.cartBadge}>{wishlist.length}</span>}
           </button>
@@ -227,9 +237,20 @@ function Dashboard() {
           </button>
 
           {user ? (
-            <div className={styles.profileAvatar} title={user.username} onClick={() => setShowLogoutModal(true)}>
-              {user.username?.slice(0, 2).toUpperCase()}
-              <span className={styles.profileTooltip}>Click to Sign out</span>
+            <div className={styles.profileWrap} ref={menuRef}>
+              <div className={styles.profileAvatar} title={user.username} onClick={() => setShowMenu(o => !o)}>
+                {user.username?.slice(0, 2).toUpperCase()}
+              </div>
+              {showMenu && (
+                <div className={styles.profileDropdown}>
+                  <div className={styles.profileDropdownHead}>
+                    <strong>{user.username}</strong>
+                    <span>{user.email}</span>
+                  </div>
+                  <button onClick={() => { setShowMenu(false); navigate('/profile'); }}>Profile Settings</button>
+                  <button onClick={() => { setShowMenu(false); setShowLogoutModal(true); }}>Sign out</button>
+                </div>
+              )}
             </div>
           ) : (
             <>
@@ -458,10 +479,10 @@ function Dashboard() {
             <h3>Furniture · Co.</h3>
             <p>Handcrafted furniture for homes that deserve better. Sustainable Materials, Generational Quality.</p>
             <div className={styles.footerSocials}>
-              <a className={styles.socialBtn} data-platform="instagram" href="https://www.instagram.com">
+              <a className={styles.socialBtn} data-platform="instagram" href="https://www.instagram.com/raj.furniture98?igsh=MjllN2t1MDR2cmZw">
                 <InstagramIcon /><span>Instagram</span>
               </a>
-              <a className={styles.socialBtn} data-platform="facebook" href="https://www.facebook.com">
+              <a className={styles.socialBtn} data-platform="facebook" href="https://www.facebook.com/">
                 <FacebookIcon /><span>Facebook</span>
               </a>
             </div>

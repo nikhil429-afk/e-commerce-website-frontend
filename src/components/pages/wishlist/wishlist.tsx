@@ -7,6 +7,7 @@ import BASE_URL from '../../../utils/baseapi';
 import { useState, useEffect } from 'react';
 import styles from './wishlist.module.css';
 import PageNavigation from '../../pagenavigation/pagenavigation';
+import ThemeToggle from '../../../theme/ThemeToggle';
 
 interface WishlistItem {
   id: number;
@@ -26,7 +27,7 @@ function Wishlist() {
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(true);
   const [items, setItems] = useState<WishlistItem[]>([]);
-  const [cart, setCart] = useState<number[]>([]);
+  const [, setCart] = useState<number[]>([]);
   const [addedCart, setAddedCart] = useState<number | null>(null);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
 
@@ -113,6 +114,7 @@ function Wishlist() {
       <nav className={styles.navbar}>
         <div className={styles.logo} onClick={() => navigate('/')}>Furniture<span>·</span>Co</div>
         <PageNavigation />
+        <ThemeToggle />
         <ul className={styles.navLinks}>
           <li><Link to="/">Home</Link></li>
           <li><Link to="/products">Products</Link></li>
