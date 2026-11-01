@@ -1,13 +1,12 @@
-import { CartIcon, CrossIcon, EmptyWishlistIcon, LoadingSpinner, SearchIcon } from '../../../assets/Extra/svg';
+import { CartIcon, CrossIcon, EmptyWishlistIcon, LoadingSpinner } from '../../../assets/Extra/svg';
 import { getWishlist, removeFromWishlist, getFetchCart } from '../../../api/wishlist';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { getToken } from '../../../utils/tokenUtils';
 import { addToCart } from '../../../api/cart';
 import BASE_URL from '../../../utils/baseapi';
 import { useState, useEffect } from 'react';
 import styles from './wishlist.module.css';
-import PageNavigation from '../../pagenavigation/pagenavigation';
-import ThemeToggle from '../../../theme/ThemeToggle';
+import Navbar from '../../navbar/Navbar';
 
 interface WishlistItem {
   id: number;
@@ -93,12 +92,7 @@ function Wishlist() {
   if (!token) {
     return (
       <div className={styles.page}>
-        <nav className={styles.navbar}>
-          <div className={styles.logo} onClick={() => navigate('/')}>Furniture<span>·</span>Co</div>
-          <div className={styles.navIcons}>
-            <button className={styles.iconBtn} onClick={() => navigate('/cart')}><CartIcon /> Cart</button>
-          </div>
-        </nav>
+        <Navbar />
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}><EmptyWishlistIcon /></div>
           <h2>Sign in to view your wishlist</h2>
@@ -111,27 +105,7 @@ function Wishlist() {
 
   return (
     <div className={styles.page}>
-      <nav className={styles.navbar}>
-        <div className={styles.logo} onClick={() => navigate('/')}>Furniture<span>·</span>Co</div>
-        <PageNavigation />
-        <ThemeToggle />
-        <ul className={styles.navLinks}>
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/products">Products</Link></li>
-          <li><Link to="/about">About</Link></li>
-          <li><Link to="/contact">Contact</Link></li>
-        </ul>
-        <div className={styles.searchWrap}>
-          <span className={styles.searchIcon}><SearchIcon /></span>
-          <input className={styles.search} placeholder="Search saved items…" value={search} onChange={e => setSearch(e.target.value)} />
-        </div>
-        <div className={styles.navIcons}>
-          <button className={styles.iconBtn} onClick={() => navigate('/products')}>Shop</button>
-          <button className={styles.iconBtn} onClick={() => navigate('/cart')}>
-            <CartIcon />
-          </button>
-        </div>
-      </nav>
+      <Navbar wishlistCount={items.length} search={{ value: search, onChange: setSearch, placeholder: 'Search saved items…' }} />
 
       {loading ? (
         <div className={styles.loading}><LoadingSpinner /></div>
@@ -160,7 +134,7 @@ function Wishlist() {
                 <div className={styles.imageWrap}>
                   {item.image
                     ? <img src={`${BASE_URL}${item.image}`} alt={item.name} loading="lazy" />
-                    : <div style={{ width: '100%', height: '100%', background: '#f5f0e8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>🪑</div>
+                    : <div style={{ width: '100%', height: '100%', background: 'var(--c-bg-alt)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>🪑</div>
                   }
                   {item.category && (
                     <div className={styles.cardCategory}>{item.category}</div>
@@ -176,7 +150,7 @@ function Wishlist() {
                     <span className={styles.price}>${Number(item.price).toLocaleString('en-IN')}</span>
                   </div>
                   {item.in_stock === false && (
-                    <p style={{ fontSize: '0.75rem', color: '#e05252', margin: 0, fontWeight: 600 }}>Out of Stock</p>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--c-danger)', margin: 0, fontWeight: 600 }}>Out of Stock</p>
                   )}
                   <button className={styles.cartBtn} onClick={() => handleAddToCart(item)}
                     style={addedCart === item.id ? { background: '#28a745' } : {}} disabled={!item.in_stock || addedCart === item.id}>
@@ -189,7 +163,7 @@ function Wishlist() {
             ))}
 
             {filtered.length === 0 && search && (
-              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '60px 20px', color: '#aaa' }}>
+              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '60px 20px', color: 'var(--c-muted)' }}>
                 No Item Match Found"{search}"
               </div>
             )}

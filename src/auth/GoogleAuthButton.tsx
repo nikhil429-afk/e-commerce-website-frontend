@@ -9,17 +9,11 @@ import { GOOGLE_CLIENT_ID } from "./googleConfig";
 import styles from "./auth.module.css";
 
 interface Props {
-  /** "signin" on the login page, "signup" on the register page (only changes the button text). */
   mode: "signin" | "signup";
 }
 
-// Google's "Authorized JavaScript origins" accept `localhost` but never a bare IP address such as 127.0.0.1.
 const OPENED_ON_IP = /^\d{1,3}(\.\d{1,3}){3}$/.test(window.location.hostname);
 
-/**
- * Watches Google's sign-in script (it must live inside <GoogleOAuthProvider>). If it has not loaded after a
- * few seconds the user is offline or an ad-blocker / firewall is blocking accounts.google.com.
- */
 function ScriptWatch({ onProblem }: { onProblem: (msg: string) => void }) {
   const { scriptLoadedSuccessfully } = useGoogleOAuth();
   useEffect(() => {
@@ -31,10 +25,6 @@ function ScriptWatch({ onProblem }: { onProblem: (msg: string) => void }) {
   return null;
 }
 
-/**
- * "Continue with Google". The same backend endpoint logs an existing user in or creates a new one,
- * so this one component serves both the login and the sign-up page.
- */
 function GoogleAuthButton({ mode }: Props) {
   const navigate = useNavigate();
   const { isDark } = useTheme();
@@ -42,8 +32,6 @@ function GoogleAuthButton({ mode }: Props) {
   const [setupProblem, setSetupProblem] = useState("");
   const [busy, setBusy] = useState(false);
 
-  // One quick check that website and server use the SAME Google Client ID (a mismatch is the #1 reason
-  // for "Google login fails"), so the problem is explained on screen instead of hiding in a log.
   useEffect(() => {
     if (!GOOGLE_CLIENT_ID) return;
     let cancelled = false;
@@ -85,8 +73,6 @@ function GoogleAuthButton({ mode }: Props) {
       <div className={styles.divider}><span>or</span></div>
       <div className={`${styles.googleWrap} ${busy ? styles.googleBusy : ""}`}>
         {!GOOGLE_CLIENT_ID ? (
-          // Same look as Google's button, so the option is always visible. It explains what is missing
-          // instead of silently doing nothing until VITE_GOOGLE_CLIENT_ID is configured.
           <button
             type="button"
             className={styles.googleFallback}

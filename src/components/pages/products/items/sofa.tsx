@@ -6,6 +6,7 @@ import { getToken } from "../../../../utils/tokenUtils";
 import React, { useState, useEffect } from "react";
 import BASE_URL from "../../../../utils/baseapi";
 import { Link } from "react-router-dom";
+import { useCenterFocus } from "../../../../utils/useCenterFocus";
 import styles from "./items.module.css";
 
 interface Sofa {
@@ -24,6 +25,7 @@ interface Sofa {
 function Sofas() {
 
   const token = getToken();
+  useCenterFocus();
 
   const [, setShowTokenExpired] = useState(false);
   const [wished, setWished] = useState<Set<number>>(new Set());
@@ -134,7 +136,7 @@ function Sofas() {
         <div className={styles.breadcrumb}>
           <Link to="/products">Products</Link>
           <span>›</span>
-          <span style={{ color: '#c28246' }}>Sofas & Sectionals</span>
+          <span style={{ color: 'var(--brand-fg)' }}>Sofas & Sectionals</span>
         </div>
         <div className={styles.heroText}>
           <div className={styles.eyebrow}>✦ 2025 Collection</div>
@@ -150,7 +152,7 @@ function Sofas() {
 
       <div className={styles.grid}>
         {filtered.map(sofa => (
-          <div key={sofa.id} className={styles.card}>
+          <div key={sofa.id} className={styles.card} data-focus-card>
             <button className={styles.wishBtn} onClick={() => handleAddToWishlist(sofa.id)} title="Wishlist">
               {wished.has(sofa.id) ? "♥" : "♡"}
             </button>

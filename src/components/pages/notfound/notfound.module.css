@@ -1,12 +1,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Jost:wght@300;400;500;600&display=swap');
 
 .errorPage {
-  --nf-bg: #faf6f0;
-  --nf-bg-2: #f3ede3;
-  --nf-text: #1C1C1C;
+  --nf-bg: #faf9f6;
+  --nf-bg-2: #f3f1ec;
+  --nf-text: #191816;
   --nf-text-soft: rgba(28, 28, 28, 0.62);
-  --nf-accent: var(--brass);
-  --nf-accent-2: var(--brass);
+  --nf-accent: var(--brand-fg);
+  --nf-accent-2: var(--brand-fg);
   --nf-border: rgba(28, 28, 28, 0.12);
 
   position: relative;
@@ -25,12 +25,12 @@
 }
 
 :global(html[data-theme='dark']) .errorPage {
-  --nf-bg: #14110f;
-  --nf-bg-2: #1a1612;
-  --nf-text: #f3ede4;
+  --nf-bg: #000000;
+  --nf-bg-2: #070707;
+  --nf-text: #f3f0e9;
   --nf-text-soft: rgba(243, 237, 226, 0.62);
-  --nf-accent: #e7a86c;
-  --nf-accent-2: #f0c988;
+  --nf-accent: #e3a779;
+  --nf-accent-2: #e3a779;
   --nf-border: rgba(255, 255, 255, 0.1);
 }
 

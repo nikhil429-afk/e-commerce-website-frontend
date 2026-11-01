@@ -1354,14 +1354,14 @@ select.input option {
 .cancelBtn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
 html[data-theme='dark'] {
-  --cream: #16171c;
-  --white: #1c1e25;
+  --cream: #000000;
+  --white: #0f0f0f;
   --charcoal: #f2ece0;
   --mid: #cfc9bd;
   --soft: #9a9488;
-  --border: #2c2d34;
+  --border: #262522;
   --orange-soft: rgba(var(--brand-rgb), 0.12);
-  --card-bg: #1c1e25;
+  --card-bg: #0f0f0f;
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.55);
@@ -1412,7 +1412,7 @@ html[data-theme='dark'] .closeBtn {
 }
 
 html[data-theme='dark'] .footer {
-  background: #0e0c0a;
+  background: #000000;
   color: rgba(255, 255, 255, 0.6);
 }
 
@@ -1454,3 +1454,89 @@ html[data-theme='dark'] .loadingScreen {
   --text-muted: rgba(243, 237, 228, 0.66);
   --text-dim: rgba(243, 237, 228, 0.5);
 }
+
+/* ==========================================================================
+   RESPONSIVE LAYER (owner panel)
+   Desktop: sidebar + content.  Tablet/phone: the sidebar becomes a compact top bar
+   with a swipeable tab row; tables scroll inside their card; pop-ups fit the screen.
+   ========================================================================== */
+.dashboard { max-width: 100vw; overflow-x: hidden; }
+.main { min-width: 0; padding: clamp(14px, 3vw, 28px); }
+.header { gap: 14px; flex-wrap: wrap; }
+.headerTitle { font-size: clamp(1.25rem, 4vw, 1.65rem); }
+.headerRight { flex-wrap: wrap; }
+.search { max-width: 100%; box-sizing: border-box; }
+.statCards { grid-template-columns: repeat(auto-fit, minmax(min(100%, 210px), 1fr)); gap: clamp(10px, 2vw, 16px); }
+.sectionPanelHeader { gap: 12px; flex-wrap: wrap; padding: clamp(14px, 3vw, 20px) clamp(14px, 3vw, 22px); }
+.sectionPanelActions { flex-wrap: wrap; }
+.statsChartBody { padding: clamp(14px, 3vw, 20px) clamp(14px, 3vw, 22px); }
+.tableContainer { -webkit-overflow-scrolling: touch; max-width: 100%; }
+.table { min-width: 560px; }
+
+.modalOverlay { padding: 14px; overflow-y: auto; box-sizing: border-box; }
+.modal { width: 100%; max-width: 360px; max-height: calc(100dvh - 28px); overflow-y: auto; box-sizing: border-box; }
+.modalWide { width: 100%; max-width: 500px; max-height: calc(100dvh - 28px); }
+
+@media (max-width: 1180px) {
+  .statsHeaderRow { flex-wrap: wrap; }
+}
+
+@media (max-width: 900px) {
+  .dashboard { flex-direction: column; }
+  .sidebar {
+    width: 100%;
+    height: auto;
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+    padding: 10px 14px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    overflow: visible;
+  }
+  .logoWrap { border: none; margin: 0; padding: 0; flex: 1 1 auto; }
+  .logoSub { display: none; }
+  .profileArea { margin: 0; padding: 0; border: none; flex: 0 0 auto; }
+  .profileBtn { width: auto; padding: 6px 8px; }
+  .profileBtnText, .profileChevron { display: none; }
+  .profileMenu { bottom: auto; top: calc(100% + 10px); left: auto; right: 0; width: 240px; max-width: calc(100vw - 28px); }
+  .nav { order: 3; flex: 1 0 100%; margin: 0; min-width: 0; }
+  .navList { flex-direction: row; gap: 6px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding: 2px 0 4px; }
+  .navList::-webkit-scrollbar { display: none; }
+  .navItem { flex: 0 0 auto; white-space: nowrap; padding: 9px 14px; min-height: 40px; }
+  .navIndicator { display: none; }
+  .main { overflow: visible; }
+}
+
+@media (max-width: 720px) {
+  .header { flex-direction: column; align-items: stretch; }
+  .headerRight { width: 100%; justify-content: space-between; }
+  .searchWrap { flex: 1 1 180px; }
+  .search { width: 100%; font-size: 16px; }
+  .statsDateCenter { width: 100%; justify-content: flex-start; }
+  .datePickers { flex-wrap: wrap; gap: 8px; }
+  .statsChartBody { overflow-x: hidden; }
+  .chartWrap { height: 200px; }
+}
+
+@media (max-width: 420px) {
+  .statCards { grid-template-columns: minmax(0, 1fr); }
+  .modalActions { flex-wrap: wrap; }
+  .modalActions > button { flex: 1 1 120px; }
+}
+
+/* owner panel: stat cards, chart cards and select menus follow the light/dark theme */
+.statCard { border-color: var(--c-line); box-shadow: var(--c-shadow-s); }
+.statCardUsers, .statCardTotalOrders, .statCardNewOrders, .statCardVisitors { background: var(--c-surface); }
+.statCardUsers .statCardIcon, .statCardNewOrders .statCardIcon, .statCardVisitors .statCardIcon { background: var(--brand-soft); color: var(--brand-fg); }
+.statCardUsers .statCardGlow, .statCardNewOrders .statCardGlow, .statCardVisitors .statCardGlow { background: var(--brand-2); }
+.statCardLabel { color: var(--c-muted); }
+.statCardValue { color: var(--c-ink); }
+.card { background: var(--c-surface); border-color: var(--c-line); }
+.cardTitle { color: var(--c-ink); }
+select.input option { background: var(--c-surface); color: var(--c-ink); }
+.navIndicator { background: var(--brand-fg); box-shadow: none; }

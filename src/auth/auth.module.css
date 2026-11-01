@@ -494,3 +494,31 @@
   line-height: 1.5;
   text-align: center;
 }
+
+/* ==========================================================================
+   RESPONSIVE LAYER (login / register)
+   ========================================================================== */
+.pageWrapper { min-height: 100vh; min-height: 100dvh; padding: clamp(0.75rem, 3vw, 2rem); }
+.pageWrapper::before, .pageWrapper::after { max-width: 60vw; }
+.card { border-radius: clamp(24px, 5vw, 50px); }
+.input { min-height: 48px; font-size: 16px; }
+.button { min-height: 48px; }
+.themeCorner { top: max(12px, env(safe-area-inset-top, 0px)); right: max(14px, env(safe-area-inset-right, 0px)); }
+.toast { bottom: max(1rem, env(safe-area-inset-bottom, 0px)); right: max(1rem, env(safe-area-inset-right, 0px)); max-width: calc(100vw - 2rem); }
+
+@media (max-width: 900px) {
+  .container { padding: 2.4rem clamp(1.4rem, 5vw, 2.4rem); }
+}
+@media (max-width: 680px) {
+  .card { max-width: 460px; }
+  .imagePanel { flex-basis: 150px; min-height: 150px; }
+  .cardTitle { font-size: 1.45rem; }
+  .footer { flex-wrap: wrap; text-align: center; }
+}
+@media (max-width: 380px) {
+  .container { padding: 1.8rem 1.2rem; }
+  .googleFallback { width: 100%; }
+}
+@media (max-height: 520px) and (min-width: 681px) {
+  .pageWrapper { align-items: flex-start; }
+}

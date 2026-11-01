@@ -2133,8 +2133,8 @@
    (translucent navbar, footer, status badges) are patched explicitly below.
    ========================================================================== */
 html[data-theme='dark'] {
-  --cream: #16171c;
-  --warm-white: #1c1e25;
+  --cream: #000000;
+  --warm-white: #0f0f0f;
   --charcoal: #f2ece0;
   --deep-brown: #e7c4a8;
   --walnut: #d7a988;
@@ -2229,7 +2229,7 @@ html[data-theme='dark'] .stockBadgeOut {
    we deepen it slightly and pin its text to a warm cream regardless of the
    flipped --cream token, since the footer isn't meant to invert. */
 html[data-theme='dark'] .footer {
-  background: #0e0c0a;
+  background: #000000;
 }
 
 html[data-theme='dark'] .footer,
@@ -2385,3 +2385,265 @@ html[data-theme='dark'] .cardRating {
 }
 
 .profileDropdown button:hover { background: rgba(var(--brass-rgb), 0.14); color: var(--brass-strong); }
+
+/* ==========================================================================
+   Product pop-up (quick view) - responsive at every screen size.
+   Desktop/tablet: two columns, centred.  Phones: a bottom sheet with the photo
+   on top, scrollable details and a sticky "Add to cart" bar.
+   ========================================================================== */
+@keyframes qvSheetUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.quickViewModal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(10px, 3vw, 28px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.quickViewContent {
+  display: grid;
+  grid-template-columns: minmax(0, 46%) minmax(0, 1fr);
+  width: 100%;
+  max-width: 920px;
+  max-height: calc(100vh - 2 * clamp(10px, 3vw, 28px));
+  max-height: calc(100dvh - 2 * clamp(10px, 3vw, 28px));
+  border-radius: clamp(16px, 3vw, 24px);
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  overflow: hidden;
+}
+
+.quickViewImage {
+  width: auto;
+  min-height: 0;
+  background: var(--c-bg-alt);
+}
+.quickViewImage img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+}
+
+.quickViewInfo {
+  min-height: 0;
+  padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1.1rem, 3vw, 2rem) clamp(1rem, 2.5vw, 1.75rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.quickViewCategory { color: var(--brand-fg); font-weight: 700; }
+.quickViewTitle { font-size: clamp(1.3rem, 3.2vw, 1.75rem); padding-right: 2.75rem; color: var(--c-ink); }
+.quickViewDesc { color: var(--c-ink-2); font-size: clamp(0.85rem, 1.9vw, 0.92rem); }
+.quickViewPrice { font-size: clamp(1.5rem, 4vw, 2rem); color: var(--c-ink); }
+.quickViewOldPrice { color: var(--c-muted); }
+.quickViewRatingVal { color: var(--c-muted); }
+
+.stockBadgeIn { color: var(--c-success); background: rgba(31, 138, 91, 0.12); border-color: rgba(31, 138, 91, 0.3); }
+.stockBadgeOut { color: var(--c-danger); background: rgba(208, 69, 61, 0.12); border-color: rgba(208, 69, 61, 0.3); }
+
+.quickViewActions {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  padding-top: 14px;
+  background: linear-gradient(to bottom, transparent, var(--c-surface) 22%);
+}
+.quickViewCartBtn {
+  min-height: 48px;
+  background: var(--brand);
+  color: #fff;
+}
+.quickViewCartBtn::before { background: var(--brand-strong); }
+.quickViewCartBtn:disabled { background: var(--c-muted); opacity: 0.7; }
+.quickViewWishBtn {
+  width: 48px;
+  height: 48px;
+  background: var(--c-surface);
+  border-color: var(--c-line);
+  color: var(--c-muted);
+}
+
+.closeBtn {
+  top: 12px;
+  right: 12px;
+  z-index: 30;
+  width: 40px;
+  height: 40px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  color: var(--c-ink);
+  box-shadow: var(--c-shadow-s);
+}
+.closeBtn:hover { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+.imageslider button { width: 40px; height: 40px; background: rgba(0, 0, 0, 0.55); color: #fff; }
+
+/* tablets: keep two columns, a little tighter */
+@media (max-width: 860px) and (min-width: 721px) {
+  .quickViewContent { grid-template-columns: minmax(0, 42%) minmax(0, 1fr); }
+}
+
+/* phones: bottom sheet */
+@media (max-width: 720px) {
+  .quickViewModal { padding: 0; align-items: flex-end; }
+  .quickViewContent {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    max-width: 100%;
+    max-height: 92vh;
+    max-height: 92dvh;
+    border-radius: 22px 22px 0 0;
+    border-bottom: none;
+    animation: qvSheetUp 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .quickViewContentClosing { animation: modalClose 0.2s ease forwards; }
+  .quickViewImage { height: clamp(170px, 32vh, 280px); }
+  .quickViewImage img { height: 100%; }
+  .quickViewInfo { padding: 1.1rem 1.1rem calc(0.9rem + env(safe-area-inset-bottom, 0px)); }
+  .quickViewTitle { padding-right: 0; }
+  .quickViewDesc { margin-bottom: 14px; padding-bottom: 14px; }
+  .quickViewStock { margin-bottom: 14px; }
+}
+
+/* short landscape phones: side-by-side again, everything scrolls inside the info column */
+@media (max-height: 480px) and (min-width: 600px) {
+  .quickViewModal { align-items: center; padding: 8px; }
+  .quickViewContent {
+    grid-template-columns: minmax(0, 38%) minmax(0, 1fr);
+    grid-template-rows: none;
+    max-height: calc(100dvh - 16px);
+    border-radius: 16px;
+    border-bottom: 1px solid var(--c-line);
+    animation: modalOpen 0.25s ease;
+  }
+  .quickViewImage { height: auto; }
+}
+
+/* ==========================================================================
+   RESPONSIVE + THEME LAYER (home page) - appended last so it wins
+   ========================================================================== */
+.container { background: var(--c-bg); }
+
+/* ---- hero ---- */
+.hero {
+  min-height: calc(100vh - var(--nav-h));
+  min-height: calc(100svh - var(--nav-h));
+  padding: clamp(3rem, 9vw, 6rem) var(--page-pad) clamp(4rem, 10vw, 6.5rem) max(var(--page-pad), 8vw);
+  background: var(--c-bg);
+}
+.heroBlob, .heroBlob2 { opacity: 0.35; }
+.heroContent { max-width: min(620px, 100%); }
+.hero h1 { font-size: clamp(2.5rem, 8vw, 5.5rem); margin-bottom: clamp(14px, 3vw, 22px); }
+.hero p { font-size: clamp(0.92rem, 2.2vw, 1.05rem); margin-bottom: clamp(24px, 5vw, 44px); letter-spacing: 0.02em; }
+.heroPill { margin-bottom: clamp(16px, 3vw, 28px); }
+.heroCta { flex-wrap: wrap; gap: 12px; }
+.heroBtn, .heroBtnGhost { min-height: 48px; }
+.heroStats { flex-wrap: wrap; gap: 16px 28px; }
+.heroBadge { left: max(var(--page-pad), 8vw); bottom: 28px; }
+.scrollCue { right: var(--page-pad); }
+
+/* ---- sections ---- */
+.categories, .products, .banner { padding: clamp(3rem, 8vw, 6.25rem) var(--page-pad); }
+.categories { background: var(--c-surface); }
+.products { background: var(--c-bg); }
+.sectionHead { margin-bottom: clamp(28px, 5vw, 56px); }
+.sectionHead h2 { font-size: clamp(1.75rem, 5vw, 3rem); }
+.categoryGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(10px, 2vw, 20px); max-width: 1280px; margin: 0 auto; }
+.categoryCard { background: var(--c-bg); border-color: var(--c-line); }
+.categoryCard:hover { border-color: rgba(var(--brand-rgb), 0.5); }
+.productGrid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); gap: clamp(16px, 3vw, 30px); max-width: 1280px; margin: 0 auto; }
+.productsFooter { max-width: 1280px; margin-left: auto; margin-right: auto; }
+
+/* ---- cards ---- */
+.card { background: var(--c-surface); border-color: var(--c-line); box-shadow: var(--c-shadow-s); }
+.cardImageOverlay { gap: 10px; padding: 0 12px 20px; flex-wrap: wrap; }
+.quickView, .detailView { min-height: 40px; background: var(--c-surface); color: var(--c-ink); border-color: var(--c-line); }
+.quickView:hover { background: var(--brand); color: #fff; }
+.detailView:hover { background: var(--brand-strong); color: #fff; }
+.cardBody { padding: clamp(16px, 3vw, 22px) clamp(16px, 3vw, 26px) clamp(18px, 3vw, 26px); }
+.cardBtn { min-height: 46px; }
+.card:focus-within .cardImageOverlay { background: rgba(0, 0, 0, 0.28); }
+.card:focus-within .quickView, .card:focus-within .detailView { opacity: 1; transform: none; }
+
+@media (hover: none) {
+  .card:hover { transform: none; box-shadow: var(--c-shadow-s); border-color: var(--c-line); }
+  .card:hover .cardImageWrap img { transform: none; }
+  .card:hover .cardImageOverlay { background: transparent; }
+  .card:hover .quickView, .card:hover .detailView { opacity: 0; transform: translateY(10px); }
+  .cardImageOverlay { pointer-events: none; }
+  .card { transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
+  .card[data-focused='true'] { border-color: rgba(var(--brand-rgb), 0.5); box-shadow: var(--c-shadow); }
+  .card[data-focused='true'] .cardImageOverlay { background: linear-gradient(to top, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.1) 65%, transparent); pointer-events: auto; }
+  .card[data-focused='true'] .quickView, .card[data-focused='true'] .detailView { opacity: 1; transform: none; }
+  .card[data-focused='true'] .cardImageWrap img { transform: scale(1.04); }
+}
+
+/* ---- price-drop banner ---- */
+.banner { background: var(--c-surface-2); border-top: 1px solid var(--c-line); border-bottom: 1px solid var(--c-line); }
+.bannerDecor { display: none; }
+.bannerContent { max-width: 720px; margin: 0 auto; text-align: center; }
+.bannerContent h2 { color: var(--c-ink); font-size: clamp(1.6rem, 4.5vw, 3rem); }
+.bannerContent p { color: var(--c-muted); font-size: clamp(0.88rem, 2vw, 1rem); margin-bottom: clamp(24px, 4vw, 40px); }
+.bannerContent button { background: var(--brand); color: #fff; min-height: 48px; padding: 14px clamp(24px, 6vw, 44px); }
+.bannerContent button:hover { background: var(--brand-strong); }
+
+/* ---- footer ---- */
+.footer { background: #1a1917; padding: clamp(2.5rem, 7vw, 5rem) var(--page-pad) clamp(1.5rem, 4vw, 2.5rem); }
+.footerGrid { grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: clamp(24px, 4vw, 48px); margin-bottom: clamp(28px, 5vw, 60px); max-width: 1280px; margin-left: auto; margin-right: auto; }
+.footerBottom { max-width: 1280px; margin-left: auto; margin-right: auto; flex-wrap: wrap; gap: 8px; }
+.footerCol ul li, .footerCol ul li a { cursor: pointer; }
+.footerSocials { flex-wrap: wrap; }
+
+/* ---- toast + sign-out dialog (kept for the quick-view flows) ---- */
+.toast { bottom: max(1rem, env(safe-area-inset-bottom, 0px)); right: max(1rem, env(safe-area-inset-right, 0px)); max-width: calc(100vw - 2rem); background: var(--c-surface); }
+.toastOk { color: var(--c-success); border-color: rgba(31, 138, 91, 0.45); }
+.toastErr { color: var(--c-danger); border-color: rgba(208, 69, 61, 0.45); }
+
+/* ---- breakpoints ---- */
+@media (max-width: 1100px) {
+  .footerGrid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 900px) {
+  .heroBadge, .scrollCue { display: none; }
+  .hero { min-height: 0; }
+}
+
+@media (max-width: 768px) {
+  .products::before { display: none; }
+  .ring1, .ring2, .ring3 { display: none; }
+  .hero { padding-top: clamp(2.5rem, 12vw, 4rem); padding-left: var(--page-pad); }
+  .heroCta { flex-direction: row; align-items: stretch; }
+  .heroCta > button { flex: 1 1 160px; justify-content: center; }
+  .heroStats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 12px; width: 100%; }
+  .heroStatDivider { display: none; }
+  .categoryGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .productsFooter { text-align: center; }
+  .viewAllBtn { width: 100%; justify-content: center; }
+  .footerGrid { grid-template-columns: 1fr 1fr; }
+  .footerBrand { grid-column: 1 / -1; }
+}
+
+@media (max-width: 420px) {
+  .categoryCard { padding-top: 28px; }
+  .footerGrid { grid-template-columns: 1fr; }
+}
+
+@media (min-width: 1100px) {
+  .categoryGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 1500px) {
+  .categoryGrid { grid-template-columns: repeat(6, minmax(0, 1fr)); max-width: 1500px; }
+  .productGrid, .footerGrid, .footerBottom, .productsFooter { max-width: 1500px; }
+}

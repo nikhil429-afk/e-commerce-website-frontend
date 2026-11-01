@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef } from "react";
 import { getProducts, getFetchWishlist, getAddToWishlist,  getFetchCart,  getAddToCart } from "../../../api/products";
-import { CartIcon, FooterLogo, TickMark, WishlistIcon } from "../../../assets/Extra/svg";
+import { CartIcon, FooterLogo, TickMark } from "../../../assets/Extra/svg";
 import { StarRating } from "../../../assets/Extra/extra_functions";
-import PageNavigation from "../../pagenavigation/pagenavigation";
 import { Pagination } from "../pagination/pagination";
 import { Outlet, useOutlet, Link, useNavigate } from 'react-router-dom';
 import { getToken } from "../../../utils/tokenUtils";
 import BASE_URL from "../../../utils/baseapi";
-import ThemeToggle from "../../../theme/ThemeToggle";
+import Navbar from "../../navbar/Navbar";
+import { useCenterFocus } from "../../../utils/useCenterFocus";
 import styles from "./products.module.css";
 // import { getdetailView } from "../../../api/products";
 
@@ -103,6 +103,7 @@ const normalizeCatName = (raw: string) => {
 
 function Products() {
   const token = getToken();
+  useCenterFocus();
   const navigate = useNavigate();
   const subComponents = useOutlet();
 
@@ -136,6 +137,7 @@ function Products() {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
 
   const productsRef = useRef<HTMLDivElement | null>(null);
+  const touchX = useRef<number | null>(null);
 
   const showToast = (msg: string, ok = true) => {
     setToast({ msg, ok });
@@ -309,32 +311,11 @@ function Products() {
   return (
     <>
     <div className={styles.page}>
-      <nav className={styles.navbar}>
-        <Link to="/" className={styles.logo}>Furni<span>ture</span></Link>&nbsp;
-        <PageNavigation />
-        <ul className={styles.navLinks}>
-          <li><Link to="/">Home</Link></li>
-          <li><Link to="/products" onClick={scrollToTop}>Products</Link></li>
-          <li><Link to="/about">About</Link></li>
-          <li><Link to="/contact">Contact</Link></li>
-        </ul>
-        <div className={styles.navIcons}>
-          <ThemeToggle className={styles.themeToggle} />
-          <div className={styles.searchWrap}>
-            <input type="text" placeholder="Search products…" value={search} className={styles.search} onChange={e => handleSearch(e.target.value)} />
-          </div>
-
-          <button className={styles.iconBtn} title="Wishlist" onClick={() => navigate("/wishlist")}>
-            {wishlist.length > 0 && <span className={styles.cartBadge}>{wishlist.length}</span>}
-            <WishlistIcon />
-          </button>
-
-          <button className={styles.iconBtn} title="Cart" onClick={() => navigate("/cart")}>
-            {cart.length > 0 && <span className={styles.cartBadge}>{cart.length}</span>}
-            <CartIcon />
-          </button>
-        </div>
-      </nav>
+      <Navbar
+        cartCount={cart.length}
+        wishlistCount={wishlist.length}
+        search={{ value: search, onChange: handleSearch, placeholder: "Search products…" }}
+      />
 
       <div className={styles.hero}>
         <div className={styles.heroText}>
@@ -402,7 +383,7 @@ function Products() {
             <div className={styles.grid}>
               {filteredProducts.length > 0 ? (
                 filteredProducts.map(product => (
-                  <div key={product.id} className={styles.card}>
+                  <div key={product.id} className={styles.card} data-focus-card>
                     {product.tag && <div className={styles.cardTag}>{product.tag}</div>}
                     <button className={styles.wishlistBtn} onClick={() => addToWishList(product.id)}>
                       ♡ Wishlist
@@ -500,7 +481,7 @@ function Products() {
                   <div className={styles.quickViewActions}>
                     <button className={styles.quickViewCartBtn} disabled={!selectedProduct.in_stock}
                       onClick={() => { addToCart(selectedProduct.id); closeQuickView(); }}>
-                      <WishlistIcon /> &nbsp; Add to Cart
+                      <CartIcon /> &nbsp; Add to Cart
                     </button>
                     <button className={styles.quickViewWishBtn} onClick={() => addToWishList(selectedProduct.id)}>♡</button>
                   </div>
@@ -520,12 +501,22 @@ function Products() {
         <span className={styles.testimonialLabel}>Testimonials</span>
         <h2 className={styles.testimonialHeading}>What Our Customers Say</h2>
 
-        <div className={styles.testimonialCard}>
+        <div
+          className={styles.testimonialCard}
+          onTouchStart={e => { touchX.current = e.touches[0].clientX; }}
+          onTouchEnd={e => {
+            if (touchX.current === null) return;
+            const dx = e.changedTouches[0].clientX - touchX.current;
+            touchX.current = null;
+            if (Math.abs(dx) < 40) return;
+            setActiveTestimonial(prev => (dx < 0 ? (prev + 1) % testimonials.length : (prev - 1 + testimonials.length) % testimonials.length));
+          }}
+        >
           <div className={styles.quoteIcon}>"</div>
           <p key={activeTestimonial} className={styles.testimonialText}>{testimonials[activeTestimonial].text}</p>
 
           <div className={styles.testimonialAuthor}>
-            <img src={testimonials[activeTestimonial].image || "https://ui-avatars.com/api/?name=" + encodeURIComponent(testimonials[activeTestimonial].name) + "&background=ff7a00&color=fff&size=46"}
+            <img src={testimonials[activeTestimonial].image || "https://ui-avatars.com/api/?name=" + encodeURIComponent(testimonials[activeTestimonial].name) + "&background=8f5230&color=fff&size=80"}
               alt={testimonials[activeTestimonial].name} className={styles.authorAvatar} />
             <div>
               <div className={styles.authorName}>{testimonials[activeTestimonial].name}</div>
@@ -540,7 +531,14 @@ function Products() {
 
         <div className={styles.testimonialDots}>
           {testimonials.map((_, i) => (
-            <div key={i} onClick={() => setActiveTestimonial(i)} className={`${styles.dot} ${i === activeTestimonial ? styles.activeDot : ""}`} />
+            <button
+              key={i}
+              type="button"
+              aria-label={`Show testimonial ${i + 1}`}
+              aria-current={i === activeTestimonial}
+              onClick={() => setActiveTestimonial(i)}
+              className={`${styles.dot} ${i === activeTestimonial ? styles.activeDot : ""}`}
+            />
           ))}
         </div>
       </section>

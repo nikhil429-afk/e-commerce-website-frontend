@@ -5,6 +5,7 @@ import { StarRating } from "../../../../assets/Extra/extra_functions";
 import { CartIcon, TickMark } from '../../../../assets/Extra/svg';
 import { getToken } from "../../../../utils/tokenUtils";
 import BASE_URL from "../../../../utils/baseapi";
+import { useCenterFocus } from "../../../../utils/useCenterFocus";
 import styles from "./items.module.css";
 
 type Table = { 
@@ -23,6 +24,7 @@ type Table = {
 function Tables() {
   
   const token = getToken();
+  useCenterFocus();
 
   const [, setShowTokenExpired] = useState(false);
   const [activeFilter, ] = useState("All");
@@ -154,7 +156,7 @@ function Tables() {
 
       <div className={styles.grid}>
         {(filtered || []).map(table => (
-          <div key={table?.id} className={styles.card}>
+          <div key={table?.id} className={styles.card} data-focus-card>
             <button className={styles.wishBtn} onClick={() => handleAddToWishList(table)}>{wished.has(table?.id) ? "♥" : "♡"}</button>
             <div className={styles.imageWrap}>
               <img src={`${BASE_URL}${table.images[currentIndexes[table.id] || 0] || table.images[0] }`} alt={table.name} loading="lazy" />

@@ -235,7 +235,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 6rem 4rem 3.5rem;
-  background: linear-gradient(135deg, #0f4a3c 0%, #07261f 100%);
+  background: var(--c-bg-alt);
+  border-bottom: 1px solid var(--c-line);
   min-height: 320px;
   overflow: hidden;
   position: relative;
@@ -418,7 +419,7 @@
 }
 
 .sideBanner {
-  background: linear-gradient(150deg, #14594a 0%, #050d0b 100%);
+  background: linear-gradient(150deg, var(--brand) 0%, var(--brand-strong) 100%);
   border-radius: var(--radius);
   padding: 1.5rem;
   position: relative;
@@ -1205,7 +1206,9 @@
   position: relative;
   padding: 5rem 3rem;
   overflow: hidden;
-  background: linear-gradient(160deg, #050d0b 0%, #0c3329 55%, #14594a 100%);
+  background: var(--c-bg-alt);
+  border-top: 1px solid var(--c-line);
+  border-bottom: 1px solid var(--c-line);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1526,14 +1529,14 @@
 }
 
 html[data-theme='dark'] {
-  --cream: #16171c;
-  --white: #1c1e25;
+  --cream: #000000;
+  --white: #0f0f0f;
   --charcoal: #f2ece0;
   --mid: #cfc9bd;
   --soft: #9a9488;
-  --border: #2c2d34;
+  --border: #262522;
   --orange-soft: rgba(var(--brand-rgb), 0.12);
-  --card-bg: #1c1e25;
+  --card-bg: #0f0f0f;
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.4);
   --shadow-lg: 0 16px 48px rgba(0, 0, 0, 0.55);
@@ -1584,7 +1587,7 @@ html[data-theme='dark'] .closeBtn {
 }
 
 html[data-theme='dark'] .footer {
-  background: #0e0c0a;
+  background: #000000;
   color: rgba(255, 255, 255, 0.6);
 }
 
@@ -1617,4 +1620,301 @@ html[data-theme='dark'] .loadingScreen {
   .sidebar {
     animation: none !important;
   }
+}
+
+/* ==========================================================================
+   Product pop-up (quick view) - responsive at every screen size.
+   Desktop/tablet: two columns, centred.  Phones: a bottom sheet with the photo
+   on top, scrollable details and a sticky "Add to cart" bar.
+   ========================================================================== */
+@keyframes qvSheetUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.quickViewModal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(10px, 3vw, 28px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: rgba(0, 0, 0, 0.6);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.quickViewContent {
+  display: grid;
+  grid-template-columns: minmax(0, 46%) minmax(0, 1fr);
+  width: 100%;
+  max-width: 920px;
+  max-height: calc(100vh - 2 * clamp(10px, 3vw, 28px));
+  max-height: calc(100dvh - 2 * clamp(10px, 3vw, 28px));
+  border-radius: clamp(16px, 3vw, 24px);
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  overflow: hidden;
+}
+
+.quickViewImage {
+  width: auto;
+  min-height: 0;
+  background: var(--c-bg-alt);
+}
+.quickViewImage img {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  object-fit: cover;
+}
+
+.quickViewInfo {
+  min-height: 0;
+  padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1.1rem, 3vw, 2rem) clamp(1rem, 2.5vw, 1.75rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.quickViewCategory { color: var(--brand-fg); font-weight: 700; }
+.quickViewTitle { font-size: clamp(1.3rem, 3.2vw, 1.75rem); padding-right: 2.75rem; color: var(--c-ink); }
+.quickViewDesc { color: var(--c-ink-2); font-size: clamp(0.85rem, 1.9vw, 0.92rem); }
+.quickViewPrice { font-size: clamp(1.5rem, 4vw, 2rem); color: var(--c-ink); }
+.quickViewOldPrice { color: var(--c-muted); }
+.quickViewRatingVal { color: var(--c-muted); }
+
+.stockBadgeIn { color: var(--c-success); background: rgba(31, 138, 91, 0.12); border-color: rgba(31, 138, 91, 0.3); }
+.stockBadgeOut { color: var(--c-danger); background: rgba(208, 69, 61, 0.12); border-color: rgba(208, 69, 61, 0.3); }
+
+.quickViewActions {
+  position: sticky;
+  bottom: 0;
+  margin-top: auto;
+  padding-top: 14px;
+  background: linear-gradient(to bottom, transparent, var(--c-surface) 22%);
+}
+.quickViewCartBtn {
+  min-height: 48px;
+  background: var(--brand);
+  color: #fff;
+}
+.quickViewCartBtn::before { background: var(--brand-strong); }
+.quickViewCartBtn:disabled { background: var(--c-muted); opacity: 0.7; }
+.quickViewWishBtn {
+  width: 48px;
+  height: 48px;
+  background: var(--c-surface);
+  border-color: var(--c-line);
+  color: var(--c-muted);
+}
+
+.closeBtn {
+  top: 12px;
+  right: 12px;
+  z-index: 30;
+  width: 40px;
+  height: 40px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  color: var(--c-ink);
+  box-shadow: var(--c-shadow-s);
+}
+.closeBtn:hover { background: var(--brand); border-color: var(--brand); color: #fff; }
+
+.imageslider button { width: 40px; height: 40px; background: rgba(0, 0, 0, 0.55); color: #fff; }
+
+/* tablets: keep two columns, a little tighter */
+@media (max-width: 860px) and (min-width: 721px) {
+  .quickViewContent { grid-template-columns: minmax(0, 42%) minmax(0, 1fr); }
+}
+
+/* phones: bottom sheet */
+@media (max-width: 720px) {
+  .quickViewModal { padding: 0; align-items: flex-end; }
+  .quickViewContent {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    max-width: 100%;
+    max-height: 92vh;
+    max-height: 92dvh;
+    border-radius: 22px 22px 0 0;
+    border-bottom: none;
+    animation: qvSheetUp 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .quickViewContentClosing { animation: modalClose 0.2s ease forwards; }
+  .quickViewImage { height: clamp(170px, 32vh, 280px); }
+  .quickViewImage img { height: 100%; }
+  .quickViewInfo { padding: 1.1rem 1.1rem calc(0.9rem + env(safe-area-inset-bottom, 0px)); }
+  .quickViewTitle { padding-right: 0; }
+  .quickViewDesc { margin-bottom: 14px; padding-bottom: 14px; }
+  .quickViewStock { margin-bottom: 14px; }
+}
+
+/* short landscape phones: side-by-side again, everything scrolls inside the info column */
+@media (max-height: 480px) and (min-width: 600px) {
+  .quickViewModal { align-items: center; padding: 8px; }
+  .quickViewContent {
+    grid-template-columns: minmax(0, 38%) minmax(0, 1fr);
+    grid-template-rows: none;
+    max-height: calc(100dvh - 16px);
+    border-radius: 16px;
+    border-bottom: 1px solid var(--c-line);
+    animation: modalOpen 0.25s ease;
+  }
+  .quickViewImage { height: auto; }
+}
+
+/* ==========================================================================
+   RESPONSIVE + THEME LAYER (appended last so it wins over the rules above)
+   ========================================================================== */
+
+/* ---- hero ---- */
+.hero {
+  padding: clamp(1.75rem, 5vw, 3.5rem) var(--page-pad);
+  min-height: 0;
+  gap: clamp(1rem, 3vw, 2.5rem);
+  background: var(--c-bg-alt);
+  border-bottom: 1px solid var(--c-line);
+}
+.hero::before { content: none; }
+.heroSubtitle { color: var(--brand-fg); background: var(--brand-soft); border-color: rgba(var(--brand-rgb), 0.25); }
+.hero h1 { color: var(--c-ink); font-size: clamp(1.75rem, 4.5vw, 3rem); margin: 0 0 0.5rem; }
+.heroDesc { color: var(--c-muted); font-size: clamp(0.85rem, 2vw, 0.98rem); }
+.heroImageWrapper {
+  width: min(500px, 46%);
+  height: auto;
+  aspect-ratio: 16 / 9;
+  box-shadow: var(--c-shadow);
+}
+
+/* ---- layout ---- */
+.main { padding: clamp(1rem, 3vw, 2.5rem) var(--page-pad); gap: clamp(1rem, 2.5vw, 2rem); max-width: 1440px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+.sidebar { top: calc(var(--nav-h) + 16px); }
+.grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: clamp(0.85rem, 2vw, 1.5rem); }
+.sideBanner { box-shadow: none; }
+.sideBanner:hover { box-shadow: var(--c-shadow); }
+.sideBanner h3 span { color: var(--brass-2); }
+.sideBannerBtn { background: #fff; color: var(--brand-strong); }
+.sideBannerBtn:hover { background: #fff; color: var(--brand-strong); }
+.showAllSection { background: var(--c-surface); }
+
+/* ---- cards ---- */
+.card { background: var(--c-surface); }
+.cardTag { background: var(--c-surface); color: var(--c-ink-2); }
+.wishlistBtn { background: var(--c-surface); color: var(--c-ink-2); min-height: 32px; }
+.title { color: var(--c-ink); }
+.price { color: var(--c-ink); }
+.oldPrice { color: var(--c-muted); }
+.button { background: var(--brand); color: #fff; min-height: 44px; }
+.button::before { background: var(--brand-strong); }
+.button:disabled { background: var(--c-muted); opacity: 0.6; }
+.quickViewBtn { background: var(--c-surface); color: var(--c-ink); min-height: 40px; }
+.quickViewBtn:hover { background: var(--brand); color: #fff; }
+.detailViewBtn { min-height: 40px; background: var(--brand); color: #fff; }
+.detailViewBtn:hover { background: var(--brand-strong); }
+.card:focus-within .imageOverlay { opacity: 1; }
+.card:focus-within .quickViewBtn, .card:focus-within .detailViewBtn { opacity: 1; transform: none; }
+
+/* touch screens have no hover: cancel the sticky :hover state (it caused the "tap twice" problem)
+   and reveal the options on the card that sits in the middle of the screen instead */
+@media (hover: none) {
+  .card:hover { transform: none; box-shadow: none; border-color: var(--border); }
+  .card:hover .imageWrap img { transform: none; }
+  .card:hover .imageOverlay { opacity: 0; }
+  .card:hover .quickViewBtn, .card:hover .detailViewBtn { opacity: 0; transform: translateY(10px); }
+  .imageOverlay { pointer-events: none; background: linear-gradient(to top, rgba(0, 0, 0, 0.62) 0%, rgba(0, 0, 0, 0.12) 60%, transparent 100%); align-items: flex-end; padding-bottom: 12px; }
+  .card { transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease; }
+  .card[data-focused='true'] { border-color: rgba(var(--brand-rgb), 0.5); box-shadow: var(--c-shadow); }
+  .card[data-focused='true'] .imageOverlay { opacity: 1; pointer-events: auto; }
+  .card[data-focused='true'] .quickViewBtn,
+  .card[data-focused='true'] .detailViewBtn { opacity: 1; transform: none; }
+  .card[data-focused='true'] .imageWrap img { transform: scale(1.04); }
+}
+
+/* ---- testimonials: compact ---- */
+.testimonialSection { padding: clamp(2rem, 5vw, 3.25rem) var(--page-pad); }
+.testimonialGlow { display: none; }
+.testimonialLabel { color: var(--brand-fg); margin-bottom: 0.35rem; font-size: 0.72rem; }
+.testimonialHeading { color: var(--c-ink); font-size: clamp(1.25rem, 3.2vw, 1.75rem); margin-bottom: clamp(1rem, 3vw, 1.5rem); }
+.testimonialCard {
+  max-width: 680px;
+  padding: clamp(1.1rem, 3vw, 1.75rem);
+  background: var(--c-surface);
+  border: 1px solid var(--c-line);
+  border-radius: 16px;
+  box-shadow: var(--c-shadow-s);
+  backdrop-filter: none;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  min-height: 190px;
+  touch-action: pan-y;
+}
+.quoteIcon { margin: 0; width: 34px; height: 34px; font-size: 2rem; padding-top: 0.55rem; color: var(--brand-fg); background: var(--brand-soft); }
+.testimonialText { color: var(--c-ink-2); font-size: clamp(0.95rem, 2.2vw, 1.08rem); line-height: 1.65; margin: 0; flex: 1; }
+.testimonialAuthor { background: transparent; border: none; border-radius: 0; padding: 0; margin: 0; max-width: none; gap: 0.75rem; }
+.testimonialAuthor:hover { background: transparent; transform: none; }
+.authorAvatar { width: 40px; height: 40px; border: 2px solid var(--brand); box-shadow: none; background: var(--c-bg-alt); }
+.authorName { color: var(--c-ink); font-size: 0.88rem; }
+.testimonialDots { margin-top: 1rem; gap: 2px; }
+.dot { width: 8px; height: 8px; margin: 0; padding: 0; border: none; background: var(--c-line); position: relative; }
+.dot::after { content: ''; position: absolute; inset: -12px -5px; }  /* bigger tap target */
+.dot:hover { background: var(--c-muted); }
+.activeDot { background: var(--brand); width: 22px; transform: none; }
+.testimonialDots .dot { margin: 0 5px; }
+
+/* ---- toast ---- */
+.toast { bottom: max(1rem, env(safe-area-inset-bottom, 0px)); right: max(1rem, env(safe-area-inset-right, 0px)); max-width: calc(100vw - 2rem); }
+.toastOk { background: var(--c-surface); border-color: rgba(31, 138, 91, 0.45); color: var(--c-success); }
+.toastErr { background: var(--c-surface); border-color: rgba(208, 69, 61, 0.45); color: var(--c-danger); }
+
+/* ---- footer ---- */
+.footer { padding: clamp(2rem, 5vw, 3.5rem) var(--page-pad) 1.25rem; }
+.footerTop { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: clamp(1.25rem, 3vw, 2.5rem); }
+.footerBottom { flex-wrap: wrap; gap: 0.75rem; }
+
+/* ---- breakpoints ---- */
+@media (max-width: 1100px) {
+  .hero { padding: clamp(1.75rem, 5vw, 3.5rem) var(--page-pad); }
+  .main { padding: clamp(1rem, 3vw, 2.5rem) var(--page-pad); }
+}
+
+@media (max-width: 900px) {
+  .hero { flex-direction: column; align-items: stretch; text-align: left; }
+  .heroImageWrapper { width: 100%; }
+  .main { flex-direction: column; align-items: stretch; }
+  .sidebar { position: static; width: 100%; animation: none; flex-direction: column; flex-wrap: nowrap; gap: 1rem; }
+  .sidebarBlock { flex: none; padding: 1rem; animation: none; }
+  .sidebarBlock h3 { display: none; }
+  /* categories become a horizontally scrollable chip row */
+  .sidebarBlock ul { flex-direction: row; gap: 8px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; padding: 2px; }
+  .sidebarBlock ul::-webkit-scrollbar { display: none; }
+  .sidebarBlock li { flex: 0 0 auto; white-space: nowrap; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--border); min-height: 40px; }
+  .sidebarBlock li:hover, .sidebarBlock li.active { padding-left: 16px; }
+  .activeCaret { display: none; }
+  .sideBanner { flex: none; min-height: 0; padding: 1.1rem; flex-direction: row; align-items: center; flex-wrap: wrap; gap: 0.5rem 1rem; }
+  .sideBanner h3 { margin-right: auto; }
+  .sideBannerImage { display: none; }
+  .sideBannerLabel { width: 100%; }
+  .showAllSection { padding: 1rem 1.1rem; }
+}
+
+@media (max-width: 640px) {
+  .grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); }
+  .showAllSection { flex-direction: column; align-items: stretch; }
+  .showAllBtn { width: 100%; justify-content: center; }
+  .testimonialCard { min-height: 210px; }
+  .footerTop { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 400px) {
+  .footerTop { grid-template-columns: 1fr; }
+  .cardBody { padding: 0.9rem 1rem 1rem; }
+}
+
+@media (min-width: 1700px) {
+  .grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
 }
