@@ -4,6 +4,7 @@ import { StarRating } from "../../../../assets/Extra/extra_functions";
 import { CartIcon, TickMark } from "../../../../assets/Extra/svg";
 import { getToken } from "../../../../utils/tokenUtils";
 import BASE_URL from "../../../../utils/baseapi";
+import { useCenterFocus } from "../../../../utils/useCenterFocus";
 import styles from "./items.module.css";
 import bgAlmirah from "../../../../assets/images/Wooden-almirah.jpg";
 
@@ -24,6 +25,7 @@ interface Almirah {
 function Almirahs() {
 
   const token = getToken();
+  useCenterFocus();
   
   const [, setShowTokenExpired] = useState(false);
   const [activeFilter, ] = useState("All");
@@ -162,7 +164,7 @@ function Almirahs() {
     
     <div className={styles.grid}>
       {(filtered || []).map(almirah => (
-        <div key={almirah?.id} className={styles.card}>
+        <div key={almirah?.id} className={styles.card} data-focus-card>
           <button className={styles.wishBtn} onClick={() => handleAddToWishlist(almirah)}>{wished.has(almirah?.id) ? "♥" : "♡"}</button>
           <div className={styles.imageWrap}>
             <img src={`${BASE_URL}${almirah.images[currentIndexes[almirah.id] || 0] || almirah.images[0] }`} alt={almirah.name} loading="lazy" />

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { getCart, removeFromCart, increaseQuantity, decreaseQuantity, checkoutCart, checkoutItem, getFetchWishlist } from '../../../api/cart';
-import { WishlistIcon, CrossIcon, EmptyCartIcon } from '../../../assets/Extra/svg';
-import PageNavigation from '../../pagenavigation/pagenavigation';
-import ThemeToggle from '../../../theme/ThemeToggle';
+import { CrossIcon, EmptyCartIcon } from '../../../assets/Extra/svg';
+import Navbar from '../../navbar/Navbar';
+import { useCenterFocus } from '../../../utils/useCenterFocus';
 import { getToken } from '../../../utils/tokenUtils';
 import BASE_URL from '../../../utils/baseapi';
 import styles from './cart.module.css';
@@ -23,6 +23,7 @@ interface CartItem {
 function Cart() {
 
   const token = getToken();
+  useCenterFocus();
   const navigate  = useNavigate();
 
   const [loading, setLoading] = useState(true);
@@ -145,14 +146,7 @@ function Cart() {
   if (!token) {
     return (
       <div className={styles.page}>
-        <nav className={styles.navbar}>
-          <div className={styles.logo} onClick={() => navigate('/')}>Furniture<span>·</span>Co</div>
-          <PageNavigation />
-          <ThemeToggle />
-          <div className={styles.navIcons}>
-            <button className={styles.iconBtn} onClick={() => navigate('/wishlist')}>♡ Wishlist</button>
-          </div>
-        </nav>
+        <Navbar />
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}><EmptyCartIcon /></div>
           <h2>Sign in to view your cart</h2>
@@ -165,22 +159,7 @@ function Cart() {
 
   return (
     <div className={styles.page}>
-      <nav className={styles.navbar}>
-        <div className={styles.logo} onClick={() => navigate('/')}>Furniture<span>·</span>Co</div>
-        <div className={styles.navIcons}>
-          <PageNavigation />
-          <ThemeToggle />
-          <ul className={styles.navLinks}>
-            <li><Link to="/">Home</Link></li>
-            <li><Link to="/products">Products</Link></li>
-            <li><Link to="/about">About</Link></li>
-            <li><Link to="/contact">Contact</Link></li>
-          </ul>
-          <button className={styles.iconBtn} onClick={() => navigate('/products')}>Shop</button>
-          <button className={styles.iconBtn} onClick={() => navigate('/wishlist')}><WishlistIcon />
-          </button>
-        </div>
-      </nav>
+      <Navbar cartCount={items.length} />
 
       {loading ? (
         <div className={styles.loading}>Loading your cart...</div>
@@ -210,13 +189,13 @@ function Cart() {
               </button>
             </div>
             {items.map((item) => (
-              <div key={item.id} className={styles.card}>
+              <div key={item.id} className={styles.card} data-focus-card>
                 <button className={styles.removeBtn} onClick={() => handleRemove(item.id)} title="Remove from cart">
                   <CrossIcon />
                 </button>
                 <div className={styles.imageWrap}>
                   {item.image ? <img src={`${BASE_URL}${item.image}`} alt={item.name} loading="lazy" />
-                    : <div style={{ width: '100%', height: '100%', background: '#f0ede8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>🪑</div>
+                    : <div style={{ width: '100%', height: '100%', background: 'var(--c-bg-alt)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>🪑</div>
                   }
                   <div className={styles.imageOverlay}>
                     <button className={styles.quickViewBtn} onClick={() => navigate('/products')}>View Details</button>
@@ -243,7 +222,7 @@ function Cart() {
                   <center><div className={styles.priceRow}>
                     <span className={styles.price}>${(item.price * item.quantity).toLocaleString('en-IN')}</span>
                     {item.quantity > 1 && (
-                      <span style={{ fontSize: '0.75rem', color: '#aaa', marginLeft: 6 }}>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--c-muted)', marginLeft: 6 }}>
                         ${item.price.toLocaleString('en-IN')} each
                       </span>
                     )}

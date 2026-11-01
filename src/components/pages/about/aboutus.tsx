@@ -2,18 +2,10 @@ import React from "react";
 import styles from "./aboutus.module.css";
 import { Link, useNavigate } from "react-router-dom";
 import { RightArrowIcon } from "../../../assets/Extra/svg"
-import PageNavigation from "../../pagenavigation/pagenavigation";
-import ThemeToggle from "../../../theme/ThemeToggle";
+import Navbar from "../../navbar/Navbar";
 
 function Aboutus() {
   const navigate = useNavigate();
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
 
   const stats = [
     { num: "15", suffix: "+", label: "Years of Craft" },
@@ -25,17 +17,7 @@ function Aboutus() {
 
   return (
     <div className={styles.container}>
-      <nav className={styles.navbar}>
-        <Link to="/" className={styles.logo}>Furniture<span>&nbsp;·&nbsp;</span>Co.</Link>
-        <PageNavigation />
-        <div className={styles.navLinks}>
-          <Link to="/" className={styles.navLink}>Home</Link>
-          <Link to="/products" className={styles.navLink}>Products</Link>
-          <Link to="/about" onClick={() => { scrollToTop(); }} className={`${styles.navLink} ${styles.navLinkActive}`}>About</Link>
-          <Link to="/contact" className={styles.navLink}>Contact</Link>
-        </div>
-        <ThemeToggle className={styles.themeToggle} />
-      </nav>
+      <Navbar />
 
       <section className={styles.hero}>
         <div className={styles.heroDecorLine} />
@@ -56,7 +38,7 @@ function Aboutus() {
         </p>
         <div className={styles.heroBreadcrumb}>
           <span onClick={() => navigate("/")}>Home</span>
-          <span style={{ color: "#D6C4A8" }}>›</span>
+          <span style={{ color: "var(--c-muted)" }}>›</span>
           <span>About Us</span>
         </div>
       </section>

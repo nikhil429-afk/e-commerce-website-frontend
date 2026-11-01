@@ -4,8 +4,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { sendContact } from "../../../api/contactus";
 import { getToken } from "../../../utils/tokenUtils";
 import { HomeIcon, CallIcon, MailIcon, SendMessageArrowPlane, TickMark } from "../../../assets/Extra/svg";
-import PageNavigation from "../../pagenavigation/pagenavigation";
-import ThemeToggle from "../../../theme/ThemeToggle";
+import Navbar from "../../navbar/Navbar";
 
 
 function Contact() {
@@ -20,13 +19,6 @@ function Contact() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     e.preventDefault();
     setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 360,
-      behavior: "smooth",
-    });
   };
 
   const showToast = (msg: string, ok = true) => {
@@ -82,17 +74,7 @@ function Contact() {
 
   return (
     <div className={styles.container}>
-      <nav className={styles.navbar}>
-        <Link to="/" className={styles.logo}>Furniture<span>&nbsp;·&nbsp;</span>Co.</Link>
-        <PageNavigation />
-        <div className={styles.navLinks}>
-          <Link to="/" className={styles.navLink}>Home</Link>
-          <Link to="/products" className={styles.navLink}>Products</Link>
-          <Link to="/about" className={styles.navLink}>About</Link>
-          <Link to="/contact" onClick={() => { scrollToTop(); }} className={`${styles.navLink} ${styles.navLinkActive}`}>Contact</Link>
-        </div>
-        <ThemeToggle className={styles.themeToggle} />
-      </nav>
+      <Navbar />
 
       <section className={styles.hero}>
         <div className={styles.heroDecorLine} />
@@ -101,7 +83,7 @@ function Contact() {
         <p className={styles.heroSubtitle}>Whether it's a bespoke order, a question, or just saying hello — we're here.</p>
         <div className={styles.heroBreadcrumb}>
           <span onClick={() => navigate("/")} style={{ cursor: "pointer" }}>Home</span>
-          <span style={{ color: "#D6C4A8" }}>›</span>
+          <span style={{ color: "var(--c-muted)" }}>›</span>
           <span>Contact Us</span>
         </div>
       </section>

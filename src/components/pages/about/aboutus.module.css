@@ -718,10 +718,55 @@ html[data-theme='dark'] .navScrolled {
 
 html[data-theme='dark'] .statsBand,
 html[data-theme='dark'] .ctaBanner {
-  background: #0e0c0a;
+  background: #000000;
 }
 
 html[data-theme='dark'] .storyText,
 html[data-theme='dark'] .valueText {
   color: #c9b8a8;
+}
+
+/* ==========================================================================
+   RESPONSIVE + THEME LAYER (about)
+   ========================================================================== */
+.container { overflow-x: hidden; background: var(--c-bg); }
+.hero { min-height: 0; padding: clamp(3rem, 9vw, 6rem) var(--page-pad) clamp(2.5rem, 7vw, 5rem); background: var(--c-bg-alt); border-bottom: 1px solid var(--c-line); }
+.heroTitle { font-size: clamp(2.3rem, 8vw, 5.5rem); }
+.heroOrnamentsWrap, .heroRing1, .heroRing2, .heroRingLeft { opacity: 0.4; pointer-events: none; }
+
+/* dark bands: same look in both themes */
+.statsBand, .ctaBanner { background: #1a1917; }
+.statNum, .ctaTitle { color: #f3f0e9; }
+.statLabel, .ctaText { color: #bdb7ab; }
+.ctaBtnGhost { color: #f3f0e9; }
+.ctaBtnPrimary { background: var(--brand); }
+.ctaBtnPrimary:hover { background: var(--brand-strong); }
+html[data-theme='dark'] .statsBand, html[data-theme='dark'] .ctaBanner { background: #0b0b0b; border-top: 1px solid var(--c-line); border-bottom: 1px solid var(--c-line); }
+.storyImageBadge { background: var(--brand); }
+.storyImageBadgeNum, .storyImageBadgeText { color: #fff; }
+.storyImageFrame { background: var(--c-surface-2); border-color: var(--c-line); }
+
+.statsBand { padding: clamp(28px, 5vw, 40px) var(--page-pad); flex-wrap: wrap; gap: 20px 0; }
+.storySection { padding: clamp(48px, 9vw, 100px) var(--page-pad); gap: clamp(32px, 6vw, 80px); }
+.valuesSection { padding: clamp(48px, 9vw, 100px) var(--page-pad); background: var(--c-bg-alt); }
+.valueCard { background: var(--c-surface); border-color: var(--c-line); }
+.valuesGrid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: clamp(16px, 3vw, 32px); }
+.teamSection { padding: clamp(48px, 9vw, 100px) var(--page-pad); }
+.teamGrid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: clamp(16px, 3vw, 28px); margin-top: clamp(28px, 5vw, 56px); }
+.teamCard { background: var(--c-surface); border-color: var(--c-line); }
+.ctaBanner { padding: clamp(48px, 9vw, 80px) var(--page-pad); }
+.ctaBtnPrimary, .ctaBtnGhost { min-height: 48px; }
+.footer { padding: 28px var(--page-pad); flex-wrap: wrap; gap: 8px 16px; background: var(--c-bg); }
+
+@media (max-width: 900px) {
+  .storySection { grid-template-columns: minmax(0, 1fr); }
+  .storyImageCol { max-width: 440px; margin: 0 auto; width: 100%; }
+  .storyImageBadge { right: 8px; bottom: -14px; width: 92px; height: 92px; }
+  .statDivider { display: none; }
+  .statItem { flex: 1 1 40%; max-width: none; }
+}
+@media (max-width: 560px) {
+  .ctaBtns { flex-direction: column; align-items: stretch; }
+  .ctaBtns > * { justify-content: center; text-align: center; }
+  .footer { justify-content: center; text-align: center; }
 }

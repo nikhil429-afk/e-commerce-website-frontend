@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
-import { CartIcon, FacebookIcon, InstagramIcon, LazyLoading, LeftArrow, RightArrow, RightBigArrow, SearchIcon, StarIcon, WishlistIcon } from '../assets/Extra/svg';
+import { CartIcon, FacebookIcon, InstagramIcon, LazyLoading, LeftArrow, RightArrow, RightBigArrow, StarIcon } from '../assets/Extra/svg';
 import { fetchProducts, getFetchCart, getAddToCart, getAddToWishlist, getFetchWishlist } from '../api/dashboard';
-import { getTokenPayload, clearToken, getToken } from '../utils/tokenUtils';
+import { getTokenPayload, getToken } from '../utils/tokenUtils';
 import { StarRating } from '../assets/Extra/extra_functions';
 import { useNavigate, Link } from 'react-router-dom';
 import bed from "../assets/images/platform_bed.webp";
@@ -12,7 +12,8 @@ import table from "../assets/images/table.jpg";
 import sofa from "../assets/images/sofa.jpg"
 import styles from './dashboard.module.css';
 import BASE_URL from '../utils/baseapi';
-import ThemeToggle from '../theme/ThemeToggle';
+import { useCenterFocus } from '../utils/useCenterFocus';
+import Navbar from '../components/navbar/Navbar';
 
 interface Products {
   id: number;
@@ -42,7 +43,6 @@ function Dashboard() {
   const navigate = useNavigate();
 
   const [loading, setLoading] = useState(true);
-  const [scrolled, setScrolled] = useState(false);
   const [products, setProducts] = useState<Products[]>([]);
 
   const [search, setSearch] = useState('');
@@ -56,19 +56,12 @@ function Dashboard() {
   const [showQuickView, setShowQuickView]  = useState(false);
   const [modalOrigin, setModalOrigin] = useState({ x: 0, y: 0 });
 
-  const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [showMenu, setShowMenu] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const close = (e: MouseEvent) => { if (menuRef.current && !menuRef.current.contains(e.target as Node)) setShowMenu(false); };
-    document.addEventListener('mousedown', close);
-    return () => document.removeEventListener('mousedown', close);
-  }, []);
   const [toast, setToast] = useState<{msg: string, ok: boolean} | null>(null);
 
 
   const productsRef = useRef<HTMLElement | null>(null);
+
+  useCenterFocus(`${products.length}-${search}`);
 
 
   useEffect(() => {
@@ -77,12 +70,6 @@ function Dashboard() {
       .then((data) => setProducts(Array.isArray(data) ? data : []))
       .catch(() => setProducts([]))
       .finally(() => setLoading(false));
-  }, []);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   const handleSearch = (value: string) => {
@@ -99,13 +86,6 @@ function Dashboard() {
     window.scrollTo({
       top: 0,
       behavior: "smooth",
-    })
-  };
-
-  const scrollToCenter = () => {
-    window.scrollTo({
-      behavior: "smooth",
-      top: 350,
     })
   };
 
@@ -200,8 +180,6 @@ function Dashboard() {
     }
   };
 
-  const confirmLogout = () => { clearToken(); setShowLogoutModal(false); navigate('/login'); };
-
   const filteredProducts = products.filter(p =>
     p.name.toLowerCase().includes(search.toLowerCase()) ||
     p.category.toLowerCase().includes(search.toLowerCase())
@@ -212,54 +190,11 @@ function Dashboard() {
 
   return (
     <div className={styles.container}>
-      <nav className={`${styles.navbar} ${scrolled ? styles.navScrolled : ''}`}>
-        <div className={styles.logo} onClick={() => {scrollToTop(); navigate('/')}}>Furniture<span>·</span>Co</div>
-        <ul className={styles.navLinks}>
-          <li><Link to="/" onClick={() => { scrollToTop(); }}>Home</Link></li>
-          <li><Link to="/products">Products</Link></li>
-          <li><Link to="/about" onClick={() => {scrollToTop(); }}>About</Link></li>
-          <li><Link to="/contact" onClick={() => {scrollToCenter(); }}>Contact</Link></li>
-        </ul>
-
-        <div className={styles.searchWrap}>
-          <span className={styles.searchIcon}> <SearchIcon /> </span>
-          <input className={styles.search} placeholder="Search pieces…" value={search} onChange={(e) => handleSearch(e.target.value)}/>
-        </div>
-
-        <div className={styles.navActions}>
-          <ThemeToggle className={styles.themeToggle} />
-          <button className={styles.navCartBtn} onClick={() => navigate('/wishlist')} title="Wishlist"> <WishlistIcon/>
-            {wishlist.length > 0 && <span className={styles.cartBadge}>{wishlist.length}</span>}
-          </button>
-
-          <button className={styles.navCartBtn} onClick={() => navigate('/cart')} title="Cart"> <CartIcon />
-            {cart.length > 0 && <span className={styles.cartBadge}>{cart.length}</span>}
-          </button>
-
-          {user ? (
-            <div className={styles.profileWrap} ref={menuRef}>
-              <div className={styles.profileAvatar} title={user.username} onClick={() => setShowMenu(o => !o)}>
-                {user.username?.slice(0, 2).toUpperCase()}
-              </div>
-              {showMenu && (
-                <div className={styles.profileDropdown}>
-                  <div className={styles.profileDropdownHead}>
-                    <strong>{user.username}</strong>
-                    <span>{user.email}</span>
-                  </div>
-                  <button onClick={() => { setShowMenu(false); navigate('/profile'); }}>Profile Settings</button>
-                  <button onClick={() => { setShowMenu(false); setShowLogoutModal(true); }}>Sign out</button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <>
-              <button className={styles.navBtnOutline} onClick={() => navigate('/login')}>Sign In</button>
-              <button className={styles.navBtnFill} onClick={() => navigate('/register')}>Join</button>
-            </>
-          )}
-        </div>
-      </nav>
+      <Navbar
+        cartCount={cart.length}
+        wishlistCount={wishlist.length}
+        search={{ value: search, onChange: handleSearch, placeholder: 'Search pieces…' }}
+      />
 
       <section className={styles.hero}>
         <div className={styles.heroBlob}  />
@@ -338,7 +273,7 @@ function Dashboard() {
         ) : ( 
           <div className={styles.productGrid}>
             {filteredProducts.slice(0, 3).map(product => (
-              <div key={product.id} className={styles.card}>
+              <div key={product.id} className={styles.card} data-focus-card>
                 {product.tag && <span className={styles.cardTag}>{product.tag}</span>}
 
                 <button onClick={() => addToWishList(product.id)} className={styles.wishlistBtn}>
@@ -352,7 +287,6 @@ function Dashboard() {
                   }
                   <div className={styles.cardImageOverlay}>
                     <button className={styles.quickView} onClick={e => openQuickView(product, e)}>Quick View</button>
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     <button className={styles.detailView} onClick={() =>{ detailView(); }}>Detail View</button>
                   </div>
                 </div>
@@ -520,18 +454,6 @@ function Dashboard() {
         </div>
       </footer>
 
-      {showLogoutModal && (
-        <div className={styles.modalOverlay} onClick={() => setShowLogoutModal(false)}>
-          <div className={styles.modalBox} onClick={e => e.stopPropagation()}>
-            <p style={{ fontFamily: 'var(--font-body)', fontSize: '1rem', marginBottom: 8 }}>Sign out of your account?</p>
-            <p style={{ fontSize: '0.82rem', opacity: 0.7, marginBottom: 0 }}>{user?.username}</p>
-            <div className={styles.modalActions}>
-              <button className={styles.cancelBtn} onClick={() => setShowLogoutModal(false)}>Cancel</button>
-              <button className={styles.confirmBtn} onClick={confirmLogout}>Sign Out</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

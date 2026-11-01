@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useCenterFocus } from "../../../../utils/useCenterFocus";
 import styles from "./items.module.css";
 import { addToCart, addToWishlist, getBeds } from "../../../../api/Product_items_API/beds";
 import { StarRating } from "../../../../assets/Extra/extra_functions";
@@ -24,6 +25,7 @@ interface Bed {
 function Beds() {
   
   const token = getToken();
+  useCenterFocus();
 
   const [, setShowTokenExpired] = useState(false);
 
@@ -167,7 +169,7 @@ function Beds() {
 
       <div className={styles.grid}>
         {(filtered || []).map(bed => (
-          <div key={bed?.id} className={styles.card}>
+          <div key={bed?.id} className={styles.card} data-focus-card>
             <button className={styles.wishBtn} onClick={() => handleAddToWishList(bed)} title="Wishlist"> {wished.has(bed.id) ? "♥" : "♡"}</button>
             <div className={styles.imageWrap}>
               <img src={`${BASE_URL}${bed.images[currentIndexes[bed.id] || 0] || bed.images[0] }`} alt={bed.name} loading="lazy" />

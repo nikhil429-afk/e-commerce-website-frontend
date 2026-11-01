@@ -478,12 +478,12 @@
    surface/text pairing is patched explicitly here for <html data-theme="dark">.
    ========================================================================== */
 html[data-theme='dark'] .page {
-  background: #131817;
+  background: #0a0a0a;
 }
 
 html[data-theme='dark'] .navbar {
-  background: #191f1d;
-  border-bottom-color: #352e28;
+  background: #101010;
+  border-bottom-color: #262522;
 }
 
 html[data-theme='dark'] .navLinks li a {
@@ -495,7 +495,7 @@ html[data-theme='dark'] .logo {
 }
 
 html[data-theme='dark'] .iconBtn {
-  border-color: #352e28;
+  border-color: #262522;
   color: #e3ddd1;
   background: transparent;
 }
@@ -514,8 +514,8 @@ html[data-theme='dark'] .emptyState p {
 
 html[data-theme='dark'] .totalprice,
 html[data-theme='dark'] .card {
-  background: #1e1a17;
-  border-color: #352e28;
+  background: #111111;
+  border-color: #262522;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
 }
 
@@ -525,4 +525,49 @@ html[data-theme='dark'] .card:hover {
 
 html[data-theme='dark'] .emptyIcon {
   background: rgba(var(--brand-rgb), 0.12);
+}
+
+/* ==========================================================================
+   RESPONSIVE LAYER (cart)
+   ========================================================================== */
+.page { overflow-x: hidden; }
+.header { padding: clamp(24px, 5vw, 48px) var(--page-pad) 12px; }
+.header h1 { font-size: clamp(1.6rem, 5vw, 2.2rem); }
+.products { padding: 16px var(--page-pad) clamp(40px, 8vw, 80px); gap: clamp(12px, 2vw, 20px); }
+.totalprice { top: calc(var(--nav-h) + 10px); padding: clamp(14px, 3vw, 24px) clamp(16px, 4vw, 32px); gap: 12px; flex-wrap: wrap; }
+.h2_totalprice { font-size: clamp(1.1rem, 3.5vw, 1.5rem); }
+.buyAllBtn { min-height: 44px; }
+.toggleBtn { border-color: var(--c-line); }
+.Btn { width: 36px; height: 36px; }
+.buy { min-height: 44px; }
+.quickViewBtn { min-height: 40px; }
+.toast { bottom: max(1rem, env(safe-area-inset-bottom, 0px)); right: max(1rem, env(safe-area-inset-right, 0px)); max-width: calc(100vw - 2rem); background: var(--c-surface); }
+.toastOk { color: var(--c-success); border: 1px solid rgba(31, 138, 91, 0.45); }
+.toastErr { color: var(--c-danger); border: 1px solid rgba(208, 69, 61, 0.45); }
+.emptyState { padding: clamp(48px, 12vw, 100px) var(--page-pad); }
+
+.card:focus-within .imageOverlay { opacity: 1; }
+@media (hover: none) {
+  .card:hover { transform: none; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04); }
+  .card:hover .imageWrap img { transform: none; }
+  .card:hover .imageOverlay { opacity: 0; }
+  .imageOverlay { pointer-events: none; }
+  .card[data-focused='true'] { border-color: rgba(var(--brand-rgb), 0.5); }
+  .card[data-focused='true'] .imageOverlay { opacity: 1; pointer-events: auto; }
+}
+
+@media (max-width: 900px) {
+  .card { grid-template-columns: 180px 84px minmax(0, 1fr); }
+  .imageWrap { width: 180px; height: 170px; }
+  .cardBody { padding: 18px 20px; }
+}
+
+@media (max-width: 640px) {
+  .card { grid-template-columns: minmax(0, 1fr); }
+  .imageWrap { width: 100%; height: auto; aspect-ratio: 16 / 10; }
+  .toggleBtn { flex-direction: row; height: auto; min-width: 0; padding: 10px 16px; border-left: none; border-right: none; border-top: 1px solid var(--c-line); border-bottom: 1px solid var(--c-line); justify-content: space-between; }
+  .toggleBtn p { flex-direction: row; gap: 14px; margin: 0; }
+  .cardBody { padding: 16px; }
+  .totalprice { flex-direction: column; align-items: stretch; text-align: center; }
+  .buyAllBtn { width: 100%; }
 }

@@ -132,3 +132,18 @@
 @media (max-width: 900px) { .showcase { grid-template-columns: 1fr; } }
 @media (max-width: 640px) { .skeleton { flex-basis: 260px; } .spotBody { padding: 18px; } }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+/* responsive refinements (AI decorate) */
+.glow1, .glow2 { max-width: 60vw; max-height: 60vw; }
+.toast { max-width: calc(100vw - 2rem); bottom: max(1rem, env(safe-area-inset-bottom, 0px)); text-align: center; }
+.primary, .ghost { min-height: 46px; }
+@media (max-width: 640px) {
+  .main { padding-bottom: 56px; }
+  .insight { padding: 18px; }
+  .spotBody h3 { font-size: 1.3rem; }
+  .cardBtns, .stepper { flex-wrap: wrap; }
+  .actions > * { flex: 1 1 140px; text-align: center; }
+  .queueItem img { width: 52px; height: 44px; }
+  .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; padding-bottom: 4px; }
+  .tab { flex: 0 0 auto; }
+}

@@ -5,6 +5,7 @@ import { CartIcon, TickMark } from "../../../../assets/Extra/svg";
 import bgDining from "../../../../assets/images/dining.png";
 import { getToken } from "../../../../utils/tokenUtils";
 import BASE_URL from "../../../../utils/baseapi";
+import { useCenterFocus } from "../../../../utils/useCenterFocus";
 import styles from "./items.module.css";
 
 type Dining = { 
@@ -23,6 +24,7 @@ type Dining = {
 function Dinings() {
 
   const token = getToken();
+  useCenterFocus();
   
   const [, setShowTokenExpired] = useState(false);
   const [activeFilter, ] = useState("All");
@@ -157,7 +159,7 @@ function Dinings() {
 
       <div className={styles.grid}>
         {(filtered || []).map(dining => (
-          <div key={dining?.id} className={styles.card}>
+          <div key={dining?.id} className={styles.card} data-focus-card>
             <button className={styles.wishBtn} onClick={() => handleaddToWishList(dining.id)}>{wished.has(dining?.id) ? "♥" : "♡"}</button>
             <div className={styles.imageWrap}>
               <img src={`${BASE_URL}${dining.images[currentIndexes[dining.id] || 0] || dining.images[0] }`} alt={dining.name} loading="lazy" />

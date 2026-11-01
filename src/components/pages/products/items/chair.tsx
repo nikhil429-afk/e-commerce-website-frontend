@@ -4,6 +4,7 @@ import { StarRating } from "../../../../assets/Extra/extra_functions";
 import { CartIcon, TickMark } from "../../../../assets/Extra/svg";
 import { getToken } from "../../../../utils/tokenUtils";
 import BASE_URL from "../../../../utils/baseapi";
+import { useCenterFocus } from "../../../../utils/useCenterFocus";
 import styles from "./items.module.css";
 
 type Chair = { 
@@ -25,6 +26,7 @@ const BG = "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?w=1600&
 function Chairs() {
   
   const token = getToken();
+  useCenterFocus();
 
   const [, setShowTokenExpired] = useState(false);
 
@@ -162,7 +164,7 @@ function Chairs() {
 
       <div className={styles.grid}>
         {(filtered || []).map(chair => (
-          <div key={chair?.id} className={styles.card}>
+          <div key={chair?.id} className={styles.card} data-focus-card>
             <button className={styles.wishBtn} onClick={() => (chair)}>{wished.has(chair?.id) ? "♥" : "♡"}</button>
             <div className={styles.imageWrap}>
               <img src={`${BASE_URL}${chair.images[currentIndexes[chair.id] || 0] || chair.images[0] }`} alt={chair.name} loading="lazy" />

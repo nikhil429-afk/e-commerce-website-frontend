@@ -21,16 +21,16 @@
   align-items: center;
   padding: 0 6px;
   justify-content: space-between;
-  background: linear-gradient(135deg, #2a2a2a, #1c1c1c);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.35);
+  background: #151515;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
   transition: background 0.4s ease, border-color 0.4s ease;
 }
 
 :global(html[data-theme='light']) .track {
-  background: linear-gradient(135deg, #fff3e2, #ffe3c2);
-  border: 1px solid rgba(200, 133, 90, 0.35);
-  box-shadow: inset 0 1px 3px rgba(200, 133, 90, 0.2);
+  background: #ece9e1;
+  border: 1px solid #d9d4c8;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .iconSun,
@@ -46,7 +46,7 @@
 }
 
 :global(html[data-theme='light']) .iconSun {
-  color: #c8855a;
+  color: #8f5230;
   opacity: 1;
 }
 
@@ -78,11 +78,11 @@
 
 :global(html[data-theme='light']) .thumb {
   transform: translateX(0);
-  background: linear-gradient(145deg, #fff7ec, #ffdca8);
+  background: #ffffff;
 }
 
 .toggle:focus-visible {
-  outline: 2px solid #c8855a;
+  outline: 2px solid var(--brand-fg);
 }
 
 .toggle:hover .track {
@@ -92,3 +92,21 @@
 .toggle:active .thumb {
   width: calc(var(--toggle-h) - 4px + 3px);
 }
+
+/* compact round icon button (navbar) */
+.iconToggle {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--c-ink);
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+.iconToggle:hover { background: var(--brand-soft); }
+.iconToggle:active { transform: scale(0.94); }
