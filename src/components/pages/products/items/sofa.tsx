@@ -4,7 +4,7 @@ import { CartIcon, TickMark } from "../../../../assets/Extra/svg";
 import { addToWishlist } from "../../../../api/wishlist";
 import { getToken } from "../../../../utils/tokenUtils";
 import React, { useState, useEffect } from "react";
-import BASE_URL from "../../../../utils/baseapi";
+import { imageSrc } from "../../../../utils/imageUrl";
 import { Link } from "react-router-dom";
 import { useCenterFocus } from "../../../../utils/useCenterFocus";
 import styles from "./items.module.css";
@@ -157,7 +157,7 @@ function Sofas() {
               {wished.has(sofa.id) ? "♥" : "♡"}
             </button>
             <div className={styles.imageWrap}>
-              <img src={`${BASE_URL}${sofa.images[currentIndexes[sofa.id] || 0] || sofa.images[0]}`} alt={sofa.name} loading="lazy" />
+              <img src={imageSrc(sofa.images[currentIndexes[sofa.id] || 0] || sofa.images[0], 480)} alt={sofa.name} loading="lazy" />
               <div className={styles.imageOverlay}>
                 <button className={styles.quickViewBtn} onClick={(e) => {quickView(sofa.id, e)}}>Quick View</button>
               </div>
@@ -198,7 +198,7 @@ function Sofas() {
               onClick={e => e.stopPropagation()}>
               <button className={styles.closeBtn} onClick={closeQuickView}>✕</button>
               <div className={styles.quickViewImage}>
-                <img src={`${BASE_URL}${selectedProduct.images[currentIndexes[selectedProduct.id] || 0] || selectedProduct.images[0]}`} alt={selectedProduct.name} />
+                <img src={imageSrc(selectedProduct.images[currentIndexes[selectedProduct.id] || 0] || selectedProduct.images[0], 1080)} alt={selectedProduct.name} />
                 {selectedProduct.images.length > 1 && (
                   <div className={styles.imageslider}>
                     <button onClick={(e) => { e.stopPropagation(); prevImage(selectedProduct.id, selectedProduct.images.length)}}>◀</button>

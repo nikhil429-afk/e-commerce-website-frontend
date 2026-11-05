@@ -22,3 +22,8 @@ export const shipOrder = (orderId: number, status: string) => apiFetch(`/owner/o
 export const getContacts = () => apiFetch("/owner/contact");
 
 export const getAppointments = () => apiFetch("/owner/appointments");
+
+export const decideAppointment = (
+  id: number,
+  body: { action: "accept" | "decline" | "adjust"; new_date?: string; note?: string }
+) => apiFetch(`/owner/appointments/${id}`, { method: "PATCH", json: body });

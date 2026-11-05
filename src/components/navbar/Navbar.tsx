@@ -4,6 +4,7 @@ import { CartIcon, SearchIcon, WishlistIcon } from '../../assets/Extra/svg';
 import { getFetchCart, getFetchWishlist } from '../../api/dashboard';
 import { clearToken, getToken, getTokenPayload } from '../../utils/tokenUtils';
 import ThemeToggle from '../../theme/ThemeToggle';
+import NotificationBell from '../notifications/NotificationBell';
 import styles from './navbar.module.css';
 
 interface NavbarProps {
@@ -132,6 +133,8 @@ function Navbar({ cartCount, wishlistCount, search }: NavbarProps) {
             {search && <div className={styles.desktopSearch}><SearchBox /></div>}
 
             <ThemeToggle variant="icon" />
+
+            {user && user.role !== 'owner' && <NotificationBell />}
 
             <button className={styles.iconBtn} onClick={() => navigate('/wishlist')} aria-label="Wishlist" title="Wishlist">
               <WishlistIcon />

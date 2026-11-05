@@ -11,7 +11,7 @@ import dining from "../assets/images/dining.png";
 import table from "../assets/images/table.jpg";
 import sofa from "../assets/images/sofa.jpg"
 import styles from './dashboard.module.css';
-import BASE_URL from '../utils/baseapi';
+import { imageSrc } from "../utils/imageUrl";
 import { useCenterFocus } from '../utils/useCenterFocus';
 import Navbar from '../components/navbar/Navbar';
 
@@ -282,7 +282,7 @@ function Dashboard() {
 
                 <div className={styles.cardImageWrap}>
                   {product.images
-                    ? <img src={`${BASE_URL}${product.images[currentIndexes[product.id] || 0] || product.images[0] }`} alt={product.name} loading="lazy" />
+                    ? <img src={imageSrc(product.images[currentIndexes[product.id] || 0] || product.images[0], 480)} alt={product.name} loading="lazy" />
                     : <div className={styles.cardImagePlaceholder}> <LazyLoading /> </div>
                   }
                   <div className={styles.cardImageOverlay}>
@@ -340,7 +340,7 @@ function Dashboard() {
             <button className={styles.closeBtn} onClick={closeQuickView}>✕</button>
             
             <div className={styles.quickViewImage}>
-              <img src={`${BASE_URL}${selectedProduct.images[currentIndexes[selectedProduct.id] || 0] || selectedProduct.images[0]}`} alt={selectedProduct.name} />
+              <img src={imageSrc(selectedProduct.images[currentIndexes[selectedProduct.id] || 0] || selectedProduct.images[0], 1080)} alt={selectedProduct.name} />
               {selectedProduct.images.length > 1 && (
                 <div className={styles.imageslider}>
                   <button onClick={(e) => { e.stopPropagation(); prevImage(selectedProduct.id, selectedProduct.images.length)}}><LeftArrow /></button>
