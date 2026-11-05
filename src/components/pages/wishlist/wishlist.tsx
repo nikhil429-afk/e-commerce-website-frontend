@@ -3,7 +3,7 @@ import { getWishlist, removeFromWishlist, getFetchCart } from '../../../api/wish
 import { useNavigate } from 'react-router-dom';
 import { getToken } from '../../../utils/tokenUtils';
 import { addToCart } from '../../../api/cart';
-import BASE_URL from '../../../utils/baseapi';
+import { imageSrc } from "../../../utils/imageUrl";
 import { useState, useEffect } from 'react';
 import styles from './wishlist.module.css';
 import Navbar from '../../navbar/Navbar';
@@ -133,7 +133,7 @@ function Wishlist() {
 
                 <div className={styles.imageWrap}>
                   {item.image
-                    ? <img src={`${BASE_URL}${item.image}`} alt={item.name} loading="lazy" />
+                    ? <img src={imageSrc(item.image, 360)} alt={item.name} loading="lazy" />
                     : <div style={{ width: '100%', height: '100%', background: 'var(--c-bg-alt)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem' }}>🪑</div>
                   }
                   {item.category && (

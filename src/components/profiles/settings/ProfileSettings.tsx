@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { ApiError } from "../../../utils/api";
 import { getProfile, updateProfile, changePassword } from "../../../api/profile";
 import type { Profile } from "../../../api/profile";
 import ThemeToggle from "../../../theme/ThemeToggle";
+import { kindIcon, timeAgo, useNotifications } from "../../../notifications/notificationStore";
 import styles from "./profilesettings.module.css";
 
 type FieldErrors = Record<string, string>;
-type Tab = "info" | "security";
+type Tab = "info" | "security" | "notifications";
 
 interface Props {
   /** true inside the owner dashboard (no page chrome); false on the standalone /profile page. */
@@ -39,7 +40,10 @@ function strength(pw: string) {
 function ProfileSettings({ embedded = false }: Props) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loadError, setLoadError] = useState("");
-  const [tab, setTab] = useState<Tab>("info");
+  const [searchParams] = useSearchParams();
+  const [tab, setTab] = useState<Tab>(!embedded && searchParams.get("tab") === "notifications" ? "notifications" : "info");
+  const notes = useNotifications();
+  const isOwner = profile?.role === "owner";
 
   const [form, setForm] = useState({ username: "", email: "", phone: "", address: "" });
   const [infoErrors, setInfoErrors] = useState<FieldErrors>({});
@@ -72,7 +76,7 @@ function ProfileSettings({ embedded = false }: Props) {
 
   const dirty = useMemo(() => !!profile && (
     form.username !== profile.username || form.email !== profile.email ||
-    form.phone !== profile.phone || form.address !== profile.address), [form, profile]);
+    form.phone !== profile.phone || (profile.role !== "owner" && form.address !== profile.address)), [form, profile]);
 
   const set = (k: keyof typeof form) => (v: string) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -90,7 +94,10 @@ function ProfileSettings({ embedded = false }: Props) {
 
     setSavingInfo(true); setInfoErrors({});
     try {
-      const res = await updateProfile({ username: form.username, email: form.email, phone: form.phone, address: form.address });
+      const res = await updateProfile({
+        username: form.username, email: form.email, phone: form.phone,
+        ...(isOwner ? {} : { address: form.address }),          // the store owner has no address field
+      });
       apply(res.user);
       flash("Profile updated");
     } catch (err) {
@@ -120,6 +127,7 @@ function ProfileSettings({ embedded = false }: Props) {
     } finally { setSavingPw(false); }
   };
 
+  const showNotifications = !embedded && !!profile && profile.role !== "owner";
   const st = strength(pw.next);
   const initials = (profile?.username ?? "").trim().slice(0, 2).toUpperCase() || "··";
   const since = profile?.created_at ? new Date(profile.created_at).toLocaleDateString(undefined, { month: "long", year: "numeric" }) : null;
@@ -161,6 +169,11 @@ function ProfileSettings({ embedded = false }: Props) {
           <div className={styles.tabs} role="tablist">
             <button role="tab" aria-selected={tab === "info"} className={tab === "info" ? styles.tabOn : ""} onClick={() => setTab("info")}>Personal details</button>
             <button role="tab" aria-selected={tab === "security"} className={tab === "security" ? styles.tabOn : ""} onClick={() => setTab("security")}>Password &amp; security</button>
+            {showNotifications && (
+              <button role="tab" aria-selected={tab === "notifications"} className={tab === "notifications" ? styles.tabOn : ""} onClick={() => setTab("notifications")}>
+                Notifications{notes.unread > 0 && <span className={styles.tabBadge}>{notes.unread > 99 ? "99+" : notes.unread}</span>}
+              </button>
+            )}
           </div>
 
           {tab === "info" && (
@@ -182,17 +195,51 @@ function ProfileSettings({ embedded = false }: Props) {
                   <input type="tel" value={form.phone} onChange={(e) => set("phone")(e.target.value)} placeholder="+91 98765 43210" autoComplete="tel" />
                   {infoErrors.phone && <em>{infoErrors.phone}</em>}
                 </label>
-                <label className={`${styles.field} ${styles.wide}`}>
-                  <span>Address</span>
-                  <textarea rows={3} value={form.address} onChange={(e) => set("address")(e.target.value)} maxLength={255} placeholder="House / street, city, PIN code" autoComplete="street-address" />
-                  {infoErrors.address && <em>{infoErrors.address}</em>}
-                </label>
+                {!isOwner && (
+                  <label className={`${styles.field} ${styles.wide}`}>
+                    <span>Address</span>
+                    <textarea rows={3} value={form.address} onChange={(e) => set("address")(e.target.value)} maxLength={255} placeholder="House / street, city, PIN code" autoComplete="street-address" />
+                    {infoErrors.address && <em>{infoErrors.address}</em>}
+                  </label>
+                )}
               </div>
               <div className={styles.actions}>
                 <button type="button" className={styles.ghost} disabled={!dirty || savingInfo} onClick={() => { apply(profile); setInfoErrors({}); }}>Discard changes</button>
                 <button type="submit" className={styles.primary} disabled={!dirty || savingInfo}>{savingInfo ? "Saving…" : "Save changes"}</button>
               </div>
             </form>
+          )}
+
+          {tab === "notifications" && showNotifications && (
+            <section className={styles.card}>
+              <div className={styles.noteHead}>
+                <p className={styles.hint}>Updates from the store about your appointments, orders and account appear here instantly.
+                  <span className={`${styles.liveTag} ${notes.live ? styles.liveTagOn : ""}`}>{notes.live ? "● Live" : "Reconnecting…"}</span>
+                </p>
+                <div className={styles.noteActions}>
+                  <button type="button" className={styles.ghost} onClick={notes.markAllRead} disabled={!notes.unread}>Mark all read</button>
+                  <button type="button" className={styles.ghost} onClick={notes.clearAll} disabled={!notes.items.length}>Clear all</button>
+                </div>
+              </div>
+
+              {!notes.loaded && <div className={styles.skeleton}><span /><span /></div>}
+              {notes.loaded && notes.items.length === 0 && (
+                <div className={styles.noteEmpty}><span>🔔</span><p>No notifications yet</p><small>When the store accepts, declines or reschedules an appointment, or updates your order, you'll see it here.</small></div>
+              )}
+              <ul className={styles.noteList}>
+                {notes.items.map((n) => (
+                  <li key={n.id} className={`${styles.noteItem} ${n.is_read ? "" : styles.noteUnread}`}>
+                    <span className={styles.noteIcon}>{kindIcon(n.kind)}</span>
+                    <div className={styles.noteBody} onClick={() => notes.markRead(n.id)}>
+                      <strong>{n.title}</strong>
+                      <p>{n.message}</p>
+                      <small>{timeAgo(n.created_at)}{n.is_read ? "" : " · New"}</small>
+                    </div>
+                    <button type="button" className={styles.noteRemove} aria-label="Remove notification" onClick={() => notes.remove(n.id)}>✕</button>
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
 
           {tab === "security" && (

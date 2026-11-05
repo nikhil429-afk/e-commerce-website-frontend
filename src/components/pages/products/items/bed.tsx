@@ -5,7 +5,7 @@ import { addToCart, addToWishlist, getBeds } from "../../../../api/Product_items
 import { StarRating } from "../../../../assets/Extra/extra_functions";
 import { CartIcon, TickMark } from "../../../../assets/Extra/svg";
 import { getToken } from "../../../../utils/tokenUtils";
-import BASE_URL from "../../../../utils/baseapi";
+import { imageSrc } from "../../../../utils/imageUrl";
 
 
 interface Bed {
@@ -172,7 +172,7 @@ function Beds() {
           <div key={bed?.id} className={styles.card} data-focus-card>
             <button className={styles.wishBtn} onClick={() => handleAddToWishList(bed)} title="Wishlist"> {wished.has(bed.id) ? "♥" : "♡"}</button>
             <div className={styles.imageWrap}>
-              <img src={`${BASE_URL}${bed.images[currentIndexes[bed.id] || 0] || bed.images[0] }`} alt={bed.name} loading="lazy" />
+              <img src={imageSrc(bed.images[currentIndexes[bed.id] || 0] || bed.images[0], 480)} alt={bed.name} loading="lazy" />
               <div className={styles.imageOverlay}>
               <button className={styles.quickViewBtn} onClick={(e) => {quickView(bed?.id, e)}}>Quick View</button>
               </div>
@@ -219,7 +219,7 @@ function Beds() {
               <button className={styles.closeBtn} onClick={closeQuickView}>✕</button>
                     
               <div className={styles.quickViewImage}>
-                <img src={`${BASE_URL}${selectedProduct.images[currentIndexes[selectedProduct.id] || 0] || selectedProduct.images[0]}`} alt={selectedProduct.name} />
+                <img src={imageSrc(selectedProduct.images[currentIndexes[selectedProduct.id] || 0] || selectedProduct.images[0], 1080)} alt={selectedProduct.name} />
                 {selectedProduct.images.length > 1 && (
                   <div className={styles.imageslider}>
                     <button onClick={(e) => { e.stopPropagation(); prevImage(selectedProduct.id, selectedProduct.images.length)}}>◀</button>

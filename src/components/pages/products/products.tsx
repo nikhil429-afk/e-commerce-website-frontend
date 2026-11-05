@@ -5,7 +5,7 @@ import { StarRating } from "../../../assets/Extra/extra_functions";
 import { Pagination } from "../pagination/pagination";
 import { Outlet, useOutlet, Link, useNavigate } from 'react-router-dom';
 import { getToken } from "../../../utils/tokenUtils";
-import BASE_URL from "../../../utils/baseapi";
+import { imageSrc } from "../../../utils/imageUrl";
 import Navbar from "../../navbar/Navbar";
 import { useCenterFocus } from "../../../utils/useCenterFocus";
 import styles from "./products.module.css";
@@ -101,6 +101,16 @@ const normalizeCatName = (raw: string) => {
 
 
 
+const PRODUCTS_CACHE_KEY = "fc-products-v1";
+
+function readProductsCache(): Products[] {
+  try {
+    const raw = sessionStorage.getItem(PRODUCTS_CACHE_KEY);
+    const list = raw ? JSON.parse(raw) : null;
+    return Array.isArray(list) ? list : [];
+  } catch { return []; }
+}
+
 function Products() {
   const token = getToken();
   useCenterFocus();
@@ -116,7 +126,7 @@ function Products() {
   const [cart, setCart] = useState<number[]>([]);
   const [addedToCart, setAddedToCart] = useState<number | null>(null);
   const [wishlist, setWishlist] = useState<number[]>([]);
-  const [products, setProducts] = useState<Products[]>([]);
+  const [products, setProducts] = useState<Products[]>(readProductsCache);
   const [currentIndexes, setCurrentIndexes] = useState<{ [key: number]: number }>({});
   const [showAllOpen, setShowAllOpen] = useState(false);
   const [allLoading, setAllLoading] = useState(false);
@@ -127,7 +137,7 @@ function Products() {
   const [modalOrigin, setModalOrigin] = useState({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
   const [showDetailView] = useState(false);
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !isSubroute && readProductsCache().length === 0);
   const [selectedProduct, setSelectedProduct] = useState<Products | null>(null);
   const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null);
 
@@ -151,25 +161,35 @@ function Products() {
   const scrollToSubRoute = () => window.scrollTo({ top: 380, behavior: "smooth" });
 
   useEffect(() => {
-    if (token) fetchCart(); fetchWishlist();
+    if (token) { fetchCart(); fetchWishlist(); }
   }, [token]);
 
+  // The whole catalogue is only needed on the main /products page. A category page (/products/beds ...)
+  // loads its own, much smaller list, so it must not wait for this request.
   useEffect(() => {
+    if (isSubroute) { setLoading(false); return; }
+    if (products.length === 0) setLoading(true);      // coming back from a category page: show placeholders, not "No Product Found"
+    let alive = true;
     const fetchProducts = async () => {
       try {
         const res = await getProducts();
-        setProducts(res.map((item: any) => ({
+        if (!alive) return;
+        if (!Array.isArray(res)) throw new Error("bad response");
+        const list = res.map((item: any) => ({
           ...item,
           oldPrice: item.old_price ?? item.oldPrice ?? 0,
-        })));
+        }));
+        setProducts(list);
+        try { sessionStorage.setItem(PRODUCTS_CACHE_KEY, JSON.stringify(list)); } catch { /* storage full / blocked */ }
       } catch {
-        showToast("Error fetching products.", false);
+        if (alive) showToast("Error fetching products.", false);
       } finally {
-        setLoading(false);
+        if (alive) setLoading(false);
       }
     };
     fetchProducts();
-  }, []);
+    return () => { alive = false; };
+  }, [isSubroute]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -299,14 +319,7 @@ function Products() {
     p.name.toLowerCase().includes(finalSearch.toLowerCase())
   );
 
-  if (loading) return (
-    <div className={styles.loadingScreen}>
-      <div className={styles.loadingSpinner} />
-      <span>Loading Products…</span>
-    </div>
-  );
-  
-  if (!products.length) return <h2 className={styles.notFound}>No Product Found</h2>;
+  if (!isSubroute && !loading && !products.length) return <h2 className={styles.notFound}>No Product Found</h2>;
 
   return (
     <>
@@ -380,17 +393,26 @@ function Products() {
           )}
 
           {(!isSubroute || showAllOpen) && (
-            <div className={styles.grid}>
-              {filteredProducts.length > 0 ? (
-                filteredProducts.map(product => (
+            <div className={styles.grid} aria-busy={loading}>
+              {loading ? (
+                Array.from({ length: 8 }, (_, i) => (
+                  <div key={i} className={styles.skeletonCard} aria-hidden="true">
+                    <div className={styles.skeletonImage} />
+                    <div className={styles.skeletonLine} style={{ width: "40%" }} />
+                    <div className={styles.skeletonLine} style={{ width: "75%" }} />
+                    <div className={styles.skeletonLine} style={{ width: "55%" }} />
+                  </div>
+                ))
+              ) : filteredProducts.length > 0 ? (
+                filteredProducts.map((product, idx) => (
                   <div key={product.id} className={styles.card} data-focus-card>
                     {product.tag && <div className={styles.cardTag}>{product.tag}</div>}
                     <button className={styles.wishlistBtn} onClick={() => addToWishList(product.id)}>
                       ♡ Wishlist
                     </button>
                     <div className={styles.imageWrap}>
-                      <img src={`${BASE_URL}${product.images[currentIndexes[product.id] || 0] || product.images[0]}`}
-                        alt={product.name} loading="lazy" />
+                      <img src={imageSrc(product.images[currentIndexes[product.id] || 0] || product.images[0], 480)}
+                        alt={product.name} loading={idx < 4 ? "eager" : "lazy"} decoding="async" />
                       <div className={styles.imageOverlay}>
                         <button className={styles.quickViewBtn} onClick={e => quickView(product, e)}>Quick View</button>
                         {/* <button className={styles.detailViewBtn} onClick={() => detailView(product)}>Details</button>  */}
@@ -442,7 +464,7 @@ function Products() {
                 <button className={styles.closeBtn} onClick={closeQuickView}>✕</button>
 
                 <div className={styles.quickViewImage}>
-                  <img src={`${BASE_URL}${selectedProduct.images[currentIndexes[selectedProduct.id] || 0] || selectedProduct.images[0]}`}
+                  <img src={imageSrc(selectedProduct.images[currentIndexes[selectedProduct.id] || 0] || selectedProduct.images[0], 1080)}
                     alt={selectedProduct.name} />
                   {selectedProduct.images.length > 1 && (
                     <div className={styles.imageslider}>

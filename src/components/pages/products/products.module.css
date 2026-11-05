@@ -1918,3 +1918,24 @@ html[data-theme='dark'] .loadingScreen {
 @media (min-width: 1700px) {
   .grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
 }
+
+/* loading placeholders: the page shows instantly, cards fill in as the products arrive */
+@keyframes skeletonShimmer { to { background-position: -200% 0; } }
+.skeletonCard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 0 0 1.25rem;
+  border-radius: var(--radius-lg, 16px);
+  border: 1px solid var(--c-line);
+  background: var(--c-surface);
+  overflow: hidden;
+}
+.skeletonImage, .skeletonLine {
+  background: linear-gradient(100deg, var(--c-surface-2) 30%, var(--c-bg-alt) 50%, var(--c-surface-2) 70%);
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.3s linear infinite;
+}
+.skeletonImage { aspect-ratio: 4 / 3; }
+.skeletonLine { height: 14px; border-radius: 8px; margin: 0 1.25rem; }
+@media (prefers-reduced-motion: reduce) { .skeletonImage, .skeletonLine { animation: none; } }

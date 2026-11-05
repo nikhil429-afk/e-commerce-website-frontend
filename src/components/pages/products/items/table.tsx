@@ -4,7 +4,7 @@ import { addToWishlist } from "../../../../api/Product_items_API/sofa";
 import { StarRating } from "../../../../assets/Extra/extra_functions";
 import { CartIcon, TickMark } from '../../../../assets/Extra/svg';
 import { getToken } from "../../../../utils/tokenUtils";
-import BASE_URL from "../../../../utils/baseapi";
+import { imageSrc } from "../../../../utils/imageUrl";
 import { useCenterFocus } from "../../../../utils/useCenterFocus";
 import styles from "./items.module.css";
 
@@ -159,7 +159,7 @@ function Tables() {
           <div key={table?.id} className={styles.card} data-focus-card>
             <button className={styles.wishBtn} onClick={() => handleAddToWishList(table)}>{wished.has(table?.id) ? "♥" : "♡"}</button>
             <div className={styles.imageWrap}>
-              <img src={`${BASE_URL}${table.images[currentIndexes[table.id] || 0] || table.images[0] }`} alt={table.name} loading="lazy" />
+              <img src={imageSrc(table.images[currentIndexes[table.id] || 0] || table.images[0], 480)} alt={table.name} loading="lazy" />
               <div className={styles.imageOverlay}>
                 <button className={styles.quickViewBtn} onClick={(e) => {quickView(table.id, e)}}>Quick View</button>
               </div>
@@ -205,7 +205,7 @@ function Tables() {
                 <button className={styles.closeBtn} onClick={closeQuickView}>✕</button>
                     
                 <div className={styles.quickViewImage}>
-                  <img src={`${BASE_URL}${selectedProduct.images[currentIndexes[selectedProduct.id] || 0] || selectedProduct.images[0]}`} alt={selectedProduct.name} />
+                  <img src={imageSrc(selectedProduct.images[currentIndexes[selectedProduct.id] || 0] || selectedProduct.images[0], 1080)} alt={selectedProduct.name} />
                     {selectedProduct.images.length > 1 && (
                     <div className={styles.imageslider}>
                       <button onClick={(e) => { e.stopPropagation(); prevImage(selectedProduct.id, selectedProduct.images.length)}}>◀</button>

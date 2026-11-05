@@ -1,5 +1,5 @@
 import { getAllUsers, updateUser, deleteUser, getProducts, updateProduct, deleteProduct, getOrders, createProduct,
-  getContacts, getAppointments, shipOrder } from "../../../api/owner";
+  getContacts, getAppointments, shipOrder, decideAppointment } from "../../../api/owner";
 import { LineChart, CartesianGrid, Line, XAxis, YAxis, ResponsiveContainer, Tooltip } from "recharts";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { getTokenPayload, clearToken } from "../../../utils/tokenUtils";
@@ -7,7 +7,9 @@ import { getOrdersChart, getUsersChart } from "../../../api/charts";
 import ProfileSettings from "../settings/ProfileSettings";
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { useEffect, useRef, useState } from "react";
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { useTheme } from "../../../theme/ThemeContext";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./owner.module.css";
 import dayjs from "dayjs";
@@ -15,7 +17,7 @@ import ThemeToggle from "../../../theme/ThemeToggle";
 
 
 type Tab = "stats" | "users" | "products" | "orders" | "contacts" | "appointments" | "settings";
-type Modal = "editUser" | "delUser" | "addProduct" | "editProduct" | "delProduct" | null;
+type Modal = "editUser" | "delUser" | "addProduct" | "editProduct" | "delProduct" | "apptDecline" | "apptAdjust" | null;
 
 type OrderChart = { label: string; value: number };
 type UserChart = { label: string; value: number };
@@ -69,7 +71,10 @@ type Appointment = [
   email: string,            // email = [2]
   phone: number,            // phone = [3]
   message: string,          // message = [4]
-  appointment_date: string  // appointment_date = [5]
+  appointment_date: string, // appointment_date = [5]
+  status: string,           // pending | accepted | declined | rescheduled = [6]
+  original_date: string | null, // date the customer first asked for (set when the owner moves it) = [7]
+  owner_note: string | null     // = [8]
 ];
 
 
@@ -108,6 +113,23 @@ function Owner() {
   const [modal, setModal] = useState<Modal>(null);
   const [saving, setSaving] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const { isDark } = useTheme();
+  const [selAppt, setSelAppt] = useState<Appointment | null>(null);
+  const [apptDate, setApptDate] = useState("");
+  const [apptNote, setApptNote] = useState("");
+  const [busyAppt, setBusyAppt] = useState<number | null>(null);
+
+  // chart + date-picker colours follow the theme so they stay readable in light and dark mode
+  const chartTick = isDark ? "#a3b1c6" : "#475569";
+  const chartGrid = isDark ? "rgba(255,255,255,0.09)" : "rgba(15,23,42,0.08)";
+  const chartTip = {
+    contentStyle: { background: isDark ? "#161d2b" : "#ffffff", border: `1px solid ${isDark ? "rgba(255,255,255,0.14)" : "rgba(15,23,42,0.12)"}`, borderRadius: 10, color: isDark ? "#e8eef7" : "#0f172a", fontSize: 12 },
+    labelStyle: { color: isDark ? "#e8eef7" : "#0f172a", fontWeight: 600 },
+    itemStyle: { color: isDark ? "#cbd5e1" : "#334155" },
+  };
+  const pickerTheme = useMemo(() => createTheme({
+    palette: { mode: isDark ? "dark" : "light", primary: { main: isDark ? "#4ab1c5" : "#0891b2" }, background: { paper: isDark ? "#161d2b" : "#ffffff" } },
+  }), [isDark]);
 
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null]>([defaultStart, defaultEnd,]);
   
@@ -239,6 +261,21 @@ const fetchUsers = async () => {
 
   useEffect(() => { fetchUsers(); fetchProducts(); fetchOrders(); }, []);
   const close = () => { setModal(null); setSaving(false); };
+
+  const todayISO = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
+
+  const applyAppointment = async (a: Appointment, action: "accept" | "decline" | "adjust", extra: { new_date?: string; note?: string } = {}) => {
+    setBusyAppt(a[0]); setSaving(true);
+    try {
+      const updated = await decideAppointment(a[0], { action, ...extra });
+      setAppointments(prev => prev.map(x => x[0] === a[0] ? updated : x));
+      showToast(action === "accept" ? "Appointment accepted — the customer has been notified." : action === "decline" ? "Appointment declined — the customer has been notified." : "Date changed — the customer has been notified.");
+      setModal(null);
+    } catch (e: any) { showToast(e.message ?? "Could not update the appointment.", false); }
+    finally { setBusyAppt(null); setSaving(false); }
+  };
+  const openDecline = (a: Appointment) => { setSelAppt(a); setApptNote(""); setModal("apptDecline"); };
+  const openAdjust = (a: Appointment) => { setSelAppt(a); setApptNote(""); setApptDate(a[5] && a[5] >= todayISO() ? a[5] : todayISO()); setModal("apptAdjust"); };
 
   const openEditUser = (u: User) => {
     setSelUser(u);
@@ -524,6 +561,7 @@ const fetchUsers = async () => {
                   <div className={styles.sectionPanelSub}>See Everything About Your Website</div>
                 </div>
                 <div className={styles.statsDateCenter}>
+                  <ThemeProvider theme={pickerTheme}>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <div className={styles.datePickers}>
                       <DatePicker label="Start Date" minDate={dateRange[1] ? dayjs(dateRange[1]).subtract(3650, "day") : undefined}
@@ -537,6 +575,7 @@ const fetchUsers = async () => {
                         if (updated[0] && updated[1]) { loadChartData(updated[0], updated[1]); }}}/>
                     </div>
                   </LocalizationProvider>
+                  </ThemeProvider>
                 </div>
               </div>
             </div>
@@ -552,10 +591,10 @@ const fetchUsers = async () => {
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={ordersData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
                         <defs><linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="purple"/><stop offset="100%" stopColor="cyan"/></linearGradient></defs>
-                        <CartesianGrid stroke="rgba(0,0,0,0.04)" />
-                        <XAxis dataKey="label" tick={{ fill: "#475569", fontSize: 10 }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fill: "#475569", fontSize: 10 }} axisLine={false} tickLine={false} />
-                        <Tooltip />
+                        <CartesianGrid stroke={chartGrid} vertical={false} />
+                        <XAxis dataKey="label" tick={{ fill: chartTick, fontSize: 11 }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fill: chartTick, fontSize: 11 }} axisLine={false} tickLine={false} />
+                        <Tooltip {...chartTip} />
                         <Line type="monotone" dataKey="value" stroke="url(#lineGrad)" strokeWidth={2.5} dot={{ fill: "#3470d6", r: 3, strokeWidth: 0 }} activeDot={{ r: 5, fill: "#25b6f9", strokeWidth: 0 }} />
                       </LineChart>
                     </ResponsiveContainer>
@@ -579,10 +618,10 @@ const fetchUsers = async () => {
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart data={usersData} margin={{ top: 8, right: 8, left: -20, bottom: 0 }}>
                         <defs><linearGradient id="convGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stopColor="#10b981"/><stop offset="100%" stopColor="#6e14ec"/></linearGradient></defs>
-                        <CartesianGrid stroke="rgba(0,0,0,0.04)" />
-                        <XAxis dataKey="label" tick={{ fill: "#475569", fontSize: 10 }} axisLine={false} tickLine={false} />
-                        <YAxis tick={{ fill: "#475569", fontSize: 10 }} axisLine={false} tickLine={false} />
-                        <Tooltip  />
+                        <CartesianGrid stroke={chartGrid} vertical={false} />
+                        <XAxis dataKey="label" tick={{ fill: chartTick, fontSize: 11 }} axisLine={false} tickLine={false} />
+                        <YAxis tick={{ fill: chartTick, fontSize: 11 }} axisLine={false} tickLine={false} />
+                        <Tooltip {...chartTip} />
                         <Line type="monotone" dataKey="value" stroke="url(#convGrad)" strokeWidth={2.5} dot={{ fill: "#10b981", r: 3, strokeWidth: 0 }} activeDot={{ r: 5, fill: "#6366f1", strokeWidth: 0 }} />
                       </LineChart>
                     </ResponsiveContainer>
@@ -815,7 +854,7 @@ const fetchUsers = async () => {
                   <table className={styles.table}>
                     <thead>
                       <tr>
-                        <th>ID</th><th>Name</th><th>Email</th><th>Number</th><th>Message</th><th>Date</th>
+                        <th>ID</th><th>Name</th><th>Email</th><th>Number</th><th>Message</th><th>Date</th><th>Status</th><th>Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -826,7 +865,24 @@ const fetchUsers = async () => {
                           <td className={styles.categoryText}>{a[2]}</td>
                           <td className={styles.categoryText}>{a[3]}</td>
                           <td className={styles.message}>{a[4]}</td>
-                          <td className={styles.priceNew}>{a[5]}</td>
+                          <td className={styles.priceNew}>
+                            {a[5]}
+                            {a[7] && a[7] !== a[5] && <div className={styles.apptWas}>asked for {a[7]}</div>}
+                          </td>
+                          <td>
+                            {(a[6] ?? "pending") === "pending" && <span className={styles.orderStatusPending}>Pending</span>}
+                            {a[6] === "accepted" && <span className={styles.orderStatusDelivered}>✓ Accepted</span>}
+                            {a[6] === "declined" && <span className={styles.apptDeclined}>✕ Declined</span>}
+                            {a[6] === "rescheduled" && <span className={styles.apptMoved}>↻ Date changed</span>}
+                            {a[8] && <div className={styles.apptWas} title={a[8]}>“{a[8]}”</div>}
+                          </td>
+                          <td>
+                            <div className={styles.apptActions}>
+                              <button className={styles.apptAccept} disabled={busyAppt === a[0] || a[6] === "accepted"} onClick={() => applyAppointment(a, "accept")}>Accept</button>
+                              <button className={styles.apptAdjust} disabled={busyAppt === a[0]} onClick={() => openAdjust(a)}>Adjust date</button>
+                              <button className={styles.apptDecline} disabled={busyAppt === a[0] || a[6] === "declined"} onClick={() => openDecline(a)}>Decline</button>
+                            </div>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -879,6 +935,55 @@ const fetchUsers = async () => {
             <div className={styles.modalActions}>
               <button className={styles.btnSecondary} onClick={close} disabled={saving}>Cancel</button>
               <button className={styles.btnPrimary}   onClick={submitEditUser} disabled={saving}>{saving ? "Saving…" : "Save Changes"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {modal === "apptDecline" && selAppt && (
+        <div className={styles.modalOverlay} onClick={close}>
+          <div className={styles.modal} onClick={e => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <span className={styles.modalTitle}>Decline appointment</span>
+              <button className={styles.modalClose} onClick={close}>✕</button>
+            </div>
+            <p className={styles.modalDesc}>
+              <strong className={styles.modalStrong}>{selAppt[1]}</strong> asked to visit on <strong className={styles.modalStrong}>{selAppt[5]}</strong>. They will be notified.
+            </p>
+            <div className={styles.modalForm}>
+              <F label="Reason (optional)">
+                <textarea className={styles.input} rows={3} maxLength={300} value={apptNote} onChange={e => setApptNote(e.target.value)} placeholder="e.g. The showroom is closed that day" />
+              </F>
+            </div>
+            <div className={styles.modalActions}>
+              <button className={styles.btnSecondary} onClick={close} disabled={saving}>Cancel</button>
+              <button className={styles.btnPrimary} onClick={() => applyAppointment(selAppt, "decline", { note: apptNote })} disabled={saving}>{saving ? "Declining…" : "Decline appointment"}</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {modal === "apptAdjust" && selAppt && (
+        <div className={styles.modalOverlay} onClick={close}>
+          <div className={styles.modal} onClick={e => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <span className={styles.modalTitle}>Adjust appointment date</span>
+              <button className={styles.modalClose} onClick={close}>✕</button>
+            </div>
+            <p className={styles.modalDesc}>
+              <strong className={styles.modalStrong}>{selAppt[1]}</strong> asked for <strong className={styles.modalStrong}>{selAppt[7] || selAppt[5]}</strong>. Pick the date you can offer — they will be notified.
+            </p>
+            <div className={styles.modalForm}>
+              <F label="New date">
+                <input className={styles.input} type="date" min={todayISO()} value={apptDate} onChange={e => setApptDate(e.target.value)} />
+              </F>
+              <F label="Note for the customer (optional)">
+                <textarea className={styles.input} rows={3} maxLength={300} value={apptNote} onChange={e => setApptNote(e.target.value)} placeholder="e.g. We are fully booked on your date" />
+              </F>
+            </div>
+            <div className={styles.modalActions}>
+              <button className={styles.btnSecondary} onClick={close} disabled={saving}>Cancel</button>
+              <button className={styles.btnPrimary} onClick={() => applyAppointment(selAppt, "adjust", { new_date: apptDate, note: apptNote })} disabled={saving || !apptDate || apptDate === selAppt[5]}>{saving ? "Saving…" : "Save new date"}</button>
             </div>
           </div>
         </div>

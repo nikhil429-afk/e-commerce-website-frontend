@@ -3,7 +3,7 @@ import { addToCart, addToWishlist, getChairs } from "../../../../api/Product_ite
 import { StarRating } from "../../../../assets/Extra/extra_functions";
 import { CartIcon, TickMark } from "../../../../assets/Extra/svg";
 import { getToken } from "../../../../utils/tokenUtils";
-import BASE_URL from "../../../../utils/baseapi";
+import { imageSrc } from "../../../../utils/imageUrl";
 import { useCenterFocus } from "../../../../utils/useCenterFocus";
 import styles from "./items.module.css";
 
@@ -167,7 +167,7 @@ function Chairs() {
           <div key={chair?.id} className={styles.card} data-focus-card>
             <button className={styles.wishBtn} onClick={() => (chair)}>{wished.has(chair?.id) ? "♥" : "♡"}</button>
             <div className={styles.imageWrap}>
-              <img src={`${BASE_URL}${chair.images[currentIndexes[chair.id] || 0] || chair.images[0] }`} alt={chair.name} loading="lazy" />
+              <img src={imageSrc(chair.images[currentIndexes[chair.id] || 0] || chair.images[0], 480)} alt={chair.name} loading="lazy" />
               <div className={styles.imageOverlay}>
                 <button className={styles.quickViewBtn} onClick={(e) => {quickView(chair.id, e)}}>Quick View</button>
               </div>
@@ -213,7 +213,7 @@ function Chairs() {
               <button className={styles.closeBtn} onClick={closeQuickView}>✕</button>
                     
               <div className={styles.quickViewImage}>
-                <img src={`${BASE_URL}${selectedProduct.images[currentIndexes[selectedProduct.id] || 0] || selectedProduct.images[0]}`} alt={selectedProduct.name} />
+                <img src={imageSrc(selectedProduct.images[currentIndexes[selectedProduct.id] || 0] || selectedProduct.images[0], 1080)} alt={selectedProduct.name} />
                 {selectedProduct.images.length > 1 && (
                   <div className={styles.imageslider}>
                     <button onClick={(e) => { e.stopPropagation(); prevImage(selectedProduct.id, selectedProduct.images.length)}}>◀</button>

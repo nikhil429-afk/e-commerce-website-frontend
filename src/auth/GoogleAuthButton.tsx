@@ -82,11 +82,8 @@ function GoogleAuthButton({ mode }: Props) {
             {mode === "signup" ? "Sign up with Google" : "Continue with Google"}
           </button>
         ) : OPENED_ON_IP ? (
-          <button
-            type="button"
-            className={styles.googleFallback}
-            onClick={() => setError(`Google sign-in does not work on an IP address (${window.location.host}). Open the website at http://localhost:${window.location.port || 5173} instead.`)}
-          >
+          <button type="button" className={styles.googleFallback}
+            onClick={() => setError(`Google sign-in does not work on an IP address (${window.location.host}). Open the website at http://localhost:${window.location.port || 5173} instead.`)}>
             <GoogleG />
             {mode === "signup" ? "Sign up with Google" : "Continue with Google"}
           </button>
